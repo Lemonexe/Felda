@@ -1,0 +1,45 @@
+<div class="statsLeft" style="width: 70px; line-height: 1">
+	<span tooltip="{{tt.Fc}}">F<sub>c</sub></span><br>
+	<span tooltip="{{tt.Te}}">T<sub>e</sub></span><br>
+	<span tooltip="{{tt.FcF}}">F<sub>cF</sub></span><br>
+	<span tooltip="{{tt.TeF}}">T<sub>eF</sub></span>
+</div><div class="statsRight" style="width: 200px">
+	<span tooltip="{{tt.Fc}}">{{S.Fc.toFixed(2)}} N</span><br>
+	<span tooltip="{{tt.Te}}">{{S.T.toFixed(2)}} N·m</span><br>
+	<span tooltip="{{tt.FcF}}">{{S.FcFinal.toFixed(2)}} N</span><br>
+	<span tooltip="{{tt.TeF}}">{{S.TeFinal.toFixed(2)}} N·m</span>
+</div>
+
+<div class="statsLeft" style="width: 200px">
+	spálený benzín<br>
+	<span tooltip="{{tt.raw}}">příkon</span><br>
+	<span tooltip="{{tt.ny}}">účinnost</span><br>
+	<span tooltip="{{tt.p}}">tlak</span>
+</div><div class="statsRight" style="width: 150px">
+	{{(S.fuel / csts.rho).toFixed(3)}} l<br>
+	<span tooltip="{{tt.raw}}">{{(S.rawPower / 1000).toFixed(1)}} kW</span><br>
+	<span tooltip="{{tt.ny}}">{{st.ny()}}</span><br>
+	<span tooltip="{{tt.p}}">{{(S.pR * csts.p).toFixed(1)}} kPa</span>
+</div>
+
+<div class="statsLeft" style="width: 100px; line-height: 1">
+	<span tooltip="{{tt.Tclutch}}">T<sub>clutch</sub></span><br>
+	<span tooltip="{{tt.Tpass}}">T<sub>pass</sub></span><br>
+	<span tooltip="{{tt.df}}">&Delta;f</span><br>
+	<span tooltip="{{tt.re}}">r<sub>e</sub></span>
+</div><div class="statsRight" style="width: 140px">
+	<span tooltip="{{tt.Tclutch}}">{{S.Tclutch.toFixed()}} N·m</span><br>
+	<span tooltip="{{tt.Tpass}}">{{S.Tpass.toFixed()}} N·m</span><br>
+	<span tooltip="{{tt.df}}">{{st.df()}}</span><br>
+	<span tooltip="{{tt.re}}">{{st.re()}}</span>
+</div>
+
+<div class="statsLeft" style="width: 70px; line-height: 1">
+	<span tooltip="{{tt.EkC}}">E<sub>kC</sub></span><br>
+	<span tooltip="{{tt.EkE}}">E<sub>kE</sub></span><br>
+	<span tooltip="{{tt.EkT}}">E<sub>kT</sub></span>
+</div><div class="statsRight" style="width: 154px">
+	<span tooltip="{{tt.EkC}}">{{(S.Ek / 1000).toFixed()}} kJ</span><br>
+	<span tooltip="{{tt.EkE}}">{{(S.Eke / 1000).toFixed()}} kJ</span><br>
+	<span tooltip="{{tt.EkT}}">{{((S.Ek + S.Eke) / 1000).toFixed()}} kJ</span>
+</div>

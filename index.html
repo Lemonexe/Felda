@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html ng-app="Felda" ng-controller="ctrl">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="description" content="Nejzábavnější fyzikální simulace všech dob!">
+		<meta name="author" content="Jiří Zbytovský">
+		<title>Felda simulátor</title>
+		
+		<!--LIBS-->
+		<script src="libs/angular.min.js" type="text/javascript"></script>
+		<!--DATA-->
+		<script src="app/data.js" type="text/javascript"></script>
+		<script src="app/userdata.js" type="text/javascript"></script>
+		<!--MAIN APP-->
+		<script src="app/misc.js" type="text/javascript"></script>
+		<script src="app/model.js" type="text/javascript"></script>
+		<script src="app/render.js" type="text/javascript"></script>
+		<script src="app/level.js" type="text/javascript"></script>
+		<!--ANGULAR APP-->
+		<script src="app/controller.js" type="text/javascript"></script>
+
+		<link rel="stylesheet" href="app/style.css">
+	</head>
+	<body ng-keydown="keyPress($event, true)" ng-keyup="keyPress($event, false)">
+<div id="tooltip" ng-show="CS.tooltip.visible" ng-style="CS.tooltip.style">{{CS.tooltip.message}}</div>
+
+<div id="popup" ng-style="style.popup" ng-class="{vanish: CS.popup.timeout < 400}" ng-show="CS.popup">
+	<p ng-if="CS.popup" ng-repeat="l in CS.popup.lines track by $index">{{l}}</p>
+	<p style="text-align: center" ng-if="CS.popup && CS.popup.okButton"><input type="button" ng-click="CS.popup = false" value="OK" tooltip="Esc"></p>
+</div>
+
+<div ng-repeat="f in CS.flashes track by $index" ng-style="style.flash">
+	<div class="flash">{{f[1]}}</div>
+</div>
+
+<div ng-switch="CS.tab">
+<!-- MENU -->
+	<div ng-switch-when="menu">
+		<h1>Felda simulátor</h1>
+
+		<div class="buttonContainer">
+			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
+			<input type="button" ng-click="initGame()" value="Nová hra" class="mediumButton">
+			<input type="button" ng-click="tab('options')" value="Nastavení" class="mediumButton">
+			<input type="button" ng-click="tab('history')" ng-value="'v' + version.join('.')" class="mediumButton">
+		</div>
+
+		<p ng-if="S">
+			<b>Běžící hra</b>:
+			{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}}), {{(S.d/1000).toFixed(1)}} km<br>
+		</p>
+
+		<h2>Ovládání <span ng-click="CS.showIntro = !CS.showIntro" class="fakeLink" style="font-size: 16px">{{CS.showIntro ? 'skrýt' : 'odkrýt'}}</span></h2>
+
+		<div ng-show="CS.showIntro">
+			<p>Vítejte ve Felda simulátoru! Po výběru levelu a auta hru spusťte tlačítkem Nová hra (výše)</p>
+			<p>Pro ovládání jsou nejdůležitější pedály pro spojku a plyn, které lze posouvat myší a nebo tlačítky
+				<b>{{viewKey('cu')}}, {{viewKey('cd')}}, {{viewKey('gu')}}, {{viewKey('gd')}}</b> (popsáno přímo ve hře)
+			</p>
+			<p><b>Esc</b> pozastaví hru a otevře tuto obrazovku</p>
+			<p><b>Kolečko myši</b> přibližuje či oddaluje obraz</p>
+			<p><b>{{viewKey('brake')}}</b> aplikuje brzdu, která funguje zjednodušeně - plné sešlápnutí pedálu a bez prokluzu, kola jsou vždy přilnutá k vozovce</p>
+			<p>
+				<b>; 1 2 3 4 5 6</b> v řadě kláves nad písmeny zařadí neutrál či převod (pokud existuje)<br>
+				<b>0 1 2 3 4 5 6</b> na numerické klávesnici funguje stejně<br>
+				zpátečka zde není, protože je nezajímavá
+			</p>
+			<p><b>{{viewKey('map')}}</b> otevře minimapku - náhled terénu</p>
+			<p><b>N</b> zdvojnásobí výkon motoru vstřikováním N<sub>2</sub>O - jen pro srandu ;-)</p>
+		</div>
+
+		<h2>Výběr levelu</h2>
+		<span ng-repeat="l in levels track by $index">
+			<input type="radio" ng-model="CS.levelSelect" ng-value="$index" id="levelSelect{{$index}}">
+			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label><br>
+			<span style="padding-left: 30px">{{l.description}}</span><br>
+		</span>
+
+		<h2>Výběr automobilu</h2>
+		<span ng-repeat="c in cars track by $index">
+			<input type="radio" ng-model="CS.carSelect" ng-value="$index" id="carSelect{{$index}}">
+			<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
+			<a class="fakeLink" ng-click="tab('carShowroom'); CS.showroom = $index" tooltip="otevřít autosalón">popis</a><br>
+		</span>
+	</div>
+
+<!-- OPTIONS -->
+	<div ng-switch-when="options">
+		<h1>Nastavení</h1>
+
+		<div class="buttonContainer">
+			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
+			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
+		</div>
+
+		<p ng-if="CS.isLoadedGame">
+			Byla automaticky načtena data z minula.
+			<a class="fakeLink" onclick="confirm('Opravdu smazat data?') && saveService.clear()">Smazat a obnovit</a>
+		</p>
+		<p>&nbsp;</p>
+
+		<p>Nastavení kláves:
+			<select ng-model="ctrl.key2bind" ng-options="x.description for x in optsKeys"></select>:
+			"{{viewKey(ctrl.key2bind.action)}}"
+			<input type="button" ng-click="setKey()" onclick="this.blur()" value="Změnit">
+		</p>
+
+		<p>Jednotky rychlosti:
+			<select ng-model="CS.unitsVel">
+				<option ng-repeat="opt in optsVel track by $index" value="{{$index}}">{{opt.txt}}</option>
+			</select>, zrychlení:
+			<select ng-model="CS.unitsAcc">
+				<option ng-repeat="opt in optsAcc track by $index" value="{{$index}}">{{opt.txt}}</option>
+			</select>
+		</p>
+
+		<p tooltip="pomalejší ovládání = hladší řazení a rozjíždění">
+			Rychlost ovládání pedálů pomocí kláves:
+			<select ng-model="CS.pedalSpeed" ng-options="x for (x, y) in optsPedals"></select>
+		</p>
+
+		<p tooltip="čím vyšší, tím hezčí, ale při zasekávání programu raději snižte">
+			FPS (počet snímků za vteřinu):
+			<input type="range" min="10" max="120" step="10" ng-model="CS.FPS"> {{CS.FPS}}
+		</p>
+		<p>&nbsp;</p>
+
+		<p>
+			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert"><label for="formInvert"> obrátit ovládání pedálů</label><br>
+			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics"><label for="formGraphics"> vykreslovat grafiku</label><br>
+			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration"><label for="formVibration"> vibrace</label><br>
+			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails"><label for="formDetails"> pokročilé statistiky</label>
+			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
+		</p>
+
+		<div ng-show="showExplanation" ng-include="'app/ng/explanation.html'" style="padding-left: 50px; margin-top: 10px"></div>
+	</div>
+
+<!-- CAR SHOWROOM -->
+	<div ng-switch-when="carShowroom">
+		<h1>Autosalón</h1>
+		<div class="buttonContainer">
+			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
+			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
+		</div>
+		Připravuje se!
+	</div>
+
+<!-- GAME -->
+	<div ng-switch-when="game" id="game">
+		<div id="gameLevelTitle">{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}})</div>
+
+		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics"></canvas>
+
+		<div id="stats" ng-include="'app/ng/stats.html'" ng-style="style.stats"></div>
+
+		<div id="advanced" ng-include="'app/ng/advanced.html'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
+
+		<div id="controls" ng-style="style.controls" ng-show="!S.disable.controls">
+			<div class="ctrlContainer">
+				Spojka<br>
+				<input type="range" class="pedalSlider" orient="vertical" min="0" max="1" step="0.01" ng-model="getSetClutch" ng-model-options="{getterSetter: true}"><br>
+				{{getKey('cu')}} &uarr;<br>
+				{{getKey('cd')}} &darr;<br>
+			</div>
+
+			<div class="ctrlContainer">
+				Plyn<br>
+				<input type="range" class="pedalSlider" orient="vertical" min="0" max="1" step="0.01" ng-model="getSetGas" ng-model-options="{getterSetter: true}"><br>
+				{{getKey('gu')}} &uarr;<br>
+				{{getKey('gd')}} &darr;<br>
+			</div>
+
+			<div class="ctrlContainer">
+				<input type="button" onclick="M.start();this.blur()" value="START" class="mediumButton">
+			</div>
+
+			<div id="warning">
+				<p ng-repeat="w in warnings" ng-if="w.f()">{{w.txt}}</p>
+			</div>
+		</div>
+	</div>
+
+<!-- VERSION HISTORY -->
+	<div ng-switch-when="history">
+		<h1>Historie verzí</h1>
+		<div class="buttonContainer">
+			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc"><br>	
+		</div>
+		<table>
+			<tr ng-repeat="v in vHistory">
+				<td width="70">{{v.name}}</td><td width="130">{{v.date}}</td><td>{{v.desc}}</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div id="footer">
+	Vytvořil <a href="http://jira.zby.cz/">Jiří Zbytovský</a> v letech 2017-2019 za použití <a href="https://angularjs.org/" target="_blank">AngularJS</a>
+	a různých zdrojů (<a class="fakeLink" ng-click="disclaimer()">více informací</a>)
+</div>
+
+	</body>
+</html>

@@ -1,0 +1,53 @@
+<<<ÚHELNÝ JÁVSKÝ SCÉNÁŘ>>>
+	readme.md
+
+	kilometrovník po 0.5 km 'zn_km.png'
+	dát možnost zařadit převod kliknutím na čudlíky, které budou nakreslené jako ten pavouk řadící páky :-)
+	level preview na Tab (key already implemented)
+	autosalón
+		grafy
+	animované obrázky -> kráva, přejezd
+
+
+<<<MODEL>>>
+dát větší ztráty motoru. Tohle je fakt směšný
+	NEJPRVE udělat vykreslení. To by mohlo být v showroomu!
+	brždění motorem by mohlo být vodítko kolik to asi má být - libocký kostel @30 km/h
+
+tempomat jakožto PID regulátor. To bude zajímavá challenge na programování :-)
+	nejprve se zpřístupní v nastavení, aby to lidi nemátlo
+	getter-setter nebude potřeba. Bude to jako v autě - plyn to bude dávat skrytě a pedály budou override
+		spojka pauzne (a zase zapne až se spojí), brzda vypne, stall vypne
+
+
+
+<<<RESOURCES & CONTENT>>>
+implement zn_km.png (všude)
+
+obrázky na letišti
+	letadlo
+	havarované letadlo (animace kouře a ohně)
+
+zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
+
+víc aut? (otestovat výběr auta)
+	Škoda 105 (34 kW)
+		http://skodaps.wz.cz/S105-136_technicke_1.php
+		převodovka https://sk.wikipedia.org/wiki/%C5%A0koda_120
+		charakteristika motoru: http://skoda.panda.cz/clanek.php?id=92
+	Škoda Octavia II 2.0 FSI (110 kW)
+		dá se to najít?
+	Nějaký bávo? E39 M5 (294 kW)
+		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
+	Tatra 815? :D
+
+
+
+<<<META>>>
+English language yes okay well?
+	v HTML template by se to třeba dalo udělat celkem ědnoduše:
+	tagy <cs></cs> & <en></en> jakožto direktivy s transclude, co by kromě transkluze dělaly pouze on/off
+	dynamic title
+	publish in english
+
+Fix 'DEVELOPMENT' before publishing!

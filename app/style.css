@@ -1,0 +1,174 @@
+/*GENERAL*/
+body {
+	font-family: "Courier New";
+}
+
+p {
+	margin: 0px;
+	margin-bottom: 10px;
+}
+h1 {
+	font-size: 36px;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+h2 {
+	font-size: 24px;
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+input[type=button] {
+	cursor: pointer;
+}
+
+#footer {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	padding-left: 15px;
+	padding-right: 15px;
+	background-color: #eeeeee;
+	border-top: 1px solid #aaaaaa;
+}
+
+/*CONTROLS*/
+.mediumButton {font-size: 18px;}
+.buttonContainer {margin-bottom: 20px;}
+
+.pedalSlider {
+	writing-mode: bt-lr;
+	-webkit-appearance: slider-vertical;
+	height: 150px;
+	width: 100px;
+}
+.pedalSlider:focus {
+	outline-width: 0;
+}
+
+/*COMMUNICATION*/
+#popup {
+	z-index: 3;
+	position: absolute;
+	background-color: #dddddd;
+	border: 5px outset #888888;
+	text-align: center;
+	font-size: 18px;
+	padding: 10px;
+	padding-bottom: 0px;
+}
+.vanish {animation: vanish 0.4s linear forwards;}
+@keyframes vanish {
+	0%   {opacity: 1;}
+	100% {opacity: 0;}
+}
+
+.flash{
+	position: absolute;
+	width: 400px;
+	text-align: center;
+	font-family: Arial;
+	animation: flash 0.4s linear forwards;
+}
+@keyframes flash {
+	0%   {opacity: 1;   bottom: 0px;  font-size: 0px;}
+	50%  {opacity: 0.7; bottom: 30px; font-size: 150px;}
+	100% {opacity: 0;   bottom: 60px; font-size: 300px;}
+}
+
+.fakeLink {
+	color: #551a8b;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#tooltip {
+	position: absolute;
+	z-index: 4;
+	background-color: #dddddd;
+	border: 1px solid #888888;
+	padding: 1px 4px 1px 4px;
+	box-shadow: 1px 1px 3px black;
+	font-size: 14px;
+	color: #222222;
+	animation: appear 0.25s linear forwards;
+}
+@keyframes appear {
+	0%   {opacity: 0;}
+	40%  {opacity: 0;}
+	100% {opacity: 1;}
+}
+
+/*GAME*/
+#game {
+	font-size: 20px;
+}
+
+#gameLevelTitle {
+	position: absolute;
+	top: 5px;
+	left: 0px;
+	width: 100%;
+	text-align: center;
+	font-size: 24px;
+}
+
+#map {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	border: 1px solid black;
+}
+
+#stats {
+	position: absolute;
+	left: 0px;
+}
+#stats > div {
+	height: 140px;
+}
+.statsLeft{
+	float: left;
+	text-align: right;
+	overflow: hidden;
+	border: 1px solid black;
+	border-left: none;
+	border-right: none;
+}
+.statsRight{
+	float: left;
+	text-align: left;
+	padding-left: 15px;
+	overflow: hidden;
+	border: 1px solid black;
+	border-left: none;
+}
+
+#advanced {
+	position: absolute;
+	left: 0px;
+}
+#advanced > div {
+	height: 100px;
+}
+
+#controls {
+	position: absolute;
+	left: 0px;
+	height: 240px;
+	padding-top: 10px;
+}
+.ctrlContainer {
+	float: left;
+	text-align: center;
+}
+#warning {
+	float: left;
+	padding-left: 100px;
+	font-size: 26px;
+	font-weight: bold;
+	color: red;
+	animation: blinker 0.6s linear infinite;
+}
+@keyframes blinker {
+	50% {opacity: 0;}
+}

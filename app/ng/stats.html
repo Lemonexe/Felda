@@ -1,0 +1,40 @@
+<div class="statsLeft" style="font-size: 24px; width: 140px">
+	převod<br>
+	rychlost<br>
+	otáčky<br>
+	zrychlení<br>
+	sklon
+</div><div class="statsRight" style="font-size: 24px; width: 200px">
+	{{S.gear}}<br>
+	{{st.calculateUnit(S.v, optsVel[CS.unitsVel])}}<br>
+	{{st.f()}} RPM<br>
+	{{st.calculateUnit(S.a, optsAcc[CS.unitsAcc])}}<br>
+	{{(S.angle * 180 / 3.141592).toFixed()}}°
+</div>
+
+<div class="statsLeft" style="width: 220px" ng-show="!S.disable.stats23">
+	výkon<br>
+	točivý moment<br><br>
+	okamžitá spotřeba<br><br>
+	průměrná spotřeba
+</div><div class="statsRight" style="width: 170px" ng-show="!S.disable.stats23">
+	{{(S.P / 1000).toFixed()}} kW<br>
+	{{S.T.toFixed()}} N·m<br><br>
+	{{st.kmfuel()}} l/100km<br>
+	{{(S.consumption * 3600 / csts.rho).toFixed(1)}} l/h<br>
+	{{st.avgfuel()}} l/100km
+</div>
+
+<div class="statsLeft" style="width: 220px" ng-show="!S.disable.stats23">
+	uplynulý čas<br>
+	ujetá vzdálenost<br>
+	průměrná rychlost<br><br>
+	nadmořská výška<br>
+	<span tooltip="{{tt.ascension}}">celkové stoupání</span>
+</div><div class="statsRight" style="width: 150px" ng-show="!S.disable.stats23">
+	{{st.getTime()}}<br>
+	{{(S.d / 1000).toFixed(3)}} km<br>
+	{{st.calculateUnit(S.d / S.t, optsVel[CS.unitsVel])}}<br><br>
+	{{S.altitude.toFixed()}} m<br>
+	<span tooltip="{{tt.ascension}}">{{(S.ascension / 1000).toFixed(3)}} km</span><br>
+</div>
