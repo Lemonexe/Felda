@@ -8,6 +8,8 @@ const config = {
 	dt: 10/1000, //short time interval for the discreet simulation itself [s]
 	vibration: 40, //frequency of vibration [Hz]
 	imgLoadingArea: 1e3, //images will be split into areas of this length [m]
+	signDistance: 500, //intervals between special distance signs [m]
+	signObj: {img: 'zn_km', width: 1, height: 1}, //rendering instructions for canvas
 	ppm_min: 30, //min and max ppm (pixels per meter for graphical rendering [1/m])
 	ppm_max: 150,
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
@@ -36,11 +38,14 @@ const constants = {
 let imgs = {
 	felicia: 'res/felicia.png',
 	feliciaWH: 'res/feliciaWH.png',
+
 	cow: 'res/cow.png',
 	oak: 'res/oak.png',
 	prejezd: 'res/prejezd.png',
 	radar: 'res/radar.png',
 	smrk: 'res/smrk.png',
+
+	zn_km: 'res/zn_km.png',
 	zn_50: 'res/zn_50.png',
 	zn_prace: 'res/zn_prace.png',
 	zn_diry: 'res/zn_diry.png',

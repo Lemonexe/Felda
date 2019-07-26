@@ -84,15 +84,25 @@ const L = {
 
 		for(let i = 0; i < n; i++) {
 			field[i] = []; //new array = section with images to be rendered
+
 			//for j in possible images for this level
 			for(let j = 0; j < g.images.length; j++) {
 				//number of images within section is constant = distance * density
 				let count = Math.ceil(d * g.images[j].density);
 				for(let k = 0; k < count; k++) {
 					//each image instance has random position within section
-					let pos = Math.round(i * d + d * Math.random());
-					field[i].push([j, pos]); //push image instance as [image type, position]
+					let pos = Math.round(i*d + d*Math.random());
+					//push image instance as [image type, position], image type is a pointer to g.images (index)
+					field[i].push([j, pos]);
 				}
+			}
+
+			//distance signs - they are at fixed distance intervals, rather than randomly dispersed
+			let ds = config.signDistance
+			//for number of signs per section
+			for(j = 0; j < d / ds; j++) {
+				if(i === 0 && j === 0) {continue;} //don't draw sign at 0.0 km
+				field[i].push(['km', i*d + ds*j]); //image type is magical string instead of pointer
 			}
 		}
 

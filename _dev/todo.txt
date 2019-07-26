@@ -1,12 +1,11 @@
 <<<ÚHELNÝ JÁVSKÝ SCÉNÁŘ>>>
-	readme.md
-
-	kilometrovník po 0.5 km 'zn_km.png'
 	dát možnost zařadit převod kliknutím na čudlíky, které budou nakreslené jako ten pavouk řadící páky :-)
 	level preview na Tab (key already implemented)
 	autosalón
 		grafy
 	animované obrázky -> kráva, přejezd
+		img bude pro animaci {t: 200 (frame [ms]), src: ['img1.png', 'img2.png']}
+		a imgPreload to bude respektovat, předělá pole src na pole image elementů
 
 
 <<<MODEL>>>
@@ -22,8 +21,6 @@ tempomat jakožto PID regulátor. To bude zajímavá challenge na programování
 
 
 <<<RESOURCES & CONTENT>>>
-implement zn_km.png (všude)
-
 obrázky na letišti
 	letadlo
 	havarované letadlo (animace kouře a ohně)
@@ -51,3 +48,5 @@ English language yes okay well?
 	publish in english
 
 Fix 'DEVELOPMENT' before publishing!
+
+delet gg drive

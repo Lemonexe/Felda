@@ -24,6 +24,7 @@ let R = {
 
 		//clear whole canvas before drawing
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		//ctx.fillRect(xc, yc, 3, 3);
 
 		//x,y coordinates of center of drawing, which is located on the ground between wheels
 		//relative y position depends on angle, x could depend on velocity, but I didn't like it
@@ -65,7 +66,9 @@ let R = {
 		let ctx = this.ctx;
 
 		for(let item of area) {
-			let ref = imglib[item[0]]; //reference to preloaded image
+			let isKmSign = item[0] === 'km'; //check for magical string that denotes a special image: the distance sign
+			//reference to preloaded image
+			let ref = isKmSign ? config.signObj : imglib[item[0]];
 
 			//dimensions of image; center of drawing is center of bottom edge
 			let dw = Math.round(ref.width * ppm);
@@ -79,7 +82,16 @@ let R = {
 				dx + dw/2 > 0
 			) {
 				ctx.drawImage(imgs[ref.img], dx-dw/2, dy-dh, dw, dh);
-			}	
+
+				//write text on distance sign
+				if(isKmSign) {
+					let fontSize = (0.25*ppm).toFixed();
+					let text = (S.d/1000).toFixed(1).replace('.', ',');
+					ctx.textAlign = 'center'; ctx.fillStyle = 'black'; 
+					ctx.font = `bold ${fontSize}px Arial`;
+					ctx.fillText(text, dx, dy-dh*2/3);
+				}
+			}
 		}
 	},
 
