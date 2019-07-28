@@ -12,7 +12,9 @@ const config = {
 	signObj: {img: 'zn_km', width: 1, height: 1}, //rendering instructions for canvas
 	ppm_min: 30, //min and max ppm (pixels per meter for graphical rendering [1/m])
 	ppm_max: 150,
+	minResolution: [1150, 650], //minimal recommended resolution
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
+	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to draw plot [Hz]
 	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash
 };
 

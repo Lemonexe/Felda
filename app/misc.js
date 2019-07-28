@@ -93,6 +93,11 @@ window.onwheel = function(event) {
 	else if(event.deltaY > 0 && CS.ppm > config.ppm_min) {CS.ppm -= 5;}
 };
 
+//because there is no ngOnResize directive, I have to trigger it from outside, from a normal event listener, and then force a digest cycle
+window.onresize = function() {
+	angular.element(document).scope().resolutionCheck();
+};
+
 /*DEVELOPMENT
 window.onerror = function() {
 	alert(`FATÁLNÍ CHYBA:\n(${err})\nToto může být způsobeno starým, nekompatibilním savem.\nSave bude resetován a stránka bude obnovena`);

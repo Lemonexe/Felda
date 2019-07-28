@@ -38,9 +38,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.flash = flash;
 
 	//control variables
-	$scope.ctrl = {
+	let ctrl = {
 		key2bind: false, //selection of key to be binded
+		showroomGas: 1 //gas throttle for T,P(f) plot in car showroom
 	};
+	$scope.ctrl = ctrl;
 
 	//switch game tab
 	$scope.tab = function(tab) {
@@ -81,7 +83,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		//index of keybind that contains the selected key (for conflicts)
 		let i = CS.keyBinds.findIndex(item => item[1] === event.keyCode || item[2] === event.key)
 		//index of keybind that contains the selected function
-		let j = CS.keyBinds.findIndex(item => item[0] === $scope.ctrl.key2bind.action)
+		let j = CS.keyBinds.findIndex(item => item[0] === ctrl.key2bind.action)
 
 		//key is unchanged, do nothing
 		if(i > -1 && i === j) {
@@ -105,13 +107,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//open the prompt to set a key
 	$scope.setKey = function() {
-		if(!$scope.ctrl.key2bind) {
+		if(!ctrl.key2bind) {
 			popup('Nejprve vyberte činnost k přiřazení klávesy!', false, 1200);
 			return;
 		}
-		let opt = $scope.optsKeys.find(item => item.action === $scope.ctrl.key2bind.action); //get binding option object for current action
+		let opt = $scope.optsKeys.find(item => item.action === ctrl.key2bind.action); //get binding option object for current action
 		let desc = opt ? opt.description : 'Žádná činnost. WTF?'; //get description of action from opt
-		let keybind = CS.keyBinds.find(item => item[0] === $scope.ctrl.key2bind.action); //get current keybind for current action
+		let keybind = CS.keyBinds.find(item => item[0] === ctrl.key2bind.action); //get current keybind for current action
 		let key = keybind ? keybind[2] : 'nic'; //get key of current keybind
 
 		popup(['Vyberte klávesu pro:', desc, `(nyní nastaveno "${key}")`], true);
@@ -192,10 +194,15 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		controls: {top: '643px'}
 	};
 
+	//get available resolution
+	let getScreenSize = () => ([
+		window.innerWidth  || document.documentElement.clientWidth  || document.body.clientWidth,
+		window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+	]);
+
 	//resize responsive game elements
 	function resize() {
-		let width  = window.innerWidth  || document.documentElement.clientWidth  || document.body.clientWidth;
-		let height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+		let [width, height]  = getScreenSize();
 
 		$scope.style.flash.top = (height/2) + 'px';
 		$scope.style.flash.left = (width/2 - 200) + 'px';
@@ -221,6 +228,24 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.style.advanced.top = (hMap+142) + 'px';
 		$scope.style.controls.top = (hMap+142+hAdv) + 'px';
 	}
+
+	//check if there is enough of available resolution (and issue a warning)
+	$scope.resolutionCheck = function() {
+		let [width, height]  = getScreenSize();
+		let txt = ['VAROVÁNÍ', 'okno je příliš malé, vzhled stránky tedy může být ošklivý a nepřehledný!'];
+		let [w2small, h2small] = [width < config.minResolution[0], height < config.minResolution[1]];
+		w2small && txt.push(`Šírka: ${width } (doporučeno ${config.minResolution[0]})`);
+		h2small && txt.push(`Výška: ${height} (doporučeno ${config.minResolution[1]})`);
+
+		//if too small, generate popup
+		if(w2small || h2small) {
+			popup(txt, false, 5000, 400);
+		}
+		//if big enough and the current popup is this warning, remove the warning
+		else if(CS.popup && CS.popup.lines[0] === txt[0] && CS.popup.lines[1] === txt[1]) {
+			CS.popup = false;
+		}
+	};
 
 	//special functions to write stats
 	$scope.st = {
@@ -262,6 +287,67 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{f: () => (S.nitro && S.f > cars[S.car].engine.idleRPM), txt: 'NITRO'}
 	];
 
+	/*SHOWROOM*/
+	//showroom state variables
+	let showroom = {
+		index: 0, //index of car
+		car: null, //car reference
+		img: null, //image element of car
+		imgWH: null, //image element of car wheels
+		wheelStyles: [], //ng-style objects of wheel images
+		Tmax: 0, //max torque [N*m]
+		Tmaxf: 0, //@ frequency [RPM]
+		Pmax: 0, //max power [kW]
+		Pmaxf: 0 //@ frequency [RPM]
+	};
+	$scope.showroom = showroom
+	
+	//switch to showroom, i = index of car
+	$scope.enterShowroom = function(i) {
+		showroom.index = i;
+		showroom.car = cars[i];
+		showroom.img   = imgs[cars[i].graphic.img];
+		showroom.imgWH = imgs[cars[i].graphic.imgWH];
+		showroom.wheelStyles = cars[i].graphic.wheels.map(w => //generate ng-styles
+			({position: 'absolute', top: (w[1] - showroom.imgWH.height/2) + 'px', left: (w[0] - showroom.imgWH.width/2) + 'px'}));
+
+		$scope.tab('carShowroom');
+	};
+
+	//draw plot of torque and power as function of RPM
+	$scope.drawPlot = function() {
+		let car = showroom.car;
+		let step = 500/60; //frequency increment [Hz]
+		let fSpan = config.fPlotSpan; //span of frequency [Hz]
+		let n = Math.round((fSpan[1] - fSpan[0])/step + 1); //number of elements in vectors
+
+		let f = new Array(n).fill(0); //vector of frequency [Hz]
+		let T = new Array(n).fill(0); //vector of torque [N*m]
+		let P = new Array(n).fill(0); //vector of power [W]
+
+		//calculate f, T, P values
+		for(let i = 0; i < n; i++) {
+			f[i] = fSpan[0] + i*step;
+			T[i] = M.getTorque(showroom.index, f[i], 0, ctrl.showroomGas, false);
+			P[i] = T[i] * 2*Math.PI * f[i]
+		}
+		f = f.map(item => item*60);   //convert Hz > RPM
+		P = P.map(item => item/1000); //convert W  > kW
+
+		//find index of maximal values for T and P
+		let callback = (iMax,o,i,arr) => (o > arr[iMax]) ? i : iMax;
+		let iMaxT = T.reduce(callback, 0);
+		let iMaxP = P.reduce(callback, 0);
+
+		//maximal values
+		showroom.Tmax = T[iMaxT].toFixed(); showroom.Tmaxf = f[iMaxT].toFixed();
+		showroom.Pmax = P[iMaxP].toFixed(); showroom.Pmaxf = f[iMaxP].toFixed();
+
+		//draw plot to canvas
+		(T[iMaxT] > 0 && P[iMaxP] > 0) && R.drawPlot(f, T, P);
+	};
+
+	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
 		CS.popup = false;
@@ -326,6 +412,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			saveService.clear();
 		}
 
+		$scope.resolutionCheck();
+
 		//THE MOST IMPORTANT INTERVAL - MODEL TICK
 		$interval(M.tick, config.dt*1000);
 
@@ -342,6 +430,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	onload();
 });
 
+/*DIRECTIVES*/
 //attribute directive for custom tooltip as a replacement for title
 app.directive('tooltip', () => ({
 	restrict: 'A',

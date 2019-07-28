@@ -88,7 +88,7 @@ const M = {
 		S.gas = idling ? car.engine.idleGas : gasPedal;
 
 		//extinction lines for min and max RPM
-		//torque multiplier grows linearly from minRPM (0) to minRPM+minRPMoffset (1), then falls from maxRPM-maxRPMoffset (1) to maxRPM (0)
+		//torque multiplier grows linearly from minExt[0] (0) to minExt[1] (1), then falls from maxExt[0] (1) to maxExt[1] (0)
 		let ext = S.extinction;
 		S.gas *= (ext[0]*S.f + ext[1]).limit(0,1);
 		S.gas *= (ext[2]*S.f + ext[3]).limit(0,1);
@@ -104,11 +104,13 @@ const M = {
 	getPressure: () => (S.pR = (typeof S.altitude === 'number') ? Math.exp(S.barometricConstant * S.altitude) : 1),
 
 	//torque function T = T(f), where f is frequency, based on car specs
-	getTorque: function(f) {
-		let car = cars[S.car];
+	//this function doesn't use S, so it can be called independently... (like car showroom)
+	// c = car index, f = frequency [Hz], starter = its countdown, gas = gas throttle, nitro = is nitro active
+	getTorque: function(c, f, starter, gas, nitro) {
+		let car = cars[c];
 
 		//apply starter torque
-		if(S.starter > 0) {return car.engine.starterT;}
+		if(starter > 0) {return car.engine.starterT;}
 
 		//RPM outside operational bounds
 		if(f < car.engine.minRPM) {
@@ -130,8 +132,8 @@ const M = {
 				let x = (f - sp[i][0]) / (sp[i+1][0] - sp[i][0]);
 				let Tdiss = x*sp[i+1][1] + (1-x)*sp[i][1];
 				let Teng  = x*sp[i+1][2] + (1-x)*sp[i][2];
-				Teng *= S.gas;
-				if(S.nitro && f > car.engine.idleRPM) {Teng *= constants.N2O;}
+				Teng *= gas;
+				if(nitro && f > car.engine.idleRPM) {Teng *= constants.N2O;}
 
 				return Teng - Tdiss;
 			}
@@ -141,7 +143,7 @@ const M = {
 	//calculate all current values describing engine output
 	engine: function() {
 		//calculate torque, multiply it by relative pressure and then convert it to power
-		S.T = M.getTorque(S.f) * S.pR;
+		S.T = M.getTorque(S.car, S.f, S.starter, S.gas, S.nitro) * S.pR;
 		S.P = S.T * 2*Math.PI * S.f;
 
 		//countdown starter torque
@@ -234,7 +236,7 @@ const M = {
 			//FRICTION MODE - when frequencies are unequal, full clutch force will be used
 			//yes, even if Tpass doesn't exceed Tclutch! Clutch doesn't just serve to accelerate engine and car proportionally, but also to actually converge them first.
 			else {
-				Tpass = Tclutch;
+				Tpass = Tclutch * Math.sign(Tpass);
 				let Tinc = Math.sign(df) * Tclutch/2; //torque that IS transfered from engine to car through clutch. It adds to Te and Tc, and TRIES to bring them closer
 				Te -= Tinc;
 				Tc += Tinc;

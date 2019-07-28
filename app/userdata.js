@@ -82,7 +82,6 @@ levelSelect: 1, //current selection of level (index)
 	isLoadedGame: false, //has a game been loaded from local storage?
 	showIntro: true, //show or hide intro paragraph in menu
 	showMap: false, //draw in-game minimap of terrain
-	showroom: 0, //current car in showroom (index)
 	popup: false, //popup = false || object {lines: [strings], okButton: true, width: 300 [px], timeout: 1000 [ms]}
 	flashes: [], //flash texts (array of arrays=[timeout, text])
 	

@@ -19,9 +19,10 @@ Model je spouštěn časovačem z controlleru, avšak pro svůj běh Angular nep
 image preloading a objekt `saveService`, který slouží na ukládání/načítání uživatelských dat do Local Storage
 
 **app/controller.js** definuje angular controller. Tedy úplně vše, co se týká view/controller vrstvy aplikace, avšak kromě canvasu (viz `R`), je právě zde, naházeno bez ladu a skladu.
-Též je zde definována direktiva `tooltip` (nahrazuje defaultní HTML atribut title)
+Též je zde definována direktiva `tooltip` (nahrazuje HTML title)
 
-**app/render.js** definuje objekt `R`, který obsahuje funkce týkající se vykreslování canvasu pro herní grafiku. Angular zde není vůbec použit
+**app/render.js** definuje objekt `R`, který zajišťuje vykreslování canvasu pro herní grafiku (Angular zde není vůbec použit).  
+Též zajišťuje vykreslování grafu
 
 **app/level.js** definuje objekt `L`, který zajišťuje generaci levelů z předpisů a jejich čtení pro účely modelu
 

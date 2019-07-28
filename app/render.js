@@ -219,5 +219,108 @@ let R = {
 		let rnd = (v) => 2*v*(Math.random() - 0.5);
 		S.vibrationOffset[0] = rnd(v);
 		S.vibrationOffset[1] = rnd(v);
+	},
+
+	//draw plot from vectors of frequency (f) [RPM], torque (T) [N*m] and power (P) [kW]
+	drawPlot: function(f, T, P) {
+		let canvas = geto('plot');
+		if(!canvas) {return;}
+		let w = canvas.width;
+		let h = canvas.height;
+
+		let ctx = canvas.getContext('2d');
+		ctx.clearRect(0, 0, w, h);
+
+		//lines for axes
+		ctx.save();
+		ctx.translate(0.5, 0.5);
+
+		ctx.strokeStyle = 'black';
+		ctx.beginPath();
+		ctx.moveTo(40, 40);
+		ctx.lineTo(40, h-40); //left y axis
+		ctx.lineTo(w-40, h-40); //x axis
+		ctx.lineTo(w-40, 40); //right y axis
+		ctx.stroke();
+
+		//labels for axes
+		ctx.textAlign = 'center';
+		ctx.font = 'bold 13px Arial';
+		ctx.fillStyle = 'red';
+		ctx.fillText('P [kW]', 25, 15);
+		ctx.fillStyle = 'blue';
+		ctx.fillText('T [N·m]', w-30, 15);
+		ctx.fillStyle = 'black';
+		ctx.fillText('RPM', w/2, h-5);
+		ctx.font = 'normal 13px Arial';
+
+	//AXES
+		//find max value of y axis (max of T & P) and both min & max of x axis (frequency bounds)
+		let yMin = 0;
+		let yMax = Math.max.apply(null, T.concat(P));
+		let xMin = Math.min.apply(null, f);
+		let xMax = Math.max.apply(null, f);
+
+		//parameters for axis marks
+		let yMarkInt = (yMax - yMin > 49) ? 10 : 5; //interval of 10 kW or N*m
+		let xMarkInt = 500; //interval of 500 RPM
+		let yMarkCount = Math.round((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
+		let xMarkCount = Math.round((xMax - xMin) / xMarkInt + 1); //number of marks on x axis
+
+		//y axes - marks and numbers
+		//both T & P use the same scale for convenience - numerical values are within the same order of magnitude
+		for(let i = 0; i < yMarkCount; i++) {
+			let x1 = 40; //left axis
+			let x2 = w-40; //right axis
+			let y = (h-40) - (h-80) * i / (yMarkCount-1);
+
+			ctx.beginPath();
+			ctx.moveTo(x1, y);
+			ctx.lineTo(x1+5, y);
+			ctx.moveTo(x2, y);
+			ctx.lineTo(x2-5, y);
+			ctx.stroke();
+
+			y += 5 * (i > 0); //offset of 5 will place values in line with marks, but not zero, as it would intersect with x marks
+			ctx.textAlign = 'right';
+			ctx.fillText((yMin + i*yMarkInt).toFixed(),  x1-4, y);
+			ctx.textAlign = 'left';
+			ctx.fillText((yMin + i*yMarkInt).toFixed(),  x2+4, y);
+		}
+
+		//x axis - marks and numbers
+		ctx.textAlign = 'center';
+		for(let i = 0; i < xMarkCount; i++) {
+			let x = 40 + (w-80) * i / (xMarkCount-1);
+			let y = h - 40;
+
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(x, y-5);
+			ctx.stroke();
+
+			ctx.fillText((xMin + i*xMarkInt).toFixed(),  x, y+15);
+		}
+
+	//CHARTS
+		//draw the data line itself from x points and y points
+		function drawDataset(color, xset, yset) {
+			ctx.beginPath();
+			//for i in points
+			for(let i = 0; i < yset.length; i++) {
+				let x = 40   + (w-80) * (xset[i] - xMin) / (xMax - xMin);
+				let y = h-40 - (h-80) * (yset[i] - yMin) / (yMax - yMin);
+				(i === 0) && ctx.moveTo(x, y);
+ 				(i > 0)   && ctx.lineTo(x, y);
+			}
+			ctx.strokeStyle = color;
+			ctx.stroke();
+		}
+
+		//draw P and T
+		drawDataset('blue', f, P);
+		drawDataset('red',  f, T);
+
+		ctx.restore();
 	}
 };

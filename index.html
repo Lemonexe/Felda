@@ -49,11 +49,15 @@
 			<b>Běžící hra</b>:
 			{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}}), {{(S.d/1000).toFixed(1)}} km<br>
 		</p>
+		<div ng-if="!S">
+			<p>Vítejte ve Felda simulátoru - nejzábavnější fyzikální simulaci všech dob, kde se konečně můžete posadit za <s>volant</s> pedály a řadící páku známého lidového vozítka!</p>
+			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky, které můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
+			<p>Po výběru levelu a auta hru spusťte tlačítkem Nová hra (výše)</p>
+		</div>
 
 		<h2>Ovládání <span ng-click="CS.showIntro = !CS.showIntro" class="fakeLink" style="font-size: 16px">{{CS.showIntro ? 'skrýt' : 'odkrýt'}}</span></h2>
 
 		<div ng-show="CS.showIntro">
-			<p>Vítejte ve Felda simulátoru! Po výběru levelu a auta hru spusťte tlačítkem Nová hra (výše)</p>
 			<p>Pro ovládání jsou nejdůležitější pedály pro spojku a plyn, které lze posouvat myší a nebo tlačítky
 				<b>{{viewKey('cu')}}, {{viewKey('cd')}}, {{viewKey('gu')}}, {{viewKey('gd')}}</b> (popsáno přímo ve hře)
 			</p>
@@ -80,7 +84,7 @@
 		<span ng-repeat="c in cars track by $index">
 			<input type="radio" ng-model="CS.carSelect" ng-value="$index" id="carSelect{{$index}}">
 			<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
-			<a class="fakeLink" ng-click="tab('carShowroom'); CS.showroom = $index" tooltip="otevřít autosalón">popis</a><br>
+			<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón">popis</a><br>
 		</span>
 	</div>
 
@@ -138,12 +142,7 @@
 
 <!-- CAR SHOWROOM -->
 	<div ng-switch-when="carShowroom">
-		<h1>Autosalón</h1>
-		<div class="buttonContainer">
-			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
-			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
-		</div>
-		Připravuje se!
+		<div ng-include="'app/ng/showroom.html'"></div>
 	</div>
 
 <!-- GAME -->
@@ -195,6 +194,7 @@
 	</div>
 </div>
 
+<div class="footerDefense"></div>
 <div id="footer">
 	Vytvořil <a href="http://jira.zby.cz/">Jiří Zbytovský</a> v letech 2017-2019 za použití <a href="https://angularjs.org/" target="_blank">AngularJS</a>
 	a různých zdrojů (<a class="fakeLink" ng-click="disclaimer()">více informací</a>)
