@@ -133,6 +133,7 @@
 			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert"><label for="formInvert"> obrátit ovládání pedálů</label><br>
 			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics"><label for="formGraphics"> vykreslovat grafiku</label><br>
 			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration"><label for="formVibration"> vibrace</label><br>
+			<input type="checkbox" ng-model="CS.enablePID" id="formPID"><label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
 			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails"><label for="formDetails"> pokročilé statistiky</label>
 			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
 		</p>
@@ -170,8 +171,27 @@
 				{{getKey('gd')}} &darr;<br>
 			</div>
 
-			<div class="ctrlContainer">
-				<input type="button" onclick="M.start();this.blur()" value="START" class="mediumButton">
+			<div class="ctrlContainer" style="text-align: left">
+				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
+
+				<!--only when PID enabled-->
+				<span ng-if="CS.enablePID && !S.tutorial"><br>
+					<input type="button" value="tempomat" style="width: 76px; margin-bottom: 5px" tooltip="levý klik zapne, pravý vypne"
+						onclick="M.setPID(); this.blur()" oncontextmenu="M.remPID(); this.blur(); event.preventDefault()"><br>
+
+					<!--when PID currently running-->
+					<span ng-show="S.vTarget">
+						<span tooltip="nastavená hodnota tempomatu">&rarr; {{st.calculateUnit(S.vTarget, optsVel[CS.unitsVel])}}</span><br>
+
+						<!--advanced PID details-->
+						<span ng-show="CS.enableDetails">
+							<span tooltip="plyn (člen proporcionální)">P {{S.PID[0].toPercent()}}</span><br>
+							<span tooltip="plyn (člen integrační)">I {{S.PID[1].toPercent()}}</span><br>
+							<span tooltip="plyn (člen derivační)">D {{S.PID[2].toPercent()}}</span><br>
+							<span tooltip="plyn (výsledný)">&sum; {{S.gas.toPercent()}}</span>
+						</span>
+					</span>
+				</span>
 			</div>
 
 			<div id="warning">

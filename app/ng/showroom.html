@@ -30,7 +30,7 @@
 		<p>
 			Plyn:
 			<input type="range" style="width: 200px" min="0.2" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPlot()">
-			{{(ctrl.showroomGas * 100).toFixed()}} %
+			{{ctrl.showroomGas.toPercent()}}
 		</p>
 		<p>&nbsp;</p>
 

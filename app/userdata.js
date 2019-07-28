@@ -67,6 +67,11 @@ function State(i, c) {return {
 		stats23: false,
 	},
 
+	//PID controller
+	vTarget: false, //target speed for cruise control as number [m/s] or false (cruise control off)
+	PIDmemory: [0, 0], //[error previous, integral]
+	PID: [0, 0, 0], //gas throttle from [proportional, integrational, derivational] formula (for view)
+
 	//current vibration offset x && y [px]
 	//(actually a view related value, but very closely tied to model!)
 	vibrationOffset: [0, 0]
@@ -102,13 +107,14 @@ levelSelect: 1, //current selection of level (index)
 
 	enableGraphics: true,
 	enableVibration: true,
+	enablePID: false, //show cruise control button
 	enableDetails: false,
 
 	//is key currently being binded?
 	keyBinding: false,
 
 	//current keyBinds, some can be changed. ['action', 'keyCode', 'key']
-	//window.onkeypress = (e) => console.log(e.keyCode+', \''+e.key+'\'')
+	//window.onkeydown = (e) => console.log(e.keyCode+', \''+e.key+'\'')
 	keyBinds: [
 		['esc', 27, 'Escape'],
 		['brake', 32, ' '],

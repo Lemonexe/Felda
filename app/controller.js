@@ -283,7 +283,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{f: () => (S.f > 0 && S.f < cars[S.car].engine.minRPM && S.starter <= 0), txt: 'motor chcípe'},
 		{f: () => (S.f + 2 > cars[S.car].engine.maxRPM), txt: '!!! KRITICKÉ PŘETÁČENÍ MOTORU !!!'}, // 2 Hz (120 RPM) tolerance
 		{f: () => (S.f > cars[S.car].engine.redlineRPM && S.f + 2 < cars[S.car].engine.maxRPM), txt: 'přetáčení motoru'},
-		{f: () => (S.brakes), txt: 'brzda'},
+		{f: () => (S.brakes && !S.disable.brakes), txt: 'brzda'},
 		{f: () => (S.nitro && S.f > cars[S.car].engine.idleRPM), txt: 'NITRO'}
 	];
 

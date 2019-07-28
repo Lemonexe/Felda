@@ -283,9 +283,9 @@ let R = {
 
 			y += 5 * (i > 0); //offset of 5 will place values in line with marks, but not zero, as it would intersect with x marks
 			ctx.textAlign = 'right';
-			ctx.fillText((yMin + i*yMarkInt).toFixed(),  x1-4, y);
+			ctx.fillText((yMin + i*yMarkInt).toFixed(), x1-4, y);
 			ctx.textAlign = 'left';
-			ctx.fillText((yMin + i*yMarkInt).toFixed(),  x2+4, y);
+			ctx.fillText((yMin + i*yMarkInt).toFixed(), x2+4, y);
 		}
 
 		//x axis - marks and numbers

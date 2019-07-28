@@ -10,11 +10,7 @@
 dát větší ztráty motoru. Tohle je fakt směšný
 	brždění motorem by mohlo být vodítko kolik to asi má být - libocký kostel @30 km/h
 
-tempomat jakožto PID regulátor. To bude zajímavá challenge na programování :-)
-	nejprve se zpřístupní v nastavení, aby to lidi nemátlo
-	getter-setter nebude potřeba. Bude to jako v autě - plyn to bude dávat skrytě a pedály budou override
-		spojka pauzne (a zase zapne až se spojí), brzda vypne, stall vypne
-
+? automatická převodovka?
 
 
 <<<RESOURCES & CONTENT>>>

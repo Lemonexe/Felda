@@ -14,6 +14,8 @@ const config = {
 	ppm_max: 150,
 	minResolution: [1150, 650], //minimal recommended resolution
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
+	integratorSwitch: 5, //in PID controller, integrator is turned off when velocity error is GREATER than this threshold, to prevent oscillation [m/s]
+	derivatorSwitch: 0.5, //derivator is turned off when velocity error is LOWER than this threshold [m/s]
 	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to draw plot [Hz]
 	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash
 };
@@ -122,7 +124,7 @@ const cars = [
 			maxRPM: 8000/60, //[Hz] no power above this point
 			minExt: [500/60, 600/60], //[Hz] intervals of extinction lines (see model.js)
 			maxExt: [7980/60, 8080/60],
-			redlineRPM: 6000/60, //[Hz] warning shows up
+			redlineRPM: 6000/60, //[Hz] warning shows up and PID turns off
 			vibRPM: 5000/60, //[Hz] everything starts to vibrate insanely
 			//function T(f) for dissipative torque [N*m] if RPM < minRPM  or RPM > maxRPM
 			TdissUnder: f => 5,
@@ -131,6 +133,7 @@ const cars = [
 			idleGas: 0.0805, //gas throttle during idling
 			starter: 2, //how long does starting take [s]
 			starterT: 7, //starter torque [N*m]
+			PID: [0.5, 10, 1], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
 			specs: [
 				[500/60, 6, 76],
@@ -275,7 +278,7 @@ const tutorialFunctions = {
 	onstart: function() {
 		S.tutorial = true; //has the effect that popups pause the game
 		S.script = 0; //control variable to advance through the story
-		S.stalls = -1; //counter of stalls, excluding the scripted one
+		S.stalls = 0; //counter of stalls
 		S.gear = '2';
 		S.v = 10;
 		S.a = 0;
@@ -342,7 +345,7 @@ const tutorialFunctions = {
 				false, false, 500);
 		}
 	},
-	onend: function() {popup(['Dosáhli jste konce dráhy tutorialu. To jsem tedy fakt nečekal!', 'Pokud jste jej ale nedokončili, je třeba jej znovu spustit z menu.']);},
+	onend: function() {popup(['Dosáhli jste konce dráhy tutorialu. To jsem tedy fakt nečekal!', 'Pokud jste jej ale nedokončili, je třeba jej znovu spustit z menu.'], false, false, 400);},
 	onstall: function() {
 		(S.stalls === 0) && popup(['Motor chcípl!',
 			'To se stane buď při startování (je třeba více plynu a rozhodně mít zařazenou jedničku), nebo při zabrždění (je třeba stisknout spojku, nebo naopak zrychlit).'],

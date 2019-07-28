@@ -9,6 +9,7 @@ const M = {
 		if(!S || !S.running || (S.tutorial && CS.popup)) {return;}
 
 		M.processPedals();
+		M.PID();
 		M.getPressure();
 		M.engine();
 		M.forceExchange();
@@ -252,7 +253,7 @@ const M = {
 		if(S.f < 0) {S.f = 0;}
 		if(S.v < 0) {S.v = 0;}
 
-		//acceleration has to be calculated this way, because (Fc/car.m) can be negative while car is still
+		//acceleration [m/s^2] has to be calculated this way, because (Fc/car.m) can be negative while car is still
 		S.a = (S.v - oldv) / config.dt;
 
 		//just for advanced statistics
@@ -270,6 +271,67 @@ const M = {
 		//detect engine stall
 		if(S.f === 0 && oldf !== 0) {
 			exec(levels[S.level.i].listeners.onstall);
+			M.remPID();
+		}
+	},
+
+	//operation of cruise control as a PID controller (proportional–integral–derivative controller)
+	//in our case, derivative part isn't important
+	PID: function() {
+		//cruise control is off
+		if(!S.vTarget || !CS.enablePID) {return;}
+		//turn off
+		if(S.brakes || S.f > cars[S.car].engine.redlineRPM) {
+			M.remPID();
+			return;
+		}
+		//pause
+		if(S.clutch < 0.99 || S.gear === 'N' || S.nitro) {
+			S.PID = [0, 0, 0];
+			return;
+		}
+
+		//calculation of gas throttle
+		let [r0, Ti, Td] = cars[S.car].engine.PID; //PID parameters
+		r0 /= cars[S.car].transmission.gears[S.gear]; //r0 (gain) is corrected by gear value. Lower gear = more sensitive system, therefore lower gain
+		let [ep, int] = S.PIDmemory; //error previous, integral
+		let dt = config.dt;
+		let e = S.vTarget - S.v; //velocity difference [m/s] = ERROR VALUE
+
+		int     = (Math.abs(e) < config.integratorSwitch) ?  int + e*dt : 0; //integrale: integrator is turned off when (e > threshold), to prevent oscillation
+		let der = (Math.abs(e) > config.derivatorSwitch)  ? (e - ep)/dt : 0; //derivation: derivator is turned off when (e < threshold), to prevent oscillation
+
+		//ＡＥＳＴＨＥＴＨＩＣ　ＣＯＤＥ
+		let P = r0 * e;
+		let I = r0 * int / Ti;
+		let D = r0 * der * Td;
+
+		S.PID = [P, I, D];
+
+		//gas value = CORRECTION
+		let gas = P + I + D;
+		gas = gas.limit(0, 1);
+		
+		//update logs
+		S.PIDmemory[0] = e;
+		S.PIDmemory[1] = int;
+
+		//PID acts after pedals, so it will only set the final gas value if it's greater than the pedal value
+		(gas > S.gas) && (S.gas = gas);
+	},
+	//set target velocity for cruise control, also PID reset history
+	setPID: function() {
+		if(S.v > 3) {
+			S.vTarget = S.v;
+			S.PIDmemory = [0, 0];
+		}
+	},
+	//remove target velocity (turn off PID, delete history)
+	remPID: function() {
+		if(S.vTarget) {
+			S.vTarget = false;
+			S.PIDmemory = [0, 0];
+			flash('🚫');
 		}
 	}
 };
