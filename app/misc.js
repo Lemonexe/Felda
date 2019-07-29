@@ -3,7 +3,7 @@
 	declares state objects, defines some generic functions, saveService etc.
 */
 
-//state objects: S is for mdoel (variables related to simulation), CS for view & controller
+//state objects: S is for model (variables related to simulation), CS for view & controller
 let S;
 let CS = ControllerState();
 

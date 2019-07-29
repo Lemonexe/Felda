@@ -10,6 +10,7 @@
 function State(i, c) {return {
 	running: false, //to pause simulation
 	finished: false, //when the whole level length is travelled
+
 	//level object
 	level: {
 		i: i, //index of current level
@@ -21,6 +22,7 @@ function State(i, c) {return {
 		//array of arrays - level is divided into sectors of config.imgLoadingArea [m], each is collection of generated images
 		images: L.imageGeneration(levels[i])
 	},
+
 	car: c, //index of current car
 	firstTick: false, //first iteration has been calculated
 
@@ -64,7 +66,7 @@ function State(i, c) {return {
 		keys: false,
 		brakes: false,
 		controls: false,
-		stats23: false,
+		stats23: false
 	},
 
 	//PID controller
@@ -108,6 +110,7 @@ levelSelect: 1, //current selection of level (index)
 	enableGraphics: true,
 	enableVibration: true,
 	enablePID: false, //show cruise control button
+	enableAutomat: false,
 	enableDetails: false,
 
 	//is key currently being binded?

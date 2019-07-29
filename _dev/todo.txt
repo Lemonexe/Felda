@@ -10,8 +10,6 @@
 dát větší ztráty motoru. Tohle je fakt směšný
 	brždění motorem by mohlo být vodítko kolik to asi má být - libocký kostel @30 km/h
 
-? automatická převodovka?
-
 
 <<<RESOURCES & CONTENT>>>
 obrázky na letišti
@@ -31,6 +29,8 @@ víc aut? (otestovat výběr auta)
 		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
 	Tatra 815? :D
 
+@zbycz custom real world level
+	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
 
 <<<META>>>

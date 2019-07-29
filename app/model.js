@@ -10,6 +10,7 @@ const M = {
 
 		M.processPedals();
 		M.PID();
+		M.automat();
 		M.getPressure();
 		M.engine();
 		M.forceExchange();
@@ -47,6 +48,7 @@ const M = {
 
 	//turn on the engine starter
 	start: function() {
+		if(!S.running) {return;}
 		if(S.f < cars[S.car].engine.minRPM) {
 			if((S.gear === 'N' || S.clutch < 1e-2)) {
 				//set starter timeout
@@ -332,6 +334,22 @@ const M = {
 			S.vTarget = false;
 			S.PIDmemory = [0, 0];
 			flash('🚫');
+		}
+	},
+
+	//a very simple function to shift gears when RPM exceed bounds (which are a property of car)
+	//no clutch is used, gears are thrown in "dirty"
+	automat: function() {
+		if(!CS.enableAutomat || S.f < 10 || S.clutch < 0.99 || S.gear === 'N') {return;}
+		let trans = cars[S.car].transmission;
+		
+		if     (S.f < trans.automat[0]) {var newGear = String(Number(S.gear) - 1);}
+		else if(S.f > trans.automat[1]) {var newGear = String(Number(S.gear) + 1);}
+		else {return;}
+
+		if(trans.gears.hasOwnProperty(newGear)) {
+			S.gear = newGear;
+			flash(newGear);
 		}
 	}
 };

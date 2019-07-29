@@ -8,19 +8,24 @@
 		
 		<!--LIBS-->
 		<script src="libs/angular.min.js" type="text/javascript"></script>
+
 		<!--DATA-->
 		<script src="app/data.js" type="text/javascript"></script>
 		<script src="app/userdata.js" type="text/javascript"></script>
+
 		<!--MAIN APP-->
 		<script src="app/misc.js" type="text/javascript"></script>
 		<script src="app/model.js" type="text/javascript"></script>
 		<script src="app/render.js" type="text/javascript"></script>
 		<script src="app/level.js" type="text/javascript"></script>
+
 		<!--ANGULAR APP-->
 		<script src="app/controller.js" type="text/javascript"></script>
 
+		<!--CSS-->
 		<link rel="stylesheet" href="app/style.css">
 	</head>
+
 	<body ng-keydown="keyPress($event, true)" ng-keyup="keyPress($event, false)">
 <div id="tooltip" ng-show="CS.tooltip.visible" ng-style="CS.tooltip.style">{{CS.tooltip.message}}</div>
 
@@ -134,6 +139,7 @@
 			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics"><label for="formGraphics"> vykreslovat grafiku</label><br>
 			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration"><label for="formVibration"> vibrace</label><br>
 			<input type="checkbox" ng-model="CS.enablePID" id="formPID"><label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
+			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat"><label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
 			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails"><label for="formDetails"> pokročilé statistiky</label>
 			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
 		</p>

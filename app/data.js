@@ -112,7 +112,8 @@ const cars = [
 				3: 1.267,
 				4: 0.927,
 				5: 0.717
-			}
+			},
+			automat: [1500/60, 5000/60] //span of permissible frequency for automatic transmission [Hz]
 		},
 
 		//describes engine power and dissipative forces
@@ -215,7 +216,7 @@ const levels = [
 			int: 100, //distance between map points [m]
 			baseAlt: 50, //base altitude [m]
 			length: 1e5, //length of level [m]
-			//each noise: [interval, maxAltitude] as [m]
+			//only when f === 'noise'. Each noise: [interval, maxAltitude] as [m]
 			noises: [
 				[5000, 350], //4.0°
 				[2000, 110], //3.1°
