@@ -55,8 +55,10 @@
 			{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}}), {{(S.d/1000).toFixed(1)}} km<br>
 		</p>
 		<div ng-if="!S">
-			<p>Vítejte ve Felda simulátoru - nejzábavnější fyzikální simulaci všech dob, kde se konečně můžete posadit za <s>volant</s> pedály a řadící páku známého lidového vozítka!</p>
-			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky, které můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
+			<p>Vítejte ve Felda simulátoru - nejzábavnější fyzikální simulaci všech dob, kde můžete ovládat toto známé lidové vozítko!</p>
+			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky.<br>
+				Ty můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
+			<p>Je doporučeno hrát na počítači s klávesnicí, avšak lze se bez ní obejít <i>(viz Ovládání)</i></p>
 			<p>Po výběru levelu a auta hru spusťte tlačítkem Nová hra (výše)</p>
 		</div>
 
@@ -71,8 +73,9 @@
 			<p><b>{{viewKey('brake')}}</b> aplikuje brzdu, která funguje zjednodušeně - plné sešlápnutí pedálu a bez prokluzu, kola jsou vždy přilnutá k vozovce</p>
 			<p>
 				<b>; 1 2 3 4 5 6</b> v řadě kláves nad písmeny zařadí neutrál či převod (pokud existuje)<br>
-				<b>0 1 2 3 4 5 6</b> na numerické klávesnici funguje stejně<br>
-				zpátečka zde není, protože je nezajímavá
+				<b>0</b> až <b>6</b> na numerické klávesnici funguje stejně<br>
+				Avšak lze využít i myš, pokud v nastavení zapnete možnost <i>zobrazit řadící páku</i><br>
+				Zpátečka zde není, protože je nezajímavá
 			</p>
 			<p><b>{{viewKey('map')}}</b> otevře minimapku - náhled terénu</p>
 			<p><b>N</b> zdvojnásobí výkon motoru vstřikováním N<sub>2</sub>O - jen pro srandu ;-)</p>
@@ -120,6 +123,9 @@
 			</select>, zrychlení:
 			<select ng-model="CS.unitsAcc">
 				<option ng-repeat="opt in optsAcc track by $index" value="{{$index}}">{{opt.txt}}</option>
+			</select>, výkonu:
+			<select ng-model="CS.unitsPow">
+				<option ng-repeat="opt in optsPow track by $index" value="{{$index}}">{{opt.txt}}</option>
 			</select>
 		</p>
 
@@ -135,12 +141,26 @@
 		<p>&nbsp;</p>
 
 		<p>
-			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert"><label for="formInvert"> obrátit ovládání pedálů</label><br>
-			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics"><label for="formGraphics"> vykreslovat grafiku</label><br>
-			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration"><label for="formVibration"> vibrace</label><br>
-			<input type="checkbox" ng-model="CS.enablePID" id="formPID"><label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
-			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat"><label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
-			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails"><label for="formDetails"> pokročilé statistiky</label>
+			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics">
+			<label for="formGraphics"> vykreslovat grafiku</label><br>
+
+			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration">
+			<label for="formVibration"> vibrace</label><br>
+			
+			<input type="checkbox" ng-model="CS.enablePID" id="formPID">
+			<label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
+			
+			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat">
+			<label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
+			
+			<input type="checkbox" ng-model="CS.enableGearstick" id="formGearstick">
+			<label for="formGearstick" tooltip="jako alternativní způsob řazení vedle kláves"> zobrazit řadící páku</label><br>
+
+			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert" ng-change="invertPedals()">
+			<label for="formInvert" tooltip="pedály budou mít opačný význam"> obrátit ovládání pedálů</label><br>
+			
+			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails">
+			<label for="formDetails"> pokročilé statistiky</label>
 			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
 		</p>
 
@@ -177,7 +197,7 @@
 				{{getKey('gd')}} &darr;<br>
 			</div>
 
-			<div class="ctrlContainer" style="text-align: left">
+			<div class="ctrlContainer" style="text-align: left; width: 130px;">
 				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
 
 				<!--only when PID enabled-->
@@ -198,6 +218,13 @@
 						</span>
 					</span>
 				</span>
+			</div>
+
+			<div class="ctrlContainer" ng-show="CS.enableGearstick" style="padding-left: 20px">
+				<div style="position: relative">
+					<canvas id="gearstick" width="200" height="200" ng-init="drawGearstick()"></canvas>
+					<div ng-repeat="g in gearstickAreas" ng-click="shiftGear(g.txt)" ng-style="gearstickAreaStyle(g)"></div>
+				</div>
 			</div>
 
 			<div id="warning">

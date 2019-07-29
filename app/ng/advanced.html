@@ -17,7 +17,7 @@
 	<span tooltip="{{tt.p}}">tlak</span>
 </div><div class="statsRight" style="width: 150px">
 	{{(S.fuel / csts.rho).toFixed(3)}} l<br>
-	<span tooltip="{{tt.raw}}">{{(S.rawPower / 1000).toFixed(1)}} kW</span><br>
+	<span tooltip="{{tt.raw}}">{{st.calculateUnit(S.rawPower, optsPow[CS.unitsPow])}}</span><br>
 	<span tooltip="{{tt.ny}}">{{st.ny()}}</span><br>
 	<span tooltip="{{tt.p}}">{{(S.pR * csts.p).toFixed(1)}} kPa</span>
 </div>

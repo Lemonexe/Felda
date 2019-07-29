@@ -27,7 +27,6 @@ víc aut? (otestovat výběr auta)
 		dá se to najít?
 	Nějaký bávo? E39 M5 (294 kW)
 		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
-	Tatra 815? :D
 
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
@@ -41,5 +40,9 @@ English language yes okay well?
 	publish in english
 
 Fix 'DEVELOPMENT' before publishing!
+
+test on FF
+test on Edge
+test on Android (tablet)
 
 delet gg drive

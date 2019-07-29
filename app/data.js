@@ -304,7 +304,8 @@ const tutorialFunctions = {
 			popup(['Nyní se zpřístupní ovládání.',
 				'Nejdůležitější jsou dva posuvníky, které představují pedály spojky a plynu.',
 				'Když jsou nahoře, je to jako když jsou pedály volné a když s nimi pohybujete dolů, je to jako když pedály sešlapujete.',
-				'Posuvníky se ovládají myší a nebo tlačítky, které jsou u nich uvedené. Zkuste pomocí plynu zrychlit na 120 km/h.'],
+				'Posuvníky se ovládají myší a nebo tlačítky, které jsou u nich uvedené. Zkuste pomocí plynu zrychlit na 120 km/h.',
+				'Pozn.: v nastavení lze význam pedálů obrátit'],
 				false, false, 500);
 		}
 		else if(S.f >= 8000/60 && S.script === 1) {
@@ -341,8 +342,9 @@ const tutorialFunctions = {
 			S.disable.stats23 = false;
 
 			popup(['Skvělá práce!', 'Můžete si nyní vyzkoušet brzdu (mezerník).',
-				'Už zbývá jen popsat zbývající údaje: spotřeba paliva (můžete zkoumat vliv stylu jízdy na spotřebu), aktuální výkon a točivý moment, ujetá vzdálenost apod.',
-				'Tlačítkem Esc se dostanete do hlavního menu, kde můžete spustit normální hru.'],
+				'Už zbývá jen popsat zbývající údaje: spotřeba paliva, aktuální výkon a točivý moment, ujetá vzdálenost apod.',
+				'Tlačítkem Esc se dostanete do hlavního menu, kde můžete spustit normální hru.',
+				'Nezapomeňte si také prohlédnout Nastavení, kde lze hru přizpůsobit dle chuti či vyzkoušet různé speciální funkce: tempomat, automatické řazení, řazení pomocí myši či detailní údaje.'],
 				false, false, 500);
 		}
 	},

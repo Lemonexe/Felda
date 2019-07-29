@@ -55,6 +55,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.getSetGas    = newVal => (typeof newVal === 'number') ? (S.gasSlider    = newVal) : S.gasSlider;
 	$scope.getSetClutch = newVal => (typeof newVal === 'number') ? (S.clutchSlider = newVal) : S.clutchSlider;
 
+	//one-time pedal inversion (when the option is changed)
+	$scope.invertPedals = function() {
+		if(!S) {return;}
+		S.gasSlider    = 1 - S.gasSlider;
+		S.clutchSlider = 1 - S.clutchSlider;
+	};
+
 	//keyPress function - call appropriate listener function or bindKey. While identifying key, event.keyCode is prefered, event.key is fallback
 	$scope.keyPress = function(event, down) {
 		//hardcoded escape - it is available anywhere
@@ -178,6 +185,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{val: 1/constants.g, txt: 'g', dgt: 3},
 		{val: 1, txt: 'm/s²', dgt: 2}
 	];
+	//power units: same structure as velocity
+	$scope.optsPow = [
+		{val: 1e-3,     txt: 'kW', dgt: 0},
+		{val: 1.341e-3, txt: 'hp', dgt: 0}
+	];
 	//pedal operation duration: select text, duration [s]
 	$scope.optsPedals = {
 		'pomalá (0.7s)':  0.7,
@@ -297,7 +309,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		wheelStyles: [], //ng-style objects of wheel images
 		Tmax: 0, //max torque [N*m]
 		Tmaxf: 0, //@ frequency [RPM]
-		Pmax: 0, //max power [kW]
+		Pmax: 0, //max power [W]
 		Pmaxf: 0 //@ frequency [RPM]
 	};
 	$scope.showroom = showroom
@@ -332,7 +344,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			P[i] = T[i] * 2*Math.PI * f[i]
 		}
 		f = f.map(item => item*60);   //convert Hz > RPM
-		P = P.map(item => item/1000); //convert W  > kW
 
 		//find index of maximal values for T and P
 		let callback = (iMax,o,i,arr) => (o > arr[iMax]) ? i : iMax;
@@ -340,11 +351,14 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		let iMaxP = P.reduce(callback, 0);
 
 		//maximal values
-		showroom.Tmax = T[iMaxT].toFixed(); showroom.Tmaxf = f[iMaxT].toFixed();
-		showroom.Pmax = P[iMaxP].toFixed(); showroom.Pmaxf = f[iMaxP].toFixed();
+		showroom.Tmax = T[iMaxT]; showroom.Tmaxf = f[iMaxT];
+		showroom.Pmax = P[iMaxP]; showroom.Pmaxf = f[iMaxP];
+
+		let unit = $scope.optsPow[CS.unitsPow]; //unit of power
+		P = P.map(item => item * unit.val); //convert W  > unit of power
 
 		//draw plot to canvas
-		(T[iMaxT] > 0 && P[iMaxP] > 0) && R.drawPlot(f, T, P);
+		(T[iMaxT] > 0 && P[iMaxP] > 0) && R.drawPlot(f, T, P, unit.txt);
 	};
 
 	/*CONTROL GAME*/
@@ -388,6 +402,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		}
 		(CS.popup.timeout <= 0) && (CS.popup = false);
 	}
+
+	//use canvas to render gearstick and use angular to create clickable areas
+	$scope.drawGearstick = () => ($scope.gearstickAreas = R.drawGearstick()); //draw canvas and get clickable areas
+	$scope.gearstickAreas = [];
+	$scope.gearstickAreaStyle = g => ({position: 'absolute', top: g.y, left: g.x, width: g.w, height: g.h}); //get ng-style for clickable area
+	$scope.shiftGear = g => M.shift(g); //throw in a gear
 
 	//execute each FPS: resize, decrement countdowns, draw game, schedule new FPS call
 	function FPS() {

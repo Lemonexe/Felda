@@ -18,7 +18,7 @@
 	okamžitá spotřeba<br><br>
 	průměrná spotřeba
 </div><div class="statsRight" style="width: 170px" ng-show="!S.disable.stats23">
-	{{(S.P / 1000).toFixed()}} kW<br>
+	{{st.calculateUnit(S.P, optsPow[CS.unitsPow])}}<br>
 	{{S.T.toFixed()}} N·m<br><br>
 	{{st.kmfuel()}} l/100km<br>
 	{{(S.consumption * 3600 / csts.rho).toFixed(1)}} l/h<br>

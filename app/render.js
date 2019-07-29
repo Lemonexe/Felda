@@ -222,7 +222,7 @@ let R = {
 	},
 
 	//draw plot from vectors of frequency (f) [RPM], torque (T) [N*m] and power (P) [kW]
-	drawPlot: function(f, T, P) {
+	drawPlot: function(f, T, P, pUnit) {
 		let canvas = geto('plot');
 		if(!canvas) {return;}
 		let w = canvas.width;
@@ -247,7 +247,7 @@ let R = {
 		ctx.textAlign = 'center';
 		ctx.font = 'bold 13px Arial';
 		ctx.fillStyle = 'red';
-		ctx.fillText('P [kW]', 25, 15);
+		ctx.fillText(`P [${pUnit}]`, 25, 15);
 		ctx.fillStyle = 'blue';
 		ctx.fillText('T [N·m]', w-30, 15);
 		ctx.fillStyle = 'black';
@@ -263,9 +263,12 @@ let R = {
 
 		//parameters for axis marks
 		let yMarkInt = (yMax - yMin > 49) ? 10 : 5; //interval of 10 kW or N*m
-		let xMarkInt = 500; //interval of 500 RPM
-		let yMarkCount = Math.round((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
-		let xMarkCount = Math.round((xMax - xMin) / xMarkInt + 1); //number of marks on x axis
+		yMax = yMarkInt * Math.ceil(yMax / yMarkInt); //recalculate max value of y axis to be divisible by the interval
+		let yMarkCount = Math.ceil((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
+		
+		let xMarkInt = 500; //fixed interval of 500 RPM
+		let xMarkCount = Math.ceil((xMax - xMin) / xMarkInt + 1); //number of marks on x axis
+
 
 		//y axes - marks and numbers
 		//both T & P use the same scale for convenience - numerical values are within the same order of magnitude
@@ -318,9 +321,77 @@ let R = {
 		}
 
 		//draw P and T
-		drawDataset('blue', f, P);
-		drawDataset('red',  f, T);
+		drawDataset('red',  f, P);
+		drawDataset('blue', f, T);
 
 		ctx.restore();
+	},
+
+	//use canvas to render gearstick
+	drawGearstick: function() {
+		let canvas = geto('gearstick');
+		if(!canvas) {return;}
+		let ctx = canvas.getContext('2d');
+		ctx.clearRect(0, 0, 200, 200);
+		
+		let gearbox = cars[S.car].transmission.gears;
+		//gears: ['id', x,y position of text, x,y position of vertical line]
+		let gears = [
+			['1',  50,  60,  50,  70],
+			['2',  50, 140,  50, 128],
+			['3', 100,  60, 100,  70],
+			['4', 100, 140, 100, 128],
+			['5', 150,  60, 150,  70],
+			['6', 150, 140, 150, 128],
+			['N', 100, 100]
+		];
+		let gearFields = []; //returnable array with positions of clickable areas for each installed gear
+
+		//draw circle
+		ctx.fillStyle = '#dddddd';
+		ctx.strokeStyle = '#777777';
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		ctx.arc(100, 100, 90, 0, 2*Math.PI);
+		ctx.fill();
+		ctx.stroke();
+
+		//draw lines
+		ctx.strokeStyle = '#222222';
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		//horizontal line
+		ctx.moveTo(50, 100);
+		ctx.lineTo(150, 100);
+		//vertical lines for each gear
+		gears.forEach(function(g) {
+			if(gearbox.hasOwnProperty(g[0])) {
+				ctx.moveTo(g[3], 100);
+				ctx.lineTo(g[3], g[4]);
+			}
+		});
+		ctx.stroke();
+		ctx.fillRect(88, 88, 24, 24); //clear space for N
+
+		//write numbers
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle'; 
+		ctx.fillStyle = '#222222';
+		ctx.font = 'bold 20px Arial';
+
+		gears.forEach(function(g) {
+			if(gearbox.hasOwnProperty(g[0]) || g[0] === 'N') {
+				ctx.fillText(g[0], g[1], g[2]);
+				gearFields.push({
+					txt: g[0],
+					x: (g[1]-20) + 'px',
+					y: (g[2]-20) + 'px',
+					w: 40 + 'px',
+					h: 40 + 'px'
+				});
+			}
+		});
+
+		return gearFields;
 	}
 };

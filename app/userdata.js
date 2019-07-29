@@ -102,6 +102,7 @@ levelSelect: 1, //current selection of level (index)
 	//OPTIONS
 	unitsVel: '0', //index pointing to units of velocity
 	unitsAcc: '0', //index pointing to units of acceleration
+	unitsPow: '0', //index pointing to units of power
 	pedalSpeed: 0.4, //how long it takes to fully press or release a pedal [s]
 	invertedPedals: false, //pedals have inverted meaning in model
 	FPS: 30, //frames per second for drawing [Hz]
@@ -110,8 +111,9 @@ levelSelect: 1, //current selection of level (index)
 	enableGraphics: true,
 	enableVibration: true,
 	enablePID: false, //show cruise control button
-	enableAutomat: false,
-	enableDetails: false,
+	enableAutomat: false, //automatic transmission
+	enableGearstick: false, //show gearstick
+	enableDetails: false, //show tables with detailed information
 
 	//is key currently being binded?
 	keyBinding: false,
