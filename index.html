@@ -27,7 +27,9 @@
 	</head>
 
 	<body ng-keydown="keyPress($event, true)" ng-keyup="keyPress($event, false)">
-<div id="tooltip" ng-show="CS.tooltip.visible" ng-style="CS.tooltip.style">{{CS.tooltip.message}}</div>
+<div id="tooltip" ng-show="CS.tooltip.visible" ng-style="CS.tooltip.style">
+	<span ng-repeat="l in CS.tooltip.message track by $index">{{l}}<br></span>
+</div>
 
 <div id="popup" ng-style="style.popup" ng-class="{vanish: CS.popup.timeout < 400}" ng-show="CS.popup">
 	<p ng-if="CS.popup" ng-repeat="l in CS.popup.lines track by $index">{{l}}</p>
@@ -77,8 +79,8 @@
 				Avšak lze využít i myš, pokud v nastavení zapnete možnost <i>zobrazit řadící páku</i><br>
 				Zpátečka zde není, protože je nezajímavá
 			</p>
-			<p><b>{{viewKey('map')}}</b> otevře minimapku - náhled terénu</p>
-			<p><b>N</b> zdvojnásobí výkon motoru vstřikováním N<sub>2</sub>O - jen pro srandu ;-)</p>
+			<p><b>{{viewKey('map')}}</b> otevře či zavře minimapku - náhled terénu</p>
+			<p><b>{{viewKey('nitro')}}</b> zdvojnásobí výkon motoru vstřikováním N<sub>2</sub>O - jen pro srandu ;-)</p>
 		</div>
 
 		<h2>Výběr levelu</h2>
@@ -176,7 +178,7 @@
 	<div ng-switch-when="game" id="game">
 		<div id="gameLevelTitle">{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}})</div>
 
-		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics"></canvas>
+		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics" minimap></canvas>
 
 		<div id="stats" ng-include="'app/ng/stats.html'" ng-style="style.stats"></div>
 
@@ -223,7 +225,7 @@
 			<div class="ctrlContainer" ng-show="CS.enableGearstick" style="padding-left: 20px">
 				<div style="position: relative">
 					<canvas id="gearstick" width="200" height="200" ng-init="drawGearstick()"></canvas>
-					<div ng-repeat="g in gearstickAreas" ng-click="shiftGear(g.txt)" ng-style="gearstickAreaStyle(g)"></div>
+					<div ng-repeat="g in gearstickAreas" ng-click="shiftGear(g.txt)" ng-style="gearstickAreaStyle(g)" class="gearstickArea"></div>
 				</div>
 			</div>
 

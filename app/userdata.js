@@ -17,6 +17,7 @@ function State(i, c) {return {
 		//see levels definitions in data.js
 		int: levels[i].generation.int,
 		length: levels[i].generation.length,
+		minimapScale: levels[i].generation.minimapScale,
 		//vector of altitude marks [m] that describes the terrain
 		map: L.levelGeneration(levels[i]),
 		//array of arrays - level is divided into sectors of config.imgLoadingArea [m], each is collection of generated images
@@ -97,6 +98,16 @@ levelSelect: 1, //current selection of level (index)
 		visible: false,
 		style: {'top': '0px', 'left': '0px'}, //numeric values are just placeholders
 		message: ''
+	},
+
+	//this object is used to exchange data between minimap directive and R.drawMiniMap
+	miniMapCursor: {
+		enabled: false,
+		pageY: 0,
+		pageX: 0,
+		angle: 0, //angle at cursor [rad] 
+		d: 0,  //distance at cursor [m]
+		a: 0   //altitude at cursor [m]
 	},
 
 	//OPTIONS

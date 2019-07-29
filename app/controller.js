@@ -148,7 +148,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 				S && (S.running = false);
 			}
 		},
-		map:     e => (CS.showMap = e),
+		map: function(e) {
+			CS.showMap = e;
+			if(!e) {
+				CS.tooltip.visible = false;
+				CS.miniMapCursor.enabled = false;
+			}
+		},
 		neutral: e => !e && M.shift('N'),
 		'1':     e => !e && M.shift('1'),
 		'2':     e => !e && M.shift('2'),
@@ -406,7 +412,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//use canvas to render gearstick and use angular to create clickable areas
 	$scope.drawGearstick = () => ($scope.gearstickAreas = R.drawGearstick()); //draw canvas and get clickable areas
 	$scope.gearstickAreas = [];
-	$scope.gearstickAreaStyle = g => ({position: 'absolute', top: g.y, left: g.x, width: g.w, height: g.h}); //get ng-style for clickable area
+	$scope.gearstickAreaStyle = g => ({top: g.y, left: g.x, width: g.w, height: g.h}); //get ng-style for clickable area
 	$scope.shiftGear = g => M.shift(g); //throw in a gear
 
 	//execute each FPS: resize, decrement countdowns, draw game, schedule new FPS call
@@ -461,7 +467,7 @@ app.directive('tooltip', () => ({
 			CS.tooltip.visible = true;
 			CS.tooltip.style.top = (event.pageY + 25) + 'px';
 			CS.tooltip.style.left = event.pageX + 'px';
-			CS.tooltip.message = attrs.tooltip;
+			CS.tooltip.message = [attrs.tooltip];
 		}
 
 		//remove tooltip when no longer relevant
@@ -472,3 +478,36 @@ app.directive('tooltip', () => ({
 		elem.on('click', rem);
 	}
 }));
+
+//custom tooltip is hijacked by miniMap
+app.directive('minimap', () => ({
+	restrict: 'A',
+	link: function(scope, elem, attrs) {
+		//create tooltip when you move mouse over the element
+		function create(event) {
+			if(!CS.showMap) {return;}
+			let obj = CS.miniMapCursor;
+
+			obj.enabled = !isNaN(obj.a);
+			CS.tooltip.visible = obj.enabled;
+			CS.tooltip.style.top  = (event.pageY + 20) + 'px';
+			CS.tooltip.style.left = (event.pageX - 20) + 'px';
+			CS.tooltip.message = [
+				`x: ${(obj.d/1000).toFixed(1)} km`,
+				`y: ${obj.a.toFixed()} m`
+			];
+			obj.pageY = event.pageY;
+			obj.pageX = event.pageX;
+		}
+
+		//remove tooltip when no longer relevant
+		let rem = function() {
+			CS.tooltip.visible = false;
+			CS.miniMapCursor.enabled = false;
+		}
+
+		elem.on('mousemove', create);
+		elem.on('mouseout', rem);
+	}
+}));
+

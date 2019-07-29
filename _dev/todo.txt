@@ -1,6 +1,4 @@
 <<<ÚHELNÝ JÁVSKÝ SCÉNÁŘ>>>
-	dát možnost zařadit převod kliknutím na čudlíky, které budou nakreslené jako ten pavouk řadící páky :-)
-	level preview na Tab (key already implemented)
 	animované obrázky -> kráva, přejezd
 		img bude pro animaci {t: 200 (frame [ms]), src: ['img1.png', 'img2.png']}
 		a imgPreload to bude respektovat, předělá pole src na pole image elementů

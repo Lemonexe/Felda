@@ -176,6 +176,12 @@ img {
 	float: left;
 	text-align: center;
 }
+
+.gearstickArea {
+	position: absolute;
+	cursor: pointer;
+}
+
 #warning {
 	float: left;
 	padding-left: 80px;

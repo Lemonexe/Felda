@@ -8,6 +8,7 @@ const config = {
 	dt: 10/1000, //short time interval for the discreet simulation itself [s]
 	vibration: 40, //frequency of vibration [Hz]
 	imgLoadingArea: 1e3, //images will be split into areas of this length [m]
+	minimapDistance: 1e4, //miniMap displays such distance [m]
 	signDistance: 500, //intervals between special distance signs [m]
 	signObj: {img: 'zn_km', width: 1, height: 1}, //rendering instructions for canvas
 	ppm_min: 30, //min and max ppm (pixels per meter for graphical rendering [1/m])
@@ -173,6 +174,7 @@ const levels = [
 			f: 'straight',
 			int: 1e5,
 			length: 1e5,
+			minimapScale: 1,
 			images: []
 		}
 	},
@@ -182,13 +184,14 @@ const levels = [
 		description: 'Rovný nekonečný asfalt bez jakýchkoliv omezení. Ideální pro hraní si a zkoušení všeho možného!',
 		listeners: {
 			onstart: function() {popup('Jeďte bezpečně', true, 1200);},
-			onend: function() {popup('Konec ranveje', true, 1200);},
+			onend: function() {popup('Konec ranveje', true, 2400);},
 			onstall: function() {popup('Motor chcípl', true, 900);}
 		},
 		generation: {
 			f: 'straight',
 			int: 1e5,
 			length: 1e5,
+			minimapScale: 1,
 			images: [
 				{img: 'zn_letadlo', width: 1, height: 2, density: 1/200},
 				{img: 'zn_vitr', width: 1, height: 2, density: 1/400}
@@ -207,7 +210,7 @@ const levels = [
 		*/
 		listeners: {
 			onstart: function() {popup('Dávejte pozor na radary a díry v silnici!', true, 1600);},
-			onend: function() {popup('Dojeli jste na hranici, česká krajina zde končí.', true, 1600);},
+			onend: function() {popup('Dojeli jste na hranici, česká krajina zde končí.', true, 2400);},
 			onstall: function() {popup('Motor chcípl', true, 900);}
 		},
 		//parameters for generation of map
@@ -216,6 +219,7 @@ const levels = [
 			int: 100, //distance between map points [m]
 			baseAlt: 50, //base altitude [m]
 			length: 1e5, //length of level [m]
+			minimapScale: 5, //altitude:distance scale of miniMap (higher number will amplify heights)
 			//only when f === 'noise'. Each noise: [interval, maxAltitude] as [m]
 			noises: [
 				[5000, 350], //4.0°
@@ -244,7 +248,7 @@ const levels = [
 		description: 'Vysokohorská krajina s velice hrubým terénem, očekávejte až 30° sklon jakož i mnoho krav.',
 		listeners: {
 			onstart: function() {popup('Dávejte pozor na padající turisty či kamení!', true, 1600);},
-			onend: function() {popup('Přejeli jste celé Alpy, alpská krajina zde končí.', true, 1600);},
+			onend: function() {popup('Přejeli jste celé Alpy, alpská krajina zde končí.', true, 2400);},
 			onstall: function() {popup('Motor chcípl', true, 900);}
 		},
 		generation: {
@@ -252,6 +256,7 @@ const levels = [
 			int: 100,
 			baseAlt: 500,
 			length: 1e5,
+			minimapScale: 2,
 			noises: [
 				[10000, 2000], //11°
 				[2500, 630], //14°

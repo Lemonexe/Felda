@@ -24,7 +24,6 @@ let R = {
 
 		//clear whole canvas before drawing
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		//ctx.fillRect(xc, yc, 3, 3);
 
 		//x,y coordinates of center of drawing, which is located on the ground between wheels
 		//relative y position depends on angle, x could depend on velocity, but I didn't like it
@@ -44,6 +43,9 @@ let R = {
 			ctx.textAlign = 'center'; ctx.fillStyle = '#cc4444'; ctx.font = '40px Comic Sans MS';
 			ctx.fillText('konec cesty :-)', Math.round(canvas.width/2), Math.round(canvas.height/3));
 		}
+
+		//draw minimap if it is open
+		CS.showMap && this.drawMiniMap();
 	},
 
 	//DRAW BACKGROUND DECORATION IMAGES
@@ -167,6 +169,8 @@ let R = {
 		for(i = 1; i < points.length; i++) {
 			ctx.lineTo(points[i][0], points[i][1]);
 		}
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 1;
 		ctx.stroke();
 	},
 	//determines whether a point (represented by pixel coordinates) is within bounds of camera
@@ -185,8 +189,63 @@ let R = {
 		];	
 	},
 
-	//TODO
-	drawMiniMap: function() {},
+	//draw minimap over existing map
+	drawMiniMap: function() {
+		let ctx = this.ctx;
+		let w = this.canvas.width;
+		let h = this.canvas.height;
+
+		ctx.fillStyle = '#ffffffe0';
+		ctx.fillRect(0, 0, w, h);
+
+		//get altitude interval
+		let dMiniMap = config.minimapDistance; //only such distance will be displayed [m], not the whole level
+		let hMiniMap = dMiniMap * h / w / S.level.minimapScale; //corresponding altitude interval to give desired scale
+		let minAlt = S.altitude - hMiniMap/2;
+		let maxAlt = S.altitude + hMiniMap/2;
+
+		//get currentMap, a portion of level map
+		let n = dMiniMap / S.level.int; //number of points in section
+		let i = Math.floor(S.d / S.level.int); //pointer to map
+		let start = (i - n/2).limit(0, NaN); //start index to slice
+		let end = i + n/2 + 2; //end index to slice
+		let currentMap = S.level.map.slice(start, end);
+
+		//get x coordinate from distance and y coordinate from altitude
+		let getX = d => Math.round(w * (0.5 + (d - S.d) / dMiniMap));
+		let getY = a => Math.round(h * (1 - (a - minAlt) / (maxAlt - minAlt)));
+
+		//for each map point: moveTo or lineTo (x coord, y coord)
+		ctx.beginPath();
+		currentMap.forEach((a, i) => ctx[(i === 0) ? 'moveTo' : 'lineTo'](getX((start+i)*S.level.int), getY(a)));
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 1;
+		ctx.stroke();
+
+		//car as a blinking circle
+		let d = Date.now();
+		let t = d/1000 - Math.floor(d/1000); //time [s] since last second, or fraction of current second if you will
+		let r = Math.abs(t - 0.5) * 15; //radius changing in time [px]
+		ctx.beginPath();
+		ctx.arc(getX(S.d), getY(S.altitude), r, 0, 2*Math.PI);
+		ctx.strokeStyle = 'red';
+		ctx.lineWidth = 3;
+		ctx.stroke();
+
+		//for minimap directive
+		let obj = CS.miniMapCursor;
+		let dC = (obj.pageX/w - 0.5)*dMiniMap + S.d; //distance of cursor
+		let aC = L.getAltitude(dC); //altitude corresponding to dC (not altitude of cursor)
+		obj.d = dC;
+		obj.a = aC;
+		//if dC is actually within map, draw a blue circle on the relief
+		if(!isNaN(aC) && obj.enabled) {
+			ctx.fillStyle = 'blue';
+			ctx.beginPath();
+			ctx.arc(getX(dC), getY(aC), 3, 0, 2*Math.PI);
+			ctx.fill();
+		}
+	},
 
 	//calculate vibration of canvas and store it in S, because FPS has variable frequency, while vibration is constant
 	vibration: function() {
@@ -265,7 +324,7 @@ let R = {
 		let yMarkInt = (yMax - yMin > 49) ? 10 : 5; //interval of 10 kW or N*m
 		yMax = yMarkInt * Math.ceil(yMax / yMarkInt); //recalculate max value of y axis to be divisible by the interval
 		let yMarkCount = Math.ceil((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
-		
+
 		let xMarkInt = 500; //fixed interval of 500 RPM
 		let xMarkCount = Math.ceil((xMax - xMin) / xMarkInt + 1); //number of marks on x axis
 

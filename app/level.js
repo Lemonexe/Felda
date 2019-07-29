@@ -11,6 +11,7 @@ const L = {
 			S.finished = true;
 			S.running = false;
 			exec(levels[S.level.i].listeners.onend);
+			CS.showMap = false;
 			return;
 		}
 		let i = Math.floor(S.d / S.level.int);
