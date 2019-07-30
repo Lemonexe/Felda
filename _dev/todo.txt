@@ -1,19 +1,9 @@
-<<<ÚHELNÝ JÁVSKÝ SCÉNÁŘ>>>
-	animované obrázky -> kráva, přejezd
-		img bude pro animaci {t: 200 (frame [ms]), src: ['img1.png', 'img2.png']}
-		a imgPreload to bude respektovat, předělá pole src na pole image elementů
-
-
 <<<MODEL>>>
 dát větší ztráty motoru. Tohle je fakt směšný
 	brždění motorem by mohlo být vodítko kolik to asi má být - libocký kostel @30 km/h
 
 
 <<<RESOURCES & CONTENT>>>
-obrázky na letišti
-	letadlo
-	havarované letadlo (animace kouře a ohně)
-
 zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
 
 víc aut? (otestovat výběr auta)
@@ -42,5 +32,3 @@ Fix 'DEVELOPMENT' before publishing!
 test on FF
 test on Edge
 test on Android (tablet)
-
-delet gg drive

@@ -91,19 +91,19 @@ const L = {
 				//number of images within section is constant = distance * density
 				let count = Math.ceil(d * g.images[j].density);
 				for(let k = 0; k < count; k++) {
-					//each image instance has random position within section
+					//each image instance has random x position within section (y will be calculated during rendering)
 					let pos = Math.round(i*d + d*Math.random());
-					//push image instance as [image type, position], image type is a pointer to g.images (index)
-					field[i].push([j, pos]);
+					//push image instance as [id, position], id is a pointer to 'imgs' library
+					field[i].push([g.images[j].img, pos]);
 				}
 			}
 
 			//distance signs - they are at fixed distance intervals, rather than randomly dispersed
-			let ds = config.signDistance
+			let ds = config.signDistance;
 			//for number of signs per section
 			for(j = 0; j < d / ds; j++) {
 				if(i === 0 && j === 0) {continue;} //don't draw sign at 0.0 km
-				field[i].push(['km', i*d + ds*j]); //image type is magical string instead of pointer
+				field[i].push(['zn_km', i*d + ds*j]);
 			}
 		}
 

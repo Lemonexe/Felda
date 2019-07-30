@@ -22,7 +22,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.disclaimer = function() {
 		let msg = ['Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.',
 			'Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují autora.'];
-		popup(msg, false, false, 620)
+		popup(msg, false, false, 620);
 	};
 
 	//link global variables to $scope
@@ -510,4 +510,3 @@ app.directive('minimap', () => ({
 		elem.on('mouseout', rem);
 	}
 }));
-

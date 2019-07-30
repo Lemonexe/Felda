@@ -7,10 +7,9 @@
 const config = {
 	dt: 10/1000, //short time interval for the discreet simulation itself [s]
 	vibration: 40, //frequency of vibration [Hz]
-	imgLoadingArea: 1e3, //images will be split into areas of this length [m]
+	imgLoadingArea: 1e4, //images will be split into areas of this length [m]
 	minimapDistance: 1e4, //miniMap displays such distance [m]
 	signDistance: 500, //intervals between special distance signs [m]
-	signObj: {img: 'zn_km', width: 1, height: 1}, //rendering instructions for canvas
 	ppm_min: 30, //min and max ppm (pixels per meter for graphical rendering [1/m])
 	ppm_max: 150,
 	minResolution: [1150, 650], //minimal recommended resolution
@@ -39,32 +38,46 @@ const constants = {
 	rho: 750 //density [g/l]
 };
 
-//image sources. This object will be OVERWRITTEN when they are preloaded by imgPreload() in misc.js
+/*IMAGE SOURCES - these images will be preloaded by imgPreload() in misc.js
+properties:
+	img: image src as string (static images)
+	t: duration of each frame [ms] (animations)
+	frames: array of srcs for each frame (animations)
+	width: real height [m] (decorations)
+	height: real width [m] (decorations)
+	hOffset: position offset downwards [m] (decorations, optional)
+	mirror: if defined, image is mirrorable (decorations, optional)
+(C) means that the image might be copyrighted
+*/
 let imgs = {
-	felicia: 'res/felicia.png',
-	feliciaWH: 'res/feliciaWH.png',
+	//car images
+	felicia:   {img: 'res/felicia.png'}, //(C)
+	feliciaWH: {img: 'res/feliciaWH.png'}, //(C)
 
-	cow: 'res/cow.png',
-	oak: 'res/oak.png',
-	prejezd: 'res/prejezd.png',
-	radar: 'res/radar.png',
-	smrk: 'res/smrk.png',
+	//decoration images
+	oak:     {img: 'res/oak.png', width: 3, height: 4, mirror: true},
+	radar:   {img: 'res/radar.png', width: 2, height: 3.5}, //(C)
+	smrk:    {img: 'res/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
+	cow:     {t: 500, frames: ['res/cow1.png', 'res/cow2.png'], width: 2.5, height: 1.775, mirror: true}, //(C)
+	prejezd: {t: 500, frames: ['res/prejezd1.png', 'res/prejezd2.png'], width: 0.833, height: 2.5}, //(C)
+	heli:    {t: 200, frames: ['res/heli1.png', 'res/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true}, //(C)
+	plane:   {t: 100, frames: ['res/plane1.png', 'res/plane2.png', 'res/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true}, //(C)
 
-	zn_km: 'res/zn_km.png',
-	zn_50: 'res/zn_50.png',
-	zn_prace: 'res/zn_prace.png',
-	zn_diry: 'res/zn_diry.png',
-	zn_stop: 'res/zn_stop.png',
-	zn_prednost: 'res/zn_prednost.png',
-	zn_radar: 'res/zn_radar.png',
-	zn_letadlo: 'res/zn_letadlo.png',
-	zn_vitr: 'res/zn_vitr.png',
-	zn_kameni: 'res/zn_kameni.png',
-	zn_krava: 'res/zn_krava.png',
-	zn_mraz: 'res/zn_mraz.png',
-	zn_serpent: 'res/zn_serpent.png',
-	zn_12up: 'res/zn_12up.png',
-	zn_12down: 'res/zn_12down.png'
+	zn_km:       {img: 'res/zn_km.png',       width: 1, height: 1},
+	zn_50:       {img: 'res/zn_50.png',       width: 1, height: 2},
+	zn_prace:    {img: 'res/zn_prace.png',    width: 1, height: 2},
+	zn_diry:     {img: 'res/zn_diry.png',     width: 1, height: 2},
+	zn_stop:     {img: 'res/zn_stop.png',     width: 1, height: 2},
+	zn_prednost: {img: 'res/zn_prednost.png', width: 1, height: 2},
+	zn_radar:    {img: 'res/zn_radar.png',    width: 1, height: 2},
+	zn_letadlo:  {img: 'res/zn_letadlo.png',  width: 1, height: 2},
+	zn_vitr:     {img: 'res/zn_vitr.png',     width: 1, height: 2},
+	zn_kameni:   {img: 'res/zn_kameni.png',   width: 1, height: 2},
+	zn_krava:    {img: 'res/zn_krava.png',    width: 1, height: 2},
+	zn_mraz:     {img: 'res/zn_mraz.png',     width: 1, height: 2},
+	zn_serpent:  {img: 'res/zn_serpent.png',  width: 1, height: 2},
+	zn_12up:     {img: 'res/zn_12up.png',     width: 1, height: 2},
+	zn_12down:   {img: 'res/zn_12down.png',   width: 1, height: 2}
 };
 
 //cars contain car objects
@@ -193,8 +206,10 @@ const levels = [
 			length: 1e5,
 			minimapScale: 1,
 			images: [
-				{img: 'zn_letadlo', width: 1, height: 2, density: 1/200},
-				{img: 'zn_vitr', width: 1, height: 2, density: 1/400}
+				{img: 'heli',       density: 1/600},
+				{img: 'plane',      density: 1/400},
+				{img: 'zn_letadlo', density: 1/200},
+				{img: 'zn_vitr',    density: 1/400}
 			]
 		}
 	},
@@ -229,16 +244,16 @@ const levels = [
 				[200, 10] //2.9°
 			],
 			images: [
-				//{link to 'imgs', real width [m], real height [m], density of images per m [1/m]}
-				{img: 'oak', width: 3, height: 4, density: 1/100},
-				{img: 'radar', width: 2, height: 3.5, density: 1/200},
-				{img: 'prejezd', width: 0.833, height: 2.5, density: 1/800},
-				{img: 'zn_50', width: 1, height: 2, density: 1/200},
-				{img: 'zn_prace', width: 1, height: 2, density: 1/400},
-				{img: 'zn_diry', width: 1, height: 2, density: 1/400},
-				{img: 'zn_stop', width: 1, height: 2, density: 1/600},
-				{img: 'zn_prednost', width: 1, height: 2, density: 1/400},
-				{img: 'zn_radar', width: 1, height: 2, density: 1/1000}
+				//{link to 'imgs', density of images per m [1/m]}
+				{img: 'oak',         density: 1/100},
+				{img: 'radar',       density: 1/200},
+				{img: 'prejezd',     density: 1/800},
+				{img: 'zn_50',       density: 1/200},
+				{img: 'zn_prace',    density: 1/400},
+				{img: 'zn_diry',     density: 1/400},
+				{img: 'zn_stop',     density: 1/600},
+				{img: 'zn_prednost', density: 1/400},
+				{img: 'zn_radar',    density: 1/1000}
 			]
 		}
 	},
@@ -265,14 +280,14 @@ const levels = [
 				[200, 20] //5.7°
 			],
 			images: [
-				{img: 'cow', width: 2.5, height: 1.775, density: 1/100},
-				{img: 'smrk', width: 4.3, height: 8, density: 1/100},
-				{img: 'zn_kameni', width: 1, height: 2, density: 1/1200},
-				{img: 'zn_krava', width: 1, height: 2, density: 1/800},
-				{img: 'zn_mraz', width: 1, height: 2, density: 1/1600},
-				{img: 'zn_serpent', width: 1, height: 2, density: 1/400},
-				{img: 'zn_12up', width: 1, height: 2, density: 1/400},
-				{img: 'zn_12down', width: 1, height: 2, density: 1/400}
+				{img: 'cow',        density: 1/100},
+				{img: 'smrk',       density: 1/100},
+				{img: 'zn_kameni',  density: 1/1200},
+				{img: 'zn_krava',   density: 1/800},
+				{img: 'zn_mraz',    density: 1/1600},
+				{img: 'zn_serpent', density: 1/400},
+				{img: 'zn_12up',    density: 1/400},
+				{img: 'zn_12down',  density: 1/400}
 			]
 		}
 	}

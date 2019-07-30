@@ -34,9 +34,9 @@ let R = {
 		this.yc = Math.round(yrel * canvas.height + S.vibrationOffset[1]);
 
 		//call functions to draw elements of map
+		this.drawLines();
 		this.drawDecorations();
 		this.drawCar();
-		this.drawLines();
 
 		//end message
 		if(S.finished) {
@@ -63,37 +63,57 @@ let R = {
 		if(!area) {return;}
 
 		let ppm = CS.ppm;
-		let imglib = levels[S.level.i].generation.images;
-		let canvas = this.canvas;
+		let w = this.canvas.width;
 		let ctx = this.ctx;
 
 		for(let item of area) {
-			let isKmSign = item[0] === 'km'; //check for magical string that denotes a special image: the distance sign
-			//reference to preloaded image
-			let ref = isKmSign ? config.signObj : imglib[item[0]];
+			let obj = imgs[item[0]]; //get the image object from 'imgs'
 
 			//dimensions of image; center of drawing is center of bottom edge
-			let dw = Math.round(ref.width * ppm);
-			let dh = Math.round(ref.height * ppm);
+			let hOffset = obj.hasOwnProperty('hOffset') ? obj.hOffset : 0;
+			let dw = Math.round(obj.width * ppm);
+			let dh = Math.round(obj.height * ppm);
 			let dx = Math.round(this.xc + (item[1] - S.d) * ppm);
-			let dy = Math.round(this.yc - (L.getAltitude(item[1]) - S.altitude) * ppm);
+			let dy = Math.round(this.yc - (L.getAltitude(item[1]) - S.altitude - hOffset) * ppm);
 
-			//if it is visible, draw it
-			if(
-				dx - dw/2 < canvas.width &&
-				dx + dw/2 > 0
-			) {
-				ctx.drawImage(imgs[ref.img], dx-dw/2, dy-dh, dw, dh);
-
-				//write text on distance sign
-				if(isKmSign) {
-					let fontSize = (0.25*ppm).toFixed();
-					let text = (S.d/1000).toFixed(1).replace('.', ',');
-					ctx.textAlign = 'center'; ctx.fillStyle = 'black'; 
-					ctx.font = `bold ${fontSize}px Arial`;
-					ctx.fillText(text, dx, dy-dh*2/3);
-				}
+			//if image not in sight, skip it
+			let visible = (dx - dw/2 < w) && (dx + dw/2 > 0);
+			if(!visible) {continue;}
+				
+			//obj is an animation, get current frame as a HTML image element
+			if(obj.hasOwnProperty('frames')) {
+				let frame = Math.floor(Date.now() / obj.t) % obj.frames.length;
+				var elem = obj.frames[frame];
 			}
+			//object is a static image, get it as a HTML image element
+			else if(obj.hasOwnProperty('img')) {
+				var elem = obj.img;
+			}
+
+			//if mirror is enabled, it will be defined by parity of position, a pseudo-random number that is constant for each item
+			let m = obj.hasOwnProperty('mirror') && item[1] % 2 < 1;
+
+			//draw 'elem' either mirrored, or normally (it's faster to draw normally)
+			if(m) {
+				ctx.save();
+				ctx.translate(dx-dw/2, dy-dh);
+				ctx.scale(-1, 1);
+				ctx.drawImage(elem, 0, 0, -dw, dh);
+				ctx.restore();
+			}
+			else {
+				ctx.drawImage(elem, dx-dw/2, dy-dh, dw, dh);
+			}
+
+			//check for a special image, the distance sign, and write text on it
+			if(item[0] === 'zn_km') {
+				let fontSize = (0.25*ppm).toFixed();
+				let text = (item[1]/1000).toFixed(1).replace('.', ',');
+				ctx.textAlign = 'center'; ctx.fillStyle = 'black'; 
+				ctx.font = `bold ${fontSize}px Arial`;
+				ctx.fillText(text, dx, dy-dh*2/3);
+			}
+
 		}
 	},
 
@@ -101,7 +121,7 @@ let R = {
 	drawCar: function() {
 		let g = this.graphic;
 		let ppm = CS.ppm;
-		let img = imgs[g.img]; //preloaded image of car
+		let img = imgs[g.img].img; //preloaded image of car
 		let ctx = this.ctx;
 
 		//rendered image width and height
@@ -118,7 +138,7 @@ let R = {
 
 		//draw images of wheels
 		let ir = Math.round(g.r * ppm); //rendered radius of wheels
-		let imgWH = imgs[g.imgWH]; //image of wheels
+		let imgWH = imgs[g.imgWH].img; //image of wheels
 		for(let w of g.wheels) {
 			ctx.save();
 			//calculation of vector starting in center of drawing and pointing to wheel - original vector
@@ -223,8 +243,7 @@ let R = {
 		ctx.stroke();
 
 		//car as a blinking circle
-		let d = Date.now();
-		let t = d/1000 - Math.floor(d/1000); //time [s] since last second, or fraction of current second if you will
+		let t = (new Date).getMilliseconds()/1000; //time [s] since last second
 		let r = Math.abs(t - 0.5) * 15; //radius changing in time [px]
 		ctx.beginPath();
 		ctx.arc(getX(S.d), getY(S.altitude), r, 0, 2*Math.PI);

@@ -78,10 +78,22 @@ function ECMA6test() {
 
 //initialize a database of images
 function imgPreload() {
+	//load one image
+	function load(src) {
+		let elem = new Image()
+		elem.src = src;
+		return elem;
+	}
+
 	for(let i of Object.keys(imgs)) {
-		let newImage = new Image()
-		newImage.src = imgs[i];
-		imgs[i] = newImage;
+		//static image
+		if(imgs[i].hasOwnProperty('img')) {
+			imgs[i].img = load(imgs[i].img);
+		}
+		//animation
+		else if(imgs[i].hasOwnProperty('frames')) {
+			imgs[i].frames = imgs[i].frames.map(o => load(o));
+		}
 	}
 }
 imgPreload();
