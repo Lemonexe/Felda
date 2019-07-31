@@ -282,8 +282,8 @@ let R = {
 			(6 * (S.f - car.engine.vibRPM) / (car.engine.maxRPM - car.engine.vibRPM))
 		);
 		raise(
-			(S.df !== false && Math.abs(S.df) > 15 && S.Tclutch > 0.1*car.transmission.TclutchMax),
-			(S.df - 15) * (S.Tclutch / car.transmission.TclutchMax) / 3
+			(S.df !== false && Math.abs(S.df) > 12 && S.Tclutch > 0.1*car.transmission.TclutchMax),
+			(S.df - 12) * (S.Tclutch / car.transmission.TclutchMax) / 2
 		);
 		raise(
 			(S.brakes && S.v > 0),

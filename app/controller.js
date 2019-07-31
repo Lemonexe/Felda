@@ -346,7 +346,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		//calculate f, T, P values
 		for(let i = 0; i < n; i++) {
 			f[i] = fSpan[0] + i*step;
-			T[i] = M.getTorque(showroom.index, f[i], 0, ctrl.showroomGas, false);
+			T[i] = M.getTorque(showroom.index, f[i], 0, ctrl.showroomGas, false, 1);
 			P[i] = T[i] * 2*Math.PI * f[i]
 		}
 		f = f.map(item => item*60);   //convert Hz > RPM

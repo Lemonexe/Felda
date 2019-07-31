@@ -23,7 +23,6 @@
 		<table class="showroomTable">
 			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V}} l</td></tr>
 			<tr><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I}} kg·m²</td></tr>
-			<tr><td>Otáčky volnoběhu:</td><td>{{(showroom.car.engine.idleRPM * 60).toFixed()}} RPM</td></tr>
 			<tr tooltip="@ {{showroom.Pmaxf.toFixed()}} RPM"><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, optsPow[CS.unitsPow])}}</td></tr>
 			<tr tooltip="@ {{showroom.Tmaxf.toFixed()}} RPM"><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td></tr>
 		</table>

@@ -115,7 +115,7 @@ const cars = [
 			//coefficients for dissipative forces (constant and quadratic)
 			loss: {
 				a: 250, //friction constant (-> force ~ v^0)  [N]
-				b: 0.5 //drag constant (-> force ~ v^2) [kg/m]
+				b: 0.51 //drag constant (-> force ~ v^2) [kg/m]
 			},
 			r: 0.27, //radius of wheel [m]
 			//gear ratios: 'fix' is required, otherwise there can be any number of gears, as long as there are keys binded to activate them
@@ -134,39 +134,37 @@ const cars = [
 		engine: {
 			lambda: 1.01, //oxygen excess
 			V: 1.289, //engine displacement [l],
-			I: 0.12, //engine moment of inertia [kg*m2]
+			I: 0.15, //engine moment of inertia [kg*m2]
 			minRPM: 500/60,  //[Hz] no power below this point
 			maxRPM: 8000/60, //[Hz] no power above this point
-			minExt: [500/60, 600/60], //[Hz] intervals of extinction lines (see model.js)
-			maxExt: [7980/60, 8080/60],
 			redlineRPM: 6000/60, //[Hz] warning shows up and PID turns off
 			vibRPM: 5000/60, //[Hz] everything starts to vibrate insanely
 			//function T(f) for dissipative torque [N*m] if RPM < minRPM  or RPM > maxRPM
-			TdissUnder: f => 5,
-			TdissOver: f => f - 28,
-			idleRPM: 750/60, //[Hz] if below this RPM, idleGas kicks in
-			idleGas: 0.0805, //gas throttle during idling
+			TdissUnder: f => 15,
+			TdissOver: f => 3*f - 280,
+			idleRPM: 800/60, //[Hz] if below this RPM, idleGas kicks in
+			idleGas: 0.1868, //gas throttle during idling
 			starter: 2, //how long does starting take [s]
-			starterT: 7, //starter torque [N*m]
+			starterT: 9, //starter torque [N*m]
 			PID: [0.5, 10, 1], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
 			specs: [
-				[500/60, 6, 76],
-				[1000/60, 7, 85],
-				[1500/60, 8, 91],
-				[2000/60, 9, 97],
-				[2500/60, 10, 103],
-				[3000/60, 11, 108],
-				[3500/60, 13, 115],
-				[4000/60, 15, 120],
-				[4500/60, 19, 121],
-				[5000/60, 27, 122],
-				[5500/60, 41, 122],
-				[6000/60, 54, 124],
-				[6500/60, 66, 126],
-				[7000/60, 80, 128],
-				[7500/60, 95, 130],
-				[8000/60, 110, 130]
+				[500/60,  16, 86],
+				[1000/60, 18, 96],
+				[1500/60, 20, 103],
+				[2000/60, 23, 111],
+				[2500/60, 26, 119],
+				[3000/60, 30, 127],
+				[3500/60, 35, 137],
+				[4000/60, 40, 145],
+				[4500/60, 46, 148],
+				[5000/60, 53, 148],
+				[5500/60, 61, 142],
+				[6000/60, 70, 140],
+				[6500/60, 80, 138],
+				[7000/60, 92, 137],
+				[7500/60, 106, 136],
+				[8000/60, 120, 120]
 			]
 		}
 	}

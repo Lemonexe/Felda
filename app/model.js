@@ -37,13 +37,6 @@ const M = {
 
 		// constant of barometric equation as pR = exp(const * h) [m^-1]
 		S.barometricConstant = -constants.g * constants.Mair / constants.R / constants.T;
-
-		//constants of extinction lines 1 (minRPM) and 2 (maxRPM)
-		let k1 =  1 / (eng.minExt[1] - eng.minExt[0]);
-		let q1 = -k1 * eng.minExt[0];
-		let k2 = -1 / (eng.maxExt[1] - eng.maxExt[0]);
-		let q2 = -k2 * eng.maxExt[1];
-		S.extinction = [k1, q1, k2, q2];
 	},
 
 	//turn on the engine starter
@@ -90,12 +83,6 @@ const M = {
 		let idling = (S.f <= car.engine.idleRPM) && (gasPedal < car.engine.idleGas); //whether idling gas kicks in
 		S.gas = idling ? car.engine.idleGas : gasPedal;
 
-		//extinction lines for min and max RPM
-		//torque multiplier grows linearly from minExt[0] (0) to minExt[1] (1), then falls from maxExt[0] (1) to maxExt[1] (0)
-		let ext = S.extinction;
-		S.gas *= (ext[0]*S.f + ext[1]).limit(0,1);
-		S.gas *= (ext[2]*S.f + ext[3]).limit(0,1);
-
 		//S.clutch = force transferable by clutch (as fraction of maximum)
 		//clutch active interval (e.g. [0.2, 0.8]), the value is inverted once more
 		let cInt = cars[S.car].transmission.clutchInt;
@@ -109,7 +96,7 @@ const M = {
 	//torque function T = T(f), where f is frequency, based on car specs
 	//this function doesn't use S, so it can be called independently... (like car showroom)
 	// c = car index, f = frequency [Hz], starter = its countdown, gas = gas throttle, nitro = is nitro active
-	getTorque: function(c, f, starter, gas, nitro) {
+	getTorque: function(c, f, starter, gas, nitro, pR) {
 		let car = cars[c];
 
 		//apply starter torque
@@ -135,7 +122,7 @@ const M = {
 				let x = (f - sp[i][0]) / (sp[i+1][0] - sp[i][0]);
 				let Tdiss = x*sp[i+1][1] + (1-x)*sp[i][1];
 				let Teng  = x*sp[i+1][2] + (1-x)*sp[i][2];
-				Teng *= gas;
+				Teng *= gas * pR;
 				if(nitro && f > car.engine.idleRPM) {Teng *= constants.N2O;}
 
 				return Teng - Tdiss;
@@ -146,7 +133,7 @@ const M = {
 	//calculate all current values describing engine output
 	engine: function() {
 		//calculate torque, multiply it by relative pressure and then convert it to power
-		S.T = M.getTorque(S.car, S.f, S.starter, S.gas, S.nitro) * S.pR;
+		S.T = M.getTorque(S.car, S.f, S.starter, S.gas, S.nitro, S.pR);
 		S.P = S.T * 2*Math.PI * S.f;
 
 		//countdown starter torque
@@ -166,7 +153,7 @@ const M = {
 		let car = cars[S.car];
 
 		//dissipative forces
-		let Fc = -(car.transmission.loss.a + car.transmission.loss.b * S.v**2);
+		let Fc = -(car.transmission.loss.a + car.transmission.loss.b * S.pR * S.v**2);
 
 		//brakes
 		if(S.brakes && !S.disable.brakes) {
