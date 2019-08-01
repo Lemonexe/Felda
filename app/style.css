@@ -194,6 +194,12 @@ img {
 	50% {opacity: 0;}
 }
 
+#showroomSelectCar {
+	font-size: 26px;
+	font-family: "Courier New";
+	border: none;
+	outline: none;
+}
 .showroomTable td {
 	padding-right: 20px;
 }

@@ -48,6 +48,7 @@
 		<div class="buttonContainer">
 			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
 			<input type="button" ng-click="initGame()" value="Nová hra" class="mediumButton">
+			<input type="button" ng-click="enterShowroom()" value="Autosalón" class="mediumButton">
 			<input type="button" ng-click="tab('options')" value="Nastavení" class="mediumButton">
 			<input type="button" ng-click="tab('history')" ng-value="'v' + version.join('.')" class="mediumButton">
 		</div>
@@ -57,11 +58,12 @@
 			{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}}), {{(S.d/1000).toFixed(1)}} km<br>
 		</p>
 		<div ng-if="!S">
-			<p>Vítejte ve Felda simulátoru - nejzábavnější fyzikální simulaci všech dob, kde můžete ovládat toto známé lidové vozítko!</p>
+			<p>Vítejte ve Felda simulátoru - nejzábavnější fyzikální simulaci všech dob!<br>
+				V této hře můžete ovládat nejen toto známé lidové vozítko, ale nově i mnoho dalších.</p>
 			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky.<br>
 				Ty můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
 			<p>Je doporučeno hrát na počítači s klávesnicí, avšak lze se bez ní obejít <i>(viz Ovládání)</i></p>
-			<p>Po výběru levelu a auta hru spusťte tlačítkem Nová hra (výše)</p>
+			<p>Po výběru levelu a automobilu spusťte hru tlačítkem Nová hra (výše)</p>
 		</div>
 
 		<h2>Ovládání <span ng-click="CS.showIntro = !CS.showIntro" class="fakeLink" style="font-size: 16px">{{CS.showIntro ? 'skrýt' : 'odkrýt'}}</span></h2>

@@ -36,7 +36,9 @@ const L = {
 
 	//levelGeneration() - the simplest one
 	straight: function(levelObject) {
-		return [0, 0];
+		let int = levelObject.generation.int;
+		let length = levelObject.generation.length;
+		return new Array(length/int + 1).fill(0);
 	},
 
 	//levelGeneration() - several layers of random noise

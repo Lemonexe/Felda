@@ -12,7 +12,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//version history
 	$scope.vHistory = [
 	//DEVELOPMENT
-{name: 'v1.0',  date: '??.07.2019', desc: 'zcela fundamentálně přepracováno za použití AngularJS, mnoho nových funkcí'},
+{name: 'v1.0',  date: '??.08.2019', desc: 'zcela fundamentálně přepracováno za použití AngularJS, mnoho nových funkcí i nová auta'},
 		{name: 'beta+', date: '13.10.2017', desc: 'nové obrázky a drobné změny, na dlouhou dobu vývoj ustal'},
 		{name: 'beta',  date: '22.09.2017', desc: 'přidána první canvas grafika a generace levelů'},
 		{name: 'alpha', date: '13.08.2017', desc: 'první zveřejněná verze, zatím jen samotný fyzikální model bez grafiky'}
@@ -202,6 +202,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		'střední (0.4s)': 0.4,
 		'rychlá (0.2s)':  0.2
 	};
+	//headline in showroom contains these options
+	$scope.optsShowroom = cars.map((c,i) => ({i: i, txt: `${c.name} ${c.engineName} (${c.year})`}));
 
 	//Angular ng-style definitions. The numeric values are just placeholders, they are overwritten by resize()
 	$scope.style = {
@@ -312,6 +314,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		car: null, //car reference
 		img: null, //image element of car
 		imgWH: null, //image element of car wheels
+		carStyle: {}, //ng-style for car image
 		wheelStyles: [], //ng-style objects of wheel images
 		Tmax: 0, //max torque [N*m]
 		Tmaxf: 0, //@ frequency [RPM]
@@ -322,14 +325,30 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	
 	//switch to showroom, i = index of car
 	$scope.enterShowroom = function(i) {
+		i = (typeof i === 'number') ? i : showroom.index;
 		showroom.index = i;
 		showroom.car = cars[i];
-		showroom.img   = imgs[cars[i].graphic.img];
-		showroom.imgWH = imgs[cars[i].graphic.imgWH];
+		showroom.img   = imgs[cars[i].graphic.img].img;
+		showroom.imgWH = imgs[cars[i].graphic.imgWH].img;
+
+		let [width,   height]   = [showroom.img.width,   showroom.img.height];
+		let [widthWH, heightWH] = [showroom.imgWH.width, showroom.imgWH.height];
+		let s = cars[i].graphic.width * 100 / width; //image scale (to get width of 100px per real meter)
+
+		//ng-styles
 		showroom.wheelStyles = cars[i].graphic.wheels.map(w => //generate ng-styles
-			({position: 'absolute', top: (w[1] - showroom.imgWH.height/2) + 'px', left: (w[0] - showroom.imgWH.width/2) + 'px'}));
+			({position: 'absolute',
+				top:  (s*(w[1] - heightWH/2)).toFixed() + 'px',
+				left: (s*(w[0] - widthWH /2)).toFixed() + 'px',
+				width:  (s*widthWH) .toFixed() + 'px',
+				height: (s*heightWH).toFixed() + 'px'
+			}));
+		showroom.carStyle = {
+			width:  (s*width) .toFixed() + 'px',
+			height: (s*height).toFixed() + 'px'}
 
 		$scope.tab('carShowroom');
+		$scope.drawPlot();
 	};
 
 	//draw plot of torque and power as function of RPM

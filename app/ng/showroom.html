@@ -1,6 +1,8 @@
 <h1>
 	Autosalón:
-	<span style="font-size: 26px">{{showroom.car.name}} {{showroom.car.engineName}} ({{showroom.car.year}})</span>
+	<select ng-model="showroom.index" id="showroomSelectCar" ng-change="enterShowroom(showroom.index)">
+		<option ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
+	</select>
 </h1>
 
 <div style="position: relative">
@@ -12,44 +14,45 @@
 
 		<h3>Obecné</h3>
 		<table class="showroomTable">
-			<tr><td>Hmotnost:</td><td>{{showroom.car.m}} kg</td></tr>
-			<tr><td>Délka:</td><td>{{showroom.car.graphic.width}} m</td></tr>
-			<tr><td>Výška:</td><td>{{showroom.car.graphic.height}} m</td></tr>
-			<tr><td>Průměr kol:</td><td>{{showroom.car.graphic.r}} m</td></tr>
+			<tr><td>Hmotnost:</td><td>{{showroom.car.m.toFixed()}} kg</td></tr>
+			<tr><td>Délka:</td><td>{{(showroom.car.graphic.width*1000).toFixed()}} mm</td></tr>
+			<tr><td>Výška:</td><td>{{(showroom.car.graphic.height*1000).toFixed()}} mm</td></tr>
+			<tr><td>Průměr kol:</td><td>{{(showroom.car.graphic.r*1000).toFixed()}} mm</td></tr>
 		</table>
 		<p>&nbsp;</p>
 
 		<h3>Motor</h3>
 		<table class="showroomTable">
-			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V}} l</td></tr>
-			<tr><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I}} kg·m²</td></tr>
+			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V.toFixed(3)}} l</td></tr>
+			<tr><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I.toFixed(2)}} kg·m²</td></tr>
 			<tr tooltip="@ {{showroom.Pmaxf.toFixed()}} RPM"><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, optsPow[CS.unitsPow])}}</td></tr>
 			<tr tooltip="@ {{showroom.Tmaxf.toFixed()}} RPM"><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td></tr>
 		</table>
 		<p>
 			Plyn:
-			<input type="range" style="width: 200px" min="0.2" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPlot()">
+			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPlot()">
 			{{ctrl.showroomGas.toPercent()}}
 		</p>
 		<p>&nbsp;</p>
 
 		<h3>Převodovka</h3>
 		<table class="showroomTable">
-			<tr><td>Max. kapacita spojky:</td><td>{{showroom.car.transmission.TclutchMax}} N·m</td></tr>
-			<tr><td>Koeficient tření brzd:</td><td>{{showroom.car.transmission.friction}}</td></tr>
+			<tr><td>Max. kapacita spojky:</td><td>{{showroom.car.transmission.TclutchMax.toFixed()}} N·m</td></tr>
+			<tr><td>Koeficient tření brzd:</td><td>{{showroom.car.transmission.friction.toFixed(1)}}</td></tr>
 		</table>
 		<p><u>Převody:</u></p>
 		<table class="showroomTable">
-			<tr ng-repeat="(key, value) in showroom.car.transmission.gears">
-				<td>{{(key === 'fix') ? 'fixní' : key}}:</td><td>{{value}}</td>
+			<tr ng-repeat="(key, value) in showroom.car.transmission.gears" ng-if="key !== 'fix'">
+				<td>{{key}}:</td><td>{{value.toFixed(3)}}</td>
 			</tr>
+			<tr tooltip="tímto převodem se násobí všechny ostatní"><td>fixní</td><td>{{showroom.car.transmission.gears.fix.toFixed(3)}}</td></tr>
 		</table>
 		<p>&nbsp;</p>
 	</div>
 
 	<div style="position: absolute; left: 400px; top: 0px">
 		<div style="position: relative; margin-bottom: 30px">
-			<img ng-src="{{showroom.img.src}}">
+			<img ng-src="{{showroom.img.src}}" ng-style="showroom.carStyle">
 			<img ng-src="{{showroom.imgWH.src}}" ng-repeat="w in showroom.wheelStyles" ng-style="w">
 		</div>
 		<canvas id="plot" width="600" height="600" ng-init="drawPlot()"></canvas>

@@ -1,11 +1,7 @@
 <<<RESOURCES & CONTENT>>>
 zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
 
-víc aut? (otestovat výběr auta)
-	Škoda 105 (34 kW)
-		http://skodaps.wz.cz/S105-136_technicke_1.php
-		převodovka https://sk.wikipedia.org/wiki/%C5%A0koda_120
-		charakteristika motoru: http://skoda.panda.cz/clanek.php?id=92
+více aut:
 	Škoda Octavia II 2.0 FSI (110 kW)
 		dá se to najít?
 	Nějaký bávo? E39 M5 (294 kW)

@@ -10,9 +10,10 @@ const config = {
 	imgLoadingArea: 1e4, //images will be split into areas of this length [m]
 	minimapDistance: 1e4, //miniMap displays such distance [m]
 	signDistance: 500, //intervals between special distance signs [m]
-	ppm_min: 30, //min and max ppm (pixels per meter for graphical rendering [1/m])
-	ppm_max: 150,
+	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [1/m])
+	ppm_max: 200,
 	minResolution: [1150, 650], //minimal recommended resolution
+	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
 	integratorSwitch: 5, //in PID controller, integrator is turned off when velocity error is GREATER than this threshold, to prevent oscillation [m/s]
 	derivatorSwitch: 0.5, //derivator is turned off when velocity error is LOWER than this threshold [m/s]
@@ -53,6 +54,8 @@ let imgs = {
 	//car images
 	felicia:   {img: 'res/felicia.png'}, //(C)
 	feliciaWH: {img: 'res/feliciaWH.png'}, //(C)
+	Skoda105:   {img: 'res/Skoda105.png'}, //(C)
+	Skoda105WH: {img: 'res/Skoda105WH.png'}, //(C)
 
 	//decoration images
 	oak:     {img: 'res/oak.png', width: 3, height: 4, mirror: true},
@@ -98,18 +101,17 @@ const cars = [
 			r: 0.27, //apparent radius of wheel, should be same as in transmission [m]
 			//positions of all wheels in pixels (of original image) [x, y]
 			wheels: [
-				[65, 120],
-				[316, 120]
+				[65, 121], [316, 121]
 			]
 		},
 
-		//mass [kg] 935kg curb weight + 65kg driver
-		m: 1000,
+		//mass [kg] curb weight + driver
+		m: 935+75,
 
 		//describes clutch, transmission and dissipative forces on entire car
 		transmission: {
 			clutchInt: [0.2, 0.8], //active slider interval for clutch
-			TclutchMax: 450, //maximal torque of clutch
+			TclutchMax: 480, //maximal torque of clutch
 			//coefficient of friction for braking
 			friction: 0.7,
 			//coefficients for dissipative forces (constant and quadratic)
@@ -142,29 +144,100 @@ const cars = [
 			//function T(f) for dissipative torque [N*m] if RPM < minRPM  or RPM > maxRPM
 			TdissUnder: f => 15,
 			TdissOver: f => 3*f - 280,
-			idleRPM: 800/60, //[Hz] if below this RPM, idleGas kicks in
-			idleGas: 0.1868, //gas throttle during idling
+			idleRPM: 750/60, //[Hz] if below this RPM, idleGas kicks in
+			idleGas: 0.186, //standard gas throttle during idling (but it will be adjusted in model)
 			starter: 2, //how long does starting take [s]
 			starterT: 9, //starter torque [N*m]
 			PID: [0.5, 10, 1], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
 			specs: [
-				[500/60,  16, 86],
-				[1000/60, 18, 96],
-				[1500/60, 20, 103],
-				[2000/60, 23, 111],
-				[2500/60, 26, 119],
-				[3000/60, 30, 127],
-				[3500/60, 35, 137],
-				[4000/60, 40, 145],
-				[4500/60, 46, 148],
-				[5000/60, 53, 148],
-				[5500/60, 61, 142],
-				[6000/60, 70, 140],
-				[6500/60, 80, 138],
-				[7000/60, 92, 137],
-				[7500/60, 106, 136],
+				[500/60,  16,  86 ],
+				[1000/60, 18,  96 ],
+				[1500/60, 20,  103],
+				[2000/60, 23,  111],
+				[2500/60, 26,  119],
+				[3000/60, 30,  127],
+				[3500/60, 35,  137],
+				[4000/60, 40,  145],
+				[4500/60, 46,  148],
+				[5000/60, 53,  148],
+				[5500/60, 61,  142],
+				[6000/60, 70,  140],
+				[6500/60, 80,  137],
+				[7000/60, 92,  133],
+				[7500/60, 106, 129],
 				[8000/60, 120, 120]
+			]
+		}
+	},
+
+	{
+		name: 'Škoda 105',
+		year: 1977,
+		engineName: '34kW',
+
+		graphic: {
+			img: 'Skoda105',
+			imgWH: 'Skoda105WH',
+			width: 4.160,
+			height: 1.400,
+			r: 0.297,
+			wheels: [
+				[290, 351], [1020, 351]
+			]
+		},
+
+		m: 855+75,
+
+		transmission: {
+			clutchInt: [0.2, 0.8],
+			TclutchMax: 360,
+			friction: 0.6,
+			loss: {
+				a: 230,
+				b: 0.52
+			},
+			r: 0.297,
+			gears: {
+				fix: 4.220,
+				1: 3.800,
+				2: 2.120,
+				3: 1.410,
+				4: 0.960
+			},
+			automat: [1500/60, 4500/60]
+		},
+
+		engine: {
+		lambda: 1,
+		V: 1.046,
+		I: 0.12,
+		minRPM: 500/60, 
+		maxRPM: 7000/60,
+		redlineRPM: 5500/60,
+		vibRPM: 4500/60,
+		TdissUnder: f => 12,
+		TdissOver: f => 2*f - 148.3,
+		idleRPM: 750/60,
+		idleGas: 0.191,
+		starter: 3,
+		starterT: 4,
+		PID: [0.7, 10, 0.5],
+			specs: [
+				[500/60,  13, 66 ],
+				[1000/60, 14, 75 ],
+				[1500/60, 16, 82 ],
+				[2000/60, 18, 87 ],
+				[2500/60, 21, 93 ],
+				[3000/60, 24, 97 ],
+				[3500/60, 28, 100],
+				[4000/60, 33, 103],
+				[4500/60, 39, 106],
+				[5000/60, 46, 110],
+				[5500/60, 54, 112],
+				[6000/60, 63, 112],
+				[6500/60, 73, 103],
+				[7000/60, 85, 85 ]
 			]
 		}
 	}
@@ -183,7 +256,7 @@ const levels = [
 		},
 		generation: {
 			f: 'straight',
-			int: 1e5,
+			int: 1e3,
 			length: 1e5,
 			minimapScale: 1,
 			images: []
@@ -200,7 +273,7 @@ const levels = [
 		},
 		generation: {
 			f: 'straight',
-			int: 1e5,
+			int: 1e3,
 			length: 1e5,
 			minimapScale: 1,
 			images: [
@@ -296,12 +369,14 @@ const tutorialFunctions = {
 	//define initial conditions
 	onstart: function() {
 		S.tutorial = true; //has the effect that popups pause the game
+		S.car = 0; //Felicia 4ever!!!
 		S.script = 0; //control variable to advance through the story
 		S.stalls = 0; //counter of stalls
 		S.gear = '2';
 		S.v = 10;
 		S.a = 0;
-		S.level.map = [1000, -9000]; //hardcode a downhill slope
+		S.level.mapOLD = angular.copy(S.level.map);
+		S.level.map = S.level.map.map((h, i) => 1000-0.1*i*levels[S.level.i].generation.int); //hardcode a downhill slope
 		S.disable.keys = true;
 		S.disable.controls = true;
 		S.disable.brakes = true;
@@ -326,7 +401,7 @@ const tutorialFunctions = {
 				'Pozn.: v nastavení lze význam pedálů obrátit'],
 				false, false, 500);
 		}
-		else if(S.f >= 8000/60 && S.script === 1) {
+		else if(S.f >= 7900/60 && S.script === 1) {
 			S.script++;
 
 			popup(['Beze změny převodu to nepůjde.',
@@ -340,7 +415,7 @@ const tutorialFunctions = {
 			//stop car and make the map flat
 			S.f = 0;
 			S.v = 0;
-			S.level.map = [0, 0];
+			S.level.map = S.level.mapOLD;
 			S.angle = 0;
 
 			popup(['Výborně!', 'Nyní bude auto zastaveno, zkuste se rozjet na 30 km/h.',

@@ -79,9 +79,13 @@ const M = {
 		let clutchPedal = CS.invertedPedals ? S.clutchSlider : 1-S.clutchSlider;
 		let gasPedal    = CS.invertedPedals ? S.gasSlider    : 1-S.gasSlider;
 
-		//S.gas = how much is gas throttle open
-		let idling = (S.f <= car.engine.idleRPM) && (gasPedal < car.engine.idleGas); //whether idling gas kicks in
-		S.gas = idling ? car.engine.idleGas : gasPedal;
+		//calculate S.gas = how much is gas throttle open (idling gas overrides pedal gas if greater)
+		//the standard idleGas value at idleRPM is defined in car, but there is also simple proportional regulation:
+		//gas = gas0 + frequency error * slope
+		let idleGas = car.engine.idleGas + (car.engine.idleRPM - S.f)*config.idleGasConstant;
+		let idleStart = car.engine.idleGas/config.idleGasConstant + car.engine.idleRPM; //RPM when idleGas is zero
+		let idling = (S.f <= idleStart) && (gasPedal < idleGas); //whether idling gas kicks in
+		S.gas = idling ? idleGas : gasPedal;
 
 		//S.clutch = force transferable by clutch (as fraction of maximum)
 		//clutch active interval (e.g. [0.2, 0.8]), the value is inverted once more

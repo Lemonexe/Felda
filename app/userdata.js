@@ -84,8 +84,7 @@ function State(i, c) {return {
 //factory for new a CS, which is always created in misc.js, but will be overwritten by CS loaded from save
 function ControllerState() {return {
 	tab: 'menu', //current view
-//DEVELOPMENT
-levelSelect: 1, //current selection of level (index)
+	levelSelect: 0, //current selection of level (index)
 	carSelect: 0, //current selection of car (index)
 	isLoadedGame: false, //has a game been loaded from local storage?
 	showIntro: true, //show or hide intro paragraph in menu
