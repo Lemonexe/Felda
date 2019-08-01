@@ -56,6 +56,8 @@ let imgs = {
 	feliciaWH: {img: 'res/feliciaWH.png'}, //(C)
 	Skoda105:   {img: 'res/Skoda105.png'}, //(C)
 	Skoda105WH: {img: 'res/Skoda105WH.png'}, //(C)
+	octavia:    {img: 'res/octavia.png'}, //(C)
+	octaviaWH:  {img: 'res/octaviaWH.png'}, //(C)
 
 	//decoration images
 	oak:     {img: 'res/oak.png', width: 3, height: 4, mirror: true},
@@ -98,7 +100,7 @@ const cars = [
 			imgWH: 'feliciaWH',
 			width: 3.855, //real length of car [m]
 			height: 1.446, //real height of car [m]
-			r: 0.27, //apparent radius of wheel, should be same as in transmission [m]
+			r: 0.28, //apparent radius of wheel, should be same as in transmission [m]
 			//positions of all wheels in pixels (of original image) [x, y]
 			wheels: [
 				[65, 121], [316, 121]
@@ -119,7 +121,7 @@ const cars = [
 				a: 250, //friction constant (-> force ~ v^0)  [N]
 				b: 0.51 //drag constant (-> force ~ v^2) [kg/m]
 			},
-			r: 0.27, //radius of wheel [m]
+			r: 0.28, //radius of wheel [m]
 			//gear ratios: 'fix' is required, otherwise there can be any number of gears, as long as there are keys binded to activate them
 			gears: {
 				fix: 4.167,
@@ -150,6 +152,7 @@ const cars = [
 			starterT: 9, //starter torque [N*m]
 			PID: [0.5, 10, 1], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
+			//it is imperative that specs cover the whole interval between minRPM and maxRPM
 			specs: [
 				[500/60,  16,  86 ],
 				[1000/60, 18,  96 ],
@@ -180,7 +183,7 @@ const cars = [
 			img: 'Skoda105',
 			imgWH: 'Skoda105WH',
 			width: 4.160,
-			height: 1.400,
+			height: 1.452,
 			r: 0.297,
 			wheels: [
 				[290, 351], [1020, 351]
@@ -238,6 +241,82 @@ const cars = [
 				[6000/60, 63, 112],
 				[6500/60, 73, 103],
 				[7000/60, 85, 85 ]
+			]
+		}
+	},
+
+	{
+		name: 'Škoda Octavia II',
+		year: 2005,
+		engineName: '2.0 FSI 110kW',
+
+		graphic: {
+			img: 'octavia',
+			imgWH: 'octaviaWH',
+			width: 4.572,
+			height: 1.487,
+			r: 0.328,
+			wheels: [
+				[182, 196], [616, 196]
+			]
+		},
+
+		m: 1350+75,
+
+		transmission: {
+			clutchInt: [0.15, 0.85],
+			TclutchMax: 960,
+			friction: 0.9,
+			loss: {
+				a: 350,
+				b: 0.52
+			},
+			r: 0.328,
+			gears: {
+				fix: 3.647,
+				1: 3.780,
+				2: 2.270,
+				3: 1.520,
+				4: 1.190,
+				5: 0.970,
+				6: 0.820
+			},
+			automat: [1500/60, 6000/60]
+		},
+
+		engine: {
+		lambda: 1.01,
+		V: 1.984,
+		I: 0.25,
+		minRPM: 500/60, 
+		maxRPM: 8500/60,
+		redlineRPM: 6500/60,
+		vibRPM: 5500/60,
+		TdissUnder: f => 23,
+		TdissOver: f => 4*f - 346.6,
+		idleRPM: 750/60,
+		idleGas: 0.165,
+		starter: 1.6,
+		starterT: 25,
+		PID: [0.4, 9, 1],
+			specs: [
+				[500/60,  24,  134],
+				[1000/60, 27,  175],
+				[1500/60, 30,  204],
+				[2000/60, 34,  220],
+				[2500/60, 39,  235],
+				[3000/60, 45,  244],
+				[3500/60, 52,  252],
+				[4000/60, 60,  259],
+				[4500/60, 69,  266],
+				[5000/60, 79,  274],
+				[5500/60, 91,  278],
+				[6000/60, 105, 280],
+				[6500/60, 122, 282],
+				[7000/60, 142, 277],
+				[7500/60, 165, 265],
+				[8000/60, 191, 246],
+				[8500/60, 220, 220]
 			]
 		}
 	}

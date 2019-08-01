@@ -243,11 +243,33 @@
 		<div class="buttonContainer">
 			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc"><br>	
 		</div>
+		<p>
+			Na této stránce jsou shrnuty jen ty nejvýznamnější verze hry.<br>
+			Pokud vás zajímá zdrojový kód aplikace včetně jeho vývoje, navštivte GitHub <a href="https://github.com/Lemonexe/Felda" target="_blank">repozitář</a>
+		</p>
 		<table>
 			<tr ng-repeat="v in vHistory">
 				<td width="70">{{v.name}}</td><td width="130">{{v.date}}</td><td>{{v.desc}}</td>
 			</tr>
 		</table>
+		<p>&nbsp;</p>
+		<p><a class="fakeLink" ng-click="showChangelog = !showChangelog">{{showChangelog ? 'skrýt' : 'Co je nového?'}}</a></p>
+		<div ng-show="showChangelog">
+			Nejvýraznějších změn se hra dočkala v srpnu 2019, zde je jejich seznam:
+			<ul>
+				<li>UI kompletně přepracováno za pomoci frameworku AngularJS</li>
+				<li>Mapa (náhled terénu)</li>
+				<li>Tempomat</li>
+				<li>Autosalón</li>
+				<li>Přidána Škoda 105 (1977)</li>
+				<li>Přidána Škoda Octavia II (2005)</li>
+				<!-- DEVELOPMENT
+				<li>Přidán Chevrolet Camaro (2016)</li>-->
+				<li>Více obrázků v Alpách a na letišti, animované obrázky</li>
+				<li>Zoomování pomocí kolečka myši</li>
+				<li>Řazení umožněno i myší</li>
+			</ul>
+		</div>
 	</div>
 </div>
 

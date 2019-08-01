@@ -2,10 +2,11 @@
 zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
 
 více aut:
-	Škoda Octavia II 2.0 FSI (110 kW)
-		dá se to najít?
+	Chevrolet Camaro (sixth generation) 6.2 L LT1 V8 engine (339 kW)
 	Nějaký bávo? E39 M5 (294 kW)
 		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
+	Mazda RX-8 (protože je to atmoška, kdežto RX-7 je oturbená)
+		podle mé rešerše je modelování příkonu jako dvoutakt - jeden zážeh na jeden cyklus
 
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map

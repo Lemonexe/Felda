@@ -1,8 +1,9 @@
 # Felda
 V simulátoru Felície se konečně můžete posadit za ~~volant~~ pedály a řadící páku známého lidového vozítka!
 Nejzábavnější fyzikální simulace všech dob je založená _převážně_ na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky, které můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!
+Nově je zde i mnoho dalších aut!
 
-**[odkaz](http://jira.zby.cz/content/Engine/) na produkční aplikaci**
+**[odkaz](http://jira.zby.cz/content/Felda/) na produkční aplikaci**
 
 Jedná se o čistě frontendovou aplikaci napsanou v HTML/CSS/JS za pomoci frameworku [AngularJS](https://angularjs.org/).
 
