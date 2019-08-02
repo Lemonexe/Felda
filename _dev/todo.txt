@@ -11,6 +11,7 @@ více aut, ale možná už to stačí
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
 
+
 <<<META>>>
 English language yes okay well?
 	v HTML template by se to třeba dalo udělat celkem ědnoduše:
@@ -18,8 +19,5 @@ English language yes okay well?
 	dynamic title
 	publish in english
 
-Fix 'DEVELOPMENT' before publishing!
-
-test on FF
-test on Edge
+Edge nefunguje (slider). Whatever.
 test on Android (tablet)

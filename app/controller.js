@@ -11,8 +11,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//version history
 	$scope.vHistory = [
-	//DEVELOPMENT
-{name: 'v1.0',  date: '??.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
+		{name: 'v1.0',  date: '02.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
 		{name: 'beta+', date: '13.10.2017', desc: 'nové obrázky a drobné změny, na dlouhou dobu vývoj ustal'},
 		{name: 'beta',  date: '22.09.2017', desc: 'přidána první canvas grafika a generace levelů'},
 		{name: 'alpha', date: '13.08.2017', desc: 'první zveřejněná verze, zatím jen samotný fyzikální model bez grafiky'}
