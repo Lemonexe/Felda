@@ -340,7 +340,9 @@ let R = {
 		let xMax = Math.max.apply(null, f);
 
 		//parameters for axis marks
-		let yMarkInt = (yMax - yMin > 49) ? 10 : 5; //interval of 10 kW or N*m
+		let yMarkInt = 5; //variable, but hardcoded interval of 5,10,50 kW or N*m
+		yMarkInt = (yMax - yMin > 49)  ? 10 : yMarkInt;
+		yMarkInt = (yMax - yMin > 200) ? 50 : yMarkInt;
 		yMax = yMarkInt * Math.ceil(yMax / yMarkInt); //recalculate max value of y axis to be divisible by the interval
 		let yMarkCount = Math.ceil((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
 

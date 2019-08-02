@@ -58,6 +58,8 @@ let imgs = {
 	Skoda105WH: {img: 'res/Skoda105WH.png'}, //(C)
 	octavia:    {img: 'res/octavia.png'}, //(C)
 	octaviaWH:  {img: 'res/octaviaWH.png'}, //(C)
+	camaro:    {img: 'res/camaro.png'}, //(C)
+	camaroWH:  {img: 'res/camaroWH.png'}, //(C)
 
 	//decoration images
 	oak:     {img: 'res/oak.png', width: 3, height: 4, mirror: true},
@@ -317,6 +319,82 @@ const cars = [
 				[7500/60, 165, 265],
 				[8000/60, 191, 246],
 				[8500/60, 220, 220]
+			]
+		}
+	},
+
+	{
+		name: 'Chevrolet Camaro',
+		year: 2017,
+		engineName: '6.2 V8 339kW',
+
+		graphic: {
+			img: 'camaro',
+			imgWH: 'camaroWH',
+			width: 4.784,
+			height: 1.364,
+			r: 0.351,
+			wheels: [
+				[166, 177], [698, 177]
+			]
+		},
+
+		m: 1671+75,
+
+		transmission: {
+			clutchInt: [0.1, 0.9],
+			TclutchMax: 2000,
+			friction: 1.2,
+			loss: {
+				a: 440,
+				b: 0.72
+			},
+			r: 0.351,
+			gears: {
+				fix: 3.730,
+				1: 2.660,
+				2: 1.780,
+				3: 1.300,
+				4: 1.000,
+				5: 0.740,
+				6: 0.500
+			},
+			automat: [1500/60, 6000/60]
+		},
+
+		engine: {
+		lambda: 1.01,
+		V: 6.162,
+		I: 0.80,
+		minRPM: 500/60, 
+		maxRPM: 8500/60,
+		redlineRPM: 6500/60,
+		vibRPM: 5500/60,
+		TdissUnder: f => 70,
+		TdissOver: f => 8*f - 450,
+		idleRPM: 750/60,
+		idleGas: 0.170,
+		starter: 1.5,
+		starterT: 100,
+		PID: [0.25, 8, 0.5],
+			specs: [
+				[500/60,  75,  431],
+				[1000/60, 84,  507],
+				[1500/60, 93,  568],
+				[2000/60, 106, 627],
+				[2500/60, 121, 682],
+				[3000/60, 140, 728],
+				[3500/60, 162, 767],
+				[4000/60, 186, 801],
+				[4500/60, 214, 831],
+				[5000/60, 245, 848],
+				[5500/60, 283, 862],
+				[6000/60, 326, 866],
+				[6500/60, 379, 861],
+				[7000/60, 441, 843],
+				[7500/60, 512, 808],
+				[8000/60, 593, 755],
+				[8500/60, 683, 683]
 			]
 		}
 	}
