@@ -299,8 +299,24 @@ let R = {
 		S.vibrationOffset[1] = rnd(v);
 	},
 
-	//draw plot from vectors of frequency (f) [RPM], torque (T) [N*m] and power (P) [kW]
-	drawPlot: function(f, T, P, pUnit) {
+	/*draw plot using instructions in obj (for an example obj, see controller.js => $scope.drawPerformancePlot)
+	obj: {
+		axisX: {span: false or [0, 104],  int: false or 20, color: 'axis title color', name: 'axis title'},
+		axisY: -||-
+		axisY2: secondary axis - it's either undefined (no secondary axis), or {color: 'axis title color', name: 'axis title'},
+			span = [min val and max val] || false (to be determined by algorithm)
+			int = interval between marks || false (to be determined by algorithm)
+				span and int do nothing for axisY2, it has the same values as axisY, even if it's a different physical quantity, for convenience ;-)
+
+		data: [
+			{x: xValuesArray, y: yValuesArray, color: 'color of line'},
+			{x: xValuesArray, y: yValuesArray, color: 'color of line'}
+		]
+	}
+	*/
+	drawPlot: function(obj) {
+		let Y2 = obj.hasOwnProperty('axisY2');
+
 		let canvas = geto('plot');
 		if(!canvas) {return;}
 		let w = canvas.width;
@@ -308,73 +324,106 @@ let R = {
 
 		let ctx = canvas.getContext('2d');
 		ctx.clearRect(0, 0, w, h);
-
-		//lines for axes
 		ctx.save();
 		ctx.translate(0.5, 0.5);
 
+		//if spans are missing, deduce them from mins and maxs of all x and y in all datasets
+		if(!obj.axisX.span) {
+			let xMerged = obj.data.reduce((arr, d) => arr.concat(d.x), []);
+			obj.axisX.span = [
+				Math.min.apply(null, xMerged).limit(0, NaN),
+				Math.max.apply(null, xMerged)
+			];
+		}
+
+		if(!obj.axisY.span) {
+			let yMerged = obj.data.reduce((arr, d) => arr.concat(d.y), []);
+			obj.axisY.span = [
+				Math.min.apply(null, yMerged).limit(0, NaN),
+				Math.max.apply(null, yMerged)
+			];
+		}
+
+		//function to find suitable interval for a given span
+		function findInt(span) {
+			let intPrecise = (span[1] - span[0]) / (config.maxMarks-1); //interval when span is divided into 'maxMarks' of sections
+			let order = 10**Math.floor(Math.log10(intPrecise)); //order of magnitude of intPrecise
+			let aux = intPrecise / order; //the decisive number - shall we use 1, 2 or 5 (times 10**n)?
+			if     (aux > 5) {aux = 10;}
+			else if(aux > 2) {aux = 5;}
+			else             {aux = 2;}
+			return (aux * order).limit(1, NaN);
+		}
+
+		//if intervals are missing, deduced them using the findInt algorithm
+		['axisX', 'axisY'].forEach(function(axis) {
+			!obj[axis].int && (obj[axis].int = findInt(obj[axis].span));
+
+			//recalculate bounds to be divisible by the interval
+			let int = obj[axis].int;
+			obj[axis].span = [
+				int * Math.floor(obj[axis].span[0] / int),
+				int * Math.ceil (obj[axis].span[1] / int)
+			];
+		});
+
+		//number of marks on axes
+		obj.yMarkCount = Math.ceil((obj.axisY.span[1] - obj.axisY.span[0]) / obj.axisY.int + 1);
+		obj.xMarkCount = Math.ceil((obj.axisX.span[1] - obj.axisX.span[0]) / obj.axisX.int + 1);
+
+		//now that we have calculated all necessary variables, draw axes and data lines
+		this.drawPlotAxes (ctx, obj, w, h, Y2);
+		this.drawPlotLines(ctx, obj, w, h);
+
+		ctx.restore();
+	},
+
+	//drawPlot: draw axes, their titles and marks
+	drawPlotAxes: function(ctx, obj, w, h, Y2) {
+		//axis lines
 		ctx.strokeStyle = 'black';
 		ctx.beginPath();
 		ctx.moveTo(40, 40);
 		ctx.lineTo(40, h-40); //left y axis
 		ctx.lineTo(w-40, h-40); //x axis
-		ctx.lineTo(w-40, 40); //right y axis
+		Y2 && ctx.lineTo(w-40, 40); //right y axis?
 		ctx.stroke();
 
 		//labels for axes
 		ctx.textAlign = 'center';
 		ctx.font = 'bold 13px Arial';
-		ctx.fillStyle = 'red';
-		ctx.fillText(`P [${pUnit}]`, 25, 15);
-		ctx.fillStyle = 'blue';
-		ctx.fillText('T [N·m]', w-30, 15);
-		ctx.fillStyle = 'black';
-		ctx.fillText('RPM', w/2, h-5);
+		ctx.fillStyle = obj.axisY.color;
+		ctx.fillText(obj.axisY.name, 25, 15);
+		Y2 && (ctx.fillStyle = obj.axisY2.color);
+		Y2 && ctx.fillText(obj.axisY2.name, w-30, 15);
+		ctx.fillStyle = obj.axisX.color;
+		ctx.fillText(obj.axisX.name, w/2, h-5);
 		ctx.font = 'normal 13px Arial';
 
-	//AXES
-		//find max value of y axis (max of T & P) and both min & max of x axis (frequency bounds)
-		let yMin = 0;
-		let yMax = Math.max.apply(null, T.concat(P));
-		let xMin = Math.min.apply(null, f);
-		let xMax = Math.max.apply(null, f);
-
-		//parameters for axis marks
-		let yMarkInt = 5; //variable, but hardcoded interval of 5,10,50 kW or N*m
-		yMarkInt = (yMax - yMin > 49)  ? 10 : yMarkInt;
-		yMarkInt = (yMax - yMin > 200) ? 50 : yMarkInt;
-		yMax = yMarkInt * Math.ceil(yMax / yMarkInt); //recalculate max value of y axis to be divisible by the interval
-		let yMarkCount = Math.ceil((yMax - yMin) / yMarkInt + 1); //number of marks on y axes
-
-		let xMarkInt = 500; //fixed interval of 500 RPM
-		let xMarkCount = Math.ceil((xMax - xMin) / xMarkInt + 1); //number of marks on x axis
-
-
 		//y axes - marks and numbers
-		//both T & P use the same scale for convenience - numerical values are within the same order of magnitude
-		for(let i = 0; i < yMarkCount; i++) {
+		for(let i = 0; i < obj.yMarkCount; i++) {
 			let x1 = 40; //left axis
 			let x2 = w-40; //right axis
-			let y = (h-40) - (h-80) * i / (yMarkCount-1);
+			let y = (h-40) - (h-80) * i / (obj.yMarkCount-1);
 
 			ctx.beginPath();
 			ctx.moveTo(x1, y);
 			ctx.lineTo(x1+5, y);
-			ctx.moveTo(x2, y);
-			ctx.lineTo(x2-5, y);
+			Y2 && ctx.moveTo(x2, y);
+			Y2 && ctx.lineTo(x2-5, y);
 			ctx.stroke();
 
 			y += 5 * (i > 0); //offset of 5 will place values in line with marks, but not zero, as it would intersect with x marks
 			ctx.textAlign = 'right';
-			ctx.fillText((yMin + i*yMarkInt).toFixed(), x1-4, y);
-			ctx.textAlign = 'left';
-			ctx.fillText((yMin + i*yMarkInt).toFixed(), x2+4, y);
+			ctx.fillText((obj.axisY.span[0] + i*obj.axisY.int).toFixed(), x1-4, y);
+			Y2 && (ctx.textAlign = 'left');
+			Y2 && ctx.fillText((obj.axisY.span[0] + i*obj.axisY.int).toFixed(), x2+4, y);
 		}
 
 		//x axis - marks and numbers
 		ctx.textAlign = 'center';
-		for(let i = 0; i < xMarkCount; i++) {
-			let x = 40 + (w-80) * i / (xMarkCount-1);
+		for(let i = 0; i < obj.xMarkCount; i++) {
+			let x = 40 + (w-80) * i / (obj.xMarkCount-1);
 			let y = h - 40;
 
 			ctx.beginPath();
@@ -382,29 +431,27 @@ let R = {
 			ctx.lineTo(x, y-5);
 			ctx.stroke();
 
-			ctx.fillText((xMin + i*xMarkInt).toFixed(),  x, y+15);
+			ctx.fillText((obj.axisX.span[0] + i*obj.axisX.int).toFixed(), x, y+15);
 		}
+	},
 
-	//CHARTS
-		//draw the data line itself from x points and y points
-		function drawDataset(color, xset, yset) {
+	//drawPlot: draw lines for the actual datasets
+	drawPlotLines: function(ctx, obj, w, h) {
+		//draw one line
+		function drawDataset(dataset) {
 			ctx.beginPath();
 			//for i in points
-			for(let i = 0; i < yset.length; i++) {
-				let x = 40   + (w-80) * (xset[i] - xMin) / (xMax - xMin);
-				let y = h-40 - (h-80) * (yset[i] - yMin) / (yMax - yMin);
+			for(let i = 0; i < dataset.y.length; i++) {
+				let x = 40   + (w-80) * (dataset.x[i] - obj.axisX.span[0]) / (obj.axisX.span[1] - obj.axisX.span[0]);
+				let y = h-40 - (h-80) * (dataset.y[i] - obj.axisY.span[0]) / (obj.axisY.span[1] - obj.axisY.span[0]);
 				(i === 0) && ctx.moveTo(x, y);
- 				(i > 0)   && ctx.lineTo(x, y);
+ 				(i  >  0) && ctx.lineTo(x, y);
 			}
-			ctx.strokeStyle = color;
+			ctx.strokeStyle = dataset.color;
 			ctx.stroke();
 		}
 
-		//draw P and T
-		drawDataset('red',  f, P);
-		drawDataset('blue', f, T);
-
-		ctx.restore();
+		obj.data.forEach(drawDataset);
 	},
 
 	//use canvas to render gearstick

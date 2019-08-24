@@ -17,7 +17,9 @@ const config = {
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
 	integratorSwitch: 5, //in PID controller, integrator is turned off when velocity error is GREATER than this threshold, to prevent oscillation [m/s]
 	derivatorSwitch: 0.5, //derivator is turned off when velocity error is LOWER than this threshold [m/s]
-	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to draw plot [Hz]
+	maxMarks: 15, //maximum number of marks on a plot
+	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
+	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to tabelate values for plot [Hz]
 	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash
 };
 

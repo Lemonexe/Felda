@@ -24,8 +24,7 @@ image preloading a objekt `saveService`, který slouží na ukládání/načít�
 **app/directives.js** definuje direktivy, do kterých byla vyčleněna část funkcionality controlleru, jmenovitě:  
 `tooltip` nahrazuje HTML title  
 `minimap` využívá tooltip pro minimapku  
-`gearstick` vykresluje a obsluhuje řadící páku  
-`plot` TODO
+`gearstick` vykresluje a obsluhuje řadící páku
 
 **app/render.js** definuje objekt `R`, který zajišťuje vykreslování canvasu pro herní grafiku, grafy a řadící páku (bez Angularu)
 

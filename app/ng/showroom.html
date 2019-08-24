@@ -25,12 +25,12 @@
 		<table class="showroomTable">
 			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V.toFixed(3)}} l</td></tr>
 			<tr><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I.toFixed(2)}} kg·m²</td></tr>
-			<tr tooltip="@ {{showroom.Pmaxf.toFixed()}} RPM"><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, optsPow[CS.unitsPow])}}</td></tr>
-			<tr tooltip="@ {{showroom.Tmaxf.toFixed()}} RPM"><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td></tr>
+			<tr tooltip="@ {{(showroom.Pmaxf*60).toFixed()}} RPM"><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, CS.unitPow)}}</td></tr>
+			<tr tooltip="@ {{(showroom.Tmaxf*60).toFixed()}} RPM"><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td></tr>
 		</table>
 		<p>
 			Plyn:
-			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPlot()">
+			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPerformancePlot()">
 			{{ctrl.showroomGas.toPercent()}}
 		</p>
 		<p>&nbsp;</p>
@@ -55,7 +55,7 @@
 			<img ng-src="{{showroom.img.src}}" ng-style="showroom.carStyle">
 			<img ng-src="{{showroom.imgWH.src}}" ng-repeat="w in showroom.wheelStyles" ng-style="w">
 		</div>
-		<canvas id="plot" width="600" height="600" ng-init="drawPlot()"></canvas>
+		<canvas id="plot" width="600" height="600" ng-init="drawPerformancePlot()"></canvas>
 		<div class="footerDefense"></div>
 	</div>
 </div>

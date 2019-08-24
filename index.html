@@ -123,16 +123,13 @@
 			<input type="button" ng-click="setKey()" onclick="this.blur()" value="Změnit">
 		</p>
 
-		<p>Jednotky rychlosti:
-			<select ng-model="CS.unitsVel">
-				<option ng-repeat="opt in optsVel track by $index" value="{{$index}}">{{opt.txt}}</option>
-			</select>, zrychlení:
-			<select ng-model="CS.unitsAcc">
-				<option ng-repeat="opt in optsAcc track by $index" value="{{$index}}">{{opt.txt}}</option>
-			</select>, výkonu:
-			<select ng-model="CS.unitsPow">
-				<option ng-repeat="opt in optsPow track by $index" value="{{$index}}">{{opt.txt}}</option>
-			</select>
+		<p>
+			Jednotky rychlosti:
+			<select ng-model="CS.unitVel" ng-options="opt.txt for opt in optsVel"></select>,
+			zrychlení:
+			<select ng-model="CS.unitAcc" ng-options="opt.txt for opt in optsAcc"></select>,
+			výkonu:
+			<select ng-model="CS.unitPow" ng-options="opt.txt for opt in optsPow"></select>
 		</p>
 
 		<p tooltip="pomalejší ovládání = hladší řazení a rozjíždění">
@@ -215,7 +212,7 @@
 
 					<!--when PID currently running-->
 					<span ng-show="S.vTarget">
-						<span tooltip="nastavená hodnota tempomatu">&rarr; {{st.calculateUnit(S.vTarget, optsVel[CS.unitsVel])}}</span><br>
+						<span tooltip="nastavená hodnota tempomatu">&rarr; {{st.calculateUnit(S.vTarget, CS.unitVel)}}</span><br>
 
 						<!--advanced PID details-->
 						<span ng-show="CS.enableDetails">

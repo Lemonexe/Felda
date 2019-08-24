@@ -1,6 +1,6 @@
 <<<RESOURCES & CONTENT>>>
 autosalón - grafy F = F(v) pro jednotlivé stupně
-	přesunout plots do directivy
+	předělat autosalón - budou tam 3 taby: Obecné (obrázek auta), Motor (performance plot), Převodovka (velocity plot + control form)
 
 zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
 

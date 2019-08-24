@@ -6,9 +6,9 @@
 	sklon
 </div><div class="statsRight" style="font-size: 24px; width: 200px">
 	{{S.gear}}<br>
-	{{st.calculateUnit(S.v, optsVel[CS.unitsVel])}}<br>
+	{{st.calculateUnit(S.v, CS.unitVel)}}<br>
 	{{st.f()}} RPM<br>
-	{{st.calculateUnit(S.a, optsAcc[CS.unitsAcc])}}<br>
+	{{st.calculateUnit(S.a, CS.unitAcc)}}<br>
 	{{(S.angle * 180 / 3.141592).toFixed()}}°
 </div>
 
@@ -18,7 +18,7 @@
 	okamžitá spotřeba<br><br>
 	průměrná spotřeba
 </div><div class="statsRight" style="width: 170px" ng-show="!S.disable.stats23">
-	{{st.calculateUnit(S.P, optsPow[CS.unitsPow])}}<br>
+	{{st.calculateUnit(S.P, CS.unitPow)}}<br>
 	{{S.T.toFixed()}} N·m<br><br>
 	{{st.kmfuel()}} l/100km<br>
 	{{(S.consumption * 3600 / csts.rho).toFixed(1)}} l/h<br>
@@ -34,7 +34,7 @@
 </div><div class="statsRight" style="width: 150px" ng-show="!S.disable.stats23">
 	{{st.getTime()}}<br>
 	{{(S.d / 1000).toFixed(3)}} km<br>
-	{{st.calculateUnit(S.d / S.t, optsVel[CS.unitsVel])}}<br><br>
+	{{st.calculateUnit(S.d / S.t, CS.unitVel)}}<br><br>
 	{{S.altitude.toFixed()}} m<br>
 	<span tooltip="{{tt.ascension}}">{{(S.ascension / 1000).toFixed(3)}} km</span><br>
 </div>

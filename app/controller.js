@@ -342,13 +342,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			height: (s*height).toFixed() + 'px'}
 
 		$scope.tab('carShowroom');
-		$scope.drawPlot();
+		$scope.drawPerformancePlot();
 	};
 
 	//draw plot of torque and power as function of RPM
-	$scope.drawPlot = function() {
+	$scope.drawPerformancePlot = function() {
 		let car = showroom.car;
-		let step = 500/60; //frequency increment [Hz]
+		let step = config.fPlotInt; //frequency increment [Hz]
 		let fSpan = config.fPlotSpan; //span of frequency [Hz]
 		let n = Math.round((fSpan[1] - fSpan[0])/step + 1); //number of elements in vectors
 
@@ -359,26 +359,40 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		//calculate f, T, P values
 		for(let i = 0; i < n; i++) {
 			f[i] = fSpan[0] + i*step;
+			//car index, frequency, no starter, slider gas, no nitro, std pressure
 			T[i] = M.getTorque(showroom.index, f[i], 0, ctrl.showroomGas, false, 1);
-			P[i] = T[i] * 2*Math.PI * f[i]
+			P[i] = T[i] * 2*Math.PI * f[i];
 		}
-		f = f.map(item => item*60);   //convert Hz > RPM
 
 		//find index of maximal values for T and P
 		let callback = (iMax,o,i,arr) => (o > arr[iMax]) ? i : iMax;
 		let iMaxT = T.reduce(callback, 0);
 		let iMaxP = P.reduce(callback, 0);
 
-		//maximal values
+		//save the maximal values
 		showroom.Tmax = T[iMaxT]; showroom.Tmaxf = f[iMaxT];
 		showroom.Pmax = P[iMaxP]; showroom.Pmaxf = f[iMaxP];
 
-		let unit = $scope.optsPow[CS.unitsPow]; //unit of power
-		P = P.map(item => item * unit.val); //convert W  > unit of power
+		if(T[iMaxT] <= 0 || P[iMaxP] <= 0) {return;}
 
-		//draw plot to canvas
-		(T[iMaxT] > 0 && P[iMaxP] > 0) && R.drawPlot(f, T, P, unit.txt);
+		//convert Hz > RPM, convert W > unit of power
+		P = P.map(item => item * CS.unitPow.val);
+		f = f.map(item => item * 60);
+
+		//create request to draw plot - see R.drawPlot for explanation of the argument object
+		R.drawPlot({
+			axisX: {span: false, int: false, color: 'black', name: 'RPM'},
+			axisY: {span: false, int: false, color: 'red',   name: `P [${CS.unitPow.txt}]`},
+			axisY2: {color: 'blue',  name: 'T [N·m]'},
+			data: [
+				{x: f, y: P, color: 'red'},
+				{x: f, y: T, color: 'blue'}
+			]
+		});
 	};
+
+	//TODO
+	$scope.drawVelocityPlot = function() {};
 
 	/*CONTROL GAME*/
 	//create a new simulation
