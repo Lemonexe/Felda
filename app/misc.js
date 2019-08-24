@@ -110,7 +110,7 @@ window.onresize = function() {
 	angular.element(document).scope().resolutionCheck();
 };
 
-window.onerror = function() {
+window.onerror = function(err) {
 	alert(`FATÁLNÍ CHYBA:\n(${err})\nToto může být způsobeno starým, nekompatibilním savem.\nSave bude resetován a stránka bude obnovena`);
 	saveService.clear();
 };

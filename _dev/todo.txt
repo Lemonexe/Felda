@@ -1,4 +1,7 @@
 <<<RESOURCES & CONTENT>>>
+autosalón - grafy F = F(v) pro jednotlivé stupně
+	přesunout plots do directivy
+
 zvukové efekty - motor, startér, cvakání při řazení, qílení brzd, syčení nitra?
 
 více aut, ale možná už to stačí
@@ -6,6 +9,7 @@ více aut, ale možná už to stačí
 		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
 	Mazda RX-8 (protože je to atmoška, kdežto RX-7 je oturbená)
 		podle mé rešerše je modelování příkonu jako dvoutakt - jeden zážeh na jeden cyklus
+	Citroën 2CV (22kW) jakožto ultimátní drožka?
 
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map

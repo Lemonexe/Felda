@@ -1,6 +1,8 @@
 /*
 	CONTROLLER.JS
-	definition of angular controller and everything related to view & control, except for canvas (see render.js)
+	definition of angular controller, which controls everything related to view & control, except for:
+		angular directives (see directives.js)
+		canvas (see render.js)
 */
 
 let app = angular.module('Felda', []);
@@ -49,6 +51,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		CS.keyBinding = false;
 		CS.tab = tab;
 	};
+
+	//escape game via cross in upper-right corner
+	$scope.escapeGame = () => keyBindFunctions.esc(false);
 
 	//getter / setter function for pedals
 	$scope.getSetGas    = newVal => (typeof newVal === 'number') ? (S.gasSlider    = newVal) : S.gasSlider;
@@ -179,22 +184,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{action: 'brake', description: 'Brzda'},
 		{action: 'map', description: 'Mapa'}
 	];
-	//velocity units: conversion value, text representation, number of digits after decimal point
-	$scope.optsVel = [
-		{val: 3.6, txt: 'km/h', dgt: 0},
-		{val: 1,   txt: 'm/s',  dgt: 1}
-	];
-	//acceleration units: same structure as velocity
-	$scope.optsAcc = [
-		{val: 3.6, txt: 'km/h/s', dgt: 2},
-		{val: 1/constants.g, txt: 'g', dgt: 3},
-		{val: 1, txt: 'm/s²', dgt: 2}
-	];
-	//power units: same structure as velocity
-	$scope.optsPow = [
-		{val: 1e-3,     txt: 'kW', dgt: 0},
-		{val: 1.341e-3, txt: 'hp', dgt: 0}
-	];
+
+	//velocity units, acceleration units and power units
+	$scope.optsVel = [units.kmh, units.ms];
+	$scope.optsAcc = [units.kmhs, units.g, units.mss];
+	$scope.optsPow = [units.kW, units.hp];
+
 	//pedal operation duration: select text, duration [s]
 	$scope.optsPedals = {
 		'pomalá (0.7s)':  0.7,
@@ -388,19 +383,31 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
-		CS.popup = false;
 		CS.keyBinding = false;
 		if(S) {
 			if(!confirm('Běžící hra bude ztracena, přesto pokračovat?')) {return;}
 		}
+		popup('Načítání', true);
+
+		//create new level, which contains a promise
 		S = new State(CS.levelSelect, CS.carSelect);
-		$scope.S = S;
-		S.running = true;
-		M.initCalculations();
 
-		$scope.tab('game');
+		//fulfill promise
+		function resolve(result) {
+			CS.popup = false;
+			$scope.tab('game');
+			$scope.S = S;
 
-		exec(levels[CS.levelSelect].listeners.onstart);
+			S.level.map = result;
+			S.running = true;
+			M.initCalculations();
+			exec(levels[CS.levelSelect].listeners.onstart);
+		}
+		function reject(err) {
+			S = null;
+			popup(['CHYBA', 'Level se nepodařilo načíst', err]);
+		}
+		S.level.map.then(resolve, reject);
 	};
 
 	//continue a running simulation
@@ -426,12 +433,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		}
 		(CS.popup.timeout <= 0) && (CS.popup = false);
 	}
-
-	//use canvas to render gearstick and use angular to create clickable areas
-	$scope.drawGearstick = () => ($scope.gearstickAreas = R.drawGearstick()); //draw canvas and get clickable areas
-	$scope.gearstickAreas = [];
-	$scope.gearstickAreaStyle = g => ({top: g.y, left: g.x, width: g.w, height: g.h}); //get ng-style for clickable area
-	$scope.shiftGear = g => M.shift(g); //throw in a gear
 
 	//execute each FPS: resize, decrement countdowns, draw game, schedule new FPS call
 	function FPS() {
@@ -473,58 +474,3 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	onload();
 });
-
-/*DIRECTIVES*/
-//attribute directive for custom tooltip as a replacement for title
-app.directive('tooltip', () => ({
-	restrict: 'A',
-	link: function(scope, elem, attrs) {
-		//create tooltip when you move mouse over the element
-		function create(event) {
-			if(!attrs.tooltip) {return;}
-			CS.tooltip.visible = true;
-			CS.tooltip.style.top = (event.pageY + 25) + 'px';
-			CS.tooltip.style.left = event.pageX + 'px';
-			CS.tooltip.message = [attrs.tooltip];
-		}
-
-		//remove tooltip when no longer relevant
-		let rem = () => (CS.tooltip.visible = false);
-
-		elem.on('mousemove', create);
-		elem.on('mouseout', rem);
-		elem.on('click', rem);
-	}
-}));
-
-//custom tooltip is hijacked by miniMap
-app.directive('minimap', () => ({
-	restrict: 'A',
-	link: function(scope, elem, attrs) {
-		//create tooltip when you move mouse over the element
-		function create(event) {
-			if(!CS.showMap) {return;}
-			let obj = CS.miniMapCursor;
-
-			obj.enabled = !isNaN(obj.a);
-			CS.tooltip.visible = obj.enabled;
-			CS.tooltip.style.top  = (event.pageY + 20) + 'px';
-			CS.tooltip.style.left = (event.pageX - 20) + 'px';
-			CS.tooltip.message = [
-				`x: ${(obj.d/1000).toFixed(1)} km`,
-				`y: ${obj.a.toFixed()} m`
-			];
-			obj.pageY = event.pageY;
-			obj.pageX = event.pageX;
-		}
-
-		//remove tooltip when no longer relevant
-		let rem = function() {
-			CS.tooltip.visible = false;
-			CS.miniMapCursor.enabled = false;
-		}
-
-		elem.on('mousemove', create);
-		elem.on('mouseout', rem);
-	}
-}));

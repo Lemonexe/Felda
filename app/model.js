@@ -196,6 +196,7 @@ const M = {
 
 			//torque transferable through clutch
 			var Tclutch = car.transmission.TclutchMax * S.clutch;
+			if(S.nitro && S.f > car.engine.idleRPM) {Tclutch *= constants.N2O;}
 
 			//car frequency (frequency on the transmission end of clutch, also ideal frequency for engine, will converge as fast as clutch torque enables it)
 			let fc = S.v / (2*Math.PI * re);
@@ -317,6 +318,9 @@ const M = {
 		if(S.v > 3) {
 			S.vTarget = S.v;
 			S.PIDmemory = [0, 0];
+		}
+		else {
+			popup('Lze jen za jízdy', true, 1000);
 		}
 	},
 	//remove target velocity (turn off PID, delete history)

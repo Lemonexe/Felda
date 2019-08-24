@@ -28,21 +28,23 @@ const L = {
 
 	//generate map from a given levelObject
 	levelGeneration: function(levelObject) {
-		let f = levelObject.generation.f;
-		if(typeof L[f] === 'function') {
-			return L[f](levelObject);
-		}
+		return new Promise(function(resolve, reject) {
+			let f = levelObject.generation.f;
+			if(typeof L[f] === 'function') {
+				L[f](levelObject, resolve, reject);
+			}
+		});
 	},
 
 	//levelGeneration() - the simplest one
-	straight: function(levelObject) {
+	straight: function(levelObject, resolve, reject) {
 		let int = levelObject.generation.int;
 		let length = levelObject.generation.length;
-		return new Array(length/int + 1).fill(0);
+		resolve(new Array(length/int + 1).fill(0));
 	},
 
 	//levelGeneration() - several layers of random noise
-	noise: function(levelObject) {
+	noise: function(levelObject, resolve, reject) {
 		//see data.js > levels > 'Česká krajina'
 		let int = levelObject.generation.int;
 		let baseAlt = levelObject.generation.baseAlt;
@@ -73,7 +75,7 @@ const L = {
 			}
 		}
 
-		return map;
+		resolve(map);
 	},
 
 	//generate array of loading areas ('field'), each loading area is an array of images to be rendered

@@ -19,6 +19,7 @@ function State(i, c) {return {
 		length: levels[i].generation.length,
 		minimapScale: levels[i].generation.minimapScale,
 		//vector of altitude marks [m] that describes the terrain
+		//at first it is created as a promise
 		map: L.levelGeneration(levels[i]),
 		//array of arrays - level is divided into sectors of config.imgLoadingArea [m], each is collection of generated images
 		images: L.imageGeneration(levels[i])
@@ -32,7 +33,6 @@ function State(i, c) {return {
 	altitude: 0, // [m]
 	ascension: 0, //total ascended altitude (descent does not count) [m]
 	angle: 0, //elevation angle [rad]
-	consumed: 0, //fuel consumed [g]
 	pR: 1, // relative pressure (to standard pressure)
 
 	gear: 'N',

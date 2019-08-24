@@ -11,6 +11,7 @@
 
 		<!--DATA-->
 		<script src="app/data.js" type="text/javascript"></script>
+		<script src="app/cars.js" type="text/javascript"></script>
 		<script src="app/userdata.js" type="text/javascript"></script>
 
 		<!--MAIN APP-->
@@ -21,6 +22,7 @@
 
 		<!--ANGULAR APP-->
 		<script src="app/controller.js" type="text/javascript"></script>
+		<script src="app/directives.js" type="text/javascript"></script>
 
 		<!--CSS-->
 		<link rel="stylesheet" href="app/style.css">
@@ -178,6 +180,8 @@
 
 <!-- GAME -->
 	<div ng-switch-when="game" id="game">
+		<div id="escapeButton" ng-click="escapeGame()" tooltip="Esc">✖️</div>
+
 		<div id="gameLevelTitle">{{levels[S.level.i].name}}, {{cars[S.car].name}} {{cars[S.car].engineName}} ({{cars[S.car].year}})</div>
 
 		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics" minimap></canvas>
@@ -225,10 +229,7 @@
 			</div>
 
 			<div class="ctrlContainer" ng-show="CS.enableGearstick" style="padding-left: 20px">
-				<div style="position: relative">
-					<canvas id="gearstick" width="200" height="200" ng-init="drawGearstick()"></canvas>
-					<div ng-repeat="g in gearstickAreas" ng-click="shiftGear(g.txt)" ng-style="gearstickAreaStyle(g)" class="gearstickArea"></div>
-				</div>
+				<gearstick></gearstick>
 			</div>
 
 			<div id="warning">

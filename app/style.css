@@ -98,7 +98,7 @@ img {
 
 #tooltip {
 	position: absolute;
-	z-index: 4;
+	z-index: 5;
 	background-color: #dddddd;
 	border: 1px solid #888888;
 	padding: 1px 4px 1px 4px;
@@ -116,6 +116,17 @@ img {
 /*GAME*/
 #game {
 	font-size: 20px;
+}
+
+#escapeButton {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	background-color: #dddddd;
+	border: 1px solid #888888;
+	font-size: 26px;
+	cursor: pointer;
+	z-index: 4;
 }
 
 #gameLevelTitle {
