@@ -299,13 +299,13 @@ let R = {
 		S.vibrationOffset[1] = rnd(v);
 	},
 
-	/*draw plot using instructions in obj (for an example obj, see controller.js => $scope.drawPerformancePlot)
+	/*draw plot using instructions in obj (for an example obj, see controller.js => $scope.preparePerformancePlot)
 	obj: {
-		axisX: {span: false or [0, 104],  int: false or 20, color: 'axis title color', name: 'axis title'},
+		axisX: {span [0, 104], int: 20, color: 'axis title color', name: 'axis title'},
 		axisY: -||-
 		axisY2: secondary axis - it's either undefined (no secondary axis), or {color: 'axis title color', name: 'axis title'},
-			span = [min val and max val] || false (to be determined by algorithm)
-			int = interval between marks || false (to be determined by algorithm)
+			span = [min val and max val], NaN means to be determined by algorithm
+			int = interval between marks, NaN means to be determined by algorithm
 				span and int do nothing for axisY2, it has the same values as axisY, even if it's a different physical quantity, for convenience ;-)
 
 		data: [
@@ -315,7 +315,7 @@ let R = {
 	}
 	*/
 	drawPlot: function(obj) {
-		let Y2 = obj.hasOwnProperty('axisY2');
+		let Y2 = obj && obj.hasOwnProperty('axisY2');
 
 		let canvas = geto('plot');
 		if(!canvas) {return;}
@@ -324,25 +324,18 @@ let R = {
 
 		let ctx = canvas.getContext('2d');
 		ctx.clearRect(0, 0, w, h);
+		if(!obj) {return;}
 		ctx.save();
 		ctx.translate(0.5, 0.5);
 
-		//if spans are missing, deduce them from mins and maxs of all x and y in all datasets
-		if(!obj.axisX.span) {
-			let xMerged = obj.data.reduce((arr, d) => arr.concat(d.x), []);
-			obj.axisX.span = [
-				Math.min.apply(null, xMerged).limit(0, NaN),
-				Math.max.apply(null, xMerged)
-			];
-		}
+		//if bounds are missing, deduce them from mins and maxs of all x and y in all datasets
+		let xMerged = obj.data.reduce((arr, d) => arr.concat(d.x), []);
+		let yMerged = obj.data.reduce((arr, d) => arr.concat(d.y), []);
 
-		if(!obj.axisY.span) {
-			let yMerged = obj.data.reduce((arr, d) => arr.concat(d.y), []);
-			obj.axisY.span = [
-				Math.min.apply(null, yMerged).limit(0, NaN),
-				Math.max.apply(null, yMerged)
-			];
-		}
+		isNaN(obj.axisX.span[0]) && (obj.axisX.span[0] = Math.min.apply(null, xMerged));
+		isNaN(obj.axisX.span[1]) && (obj.axisX.span[1] = Math.max.apply(null, xMerged));
+		isNaN(obj.axisY.span[0]) && (obj.axisY.span[0] = Math.min.apply(null, yMerged));
+		isNaN(obj.axisY.span[1]) && (obj.axisY.span[1] = Math.max.apply(null, yMerged));
 
 		//function to find suitable interval for a given span
 		function findInt(span) {
@@ -357,7 +350,7 @@ let R = {
 
 		//if intervals are missing, deduced them using the findInt algorithm
 		['axisX', 'axisY'].forEach(function(axis) {
-			!obj[axis].int && (obj[axis].int = findInt(obj[axis].span));
+			isNaN(obj[axis].int) && (obj[axis].int = findInt(obj[axis].span));
 
 			//recalculate bounds to be divisible by the interval
 			let int = obj[axis].int;
@@ -451,7 +444,9 @@ let R = {
 			ctx.stroke();
 		}
 
+		ctx.lineWidth = 2;
 		obj.data.forEach(drawDataset);
+		ctx.lineWidth = 1;
 	},
 
 	//use canvas to render gearstick

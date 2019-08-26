@@ -9,6 +9,11 @@ const cars = [
 		name: 'Škoda Felicia',
 		year: 1996,
 		engineName: '1.3 MPI 50kW',
+		//showroom text as array of paragraphs
+		description: [
+			'Tento legendární hatchback z mladoboleslavské produkce je vlajkovou lodí Felda simulátoru, neboť dlouho byl jediným zde implementovaným automobilem.',
+			'Felda se vyráběla v letech 1994 - 2001 a zde je představena její nejpoužívanější motorizace. Ta by si měla bez obtíží poradit i s Alpami.'
+		],
 
 		//everything related to rendering
 		graphic: {
@@ -95,6 +100,11 @@ const cars = [
 		name: 'Škoda 105',
 		year: 1977,
 		engineName: '34kW',
+		description: [
+			'Kdo by neznal rezivějící vozidlo socialistického lidu, které je ikonou dávno minulé éry?',
+			'Modelovou řadu Škoda 742 vyráběl AZNP v letech 1976 - 1990.',
+			'Zdolávat horské vrcholy raději nezkoušejte, neboť stopětka je nejslabší motorizací z této řady.'
+		],
 
 		graphic: {
 			img: 'Skoda105',
@@ -166,6 +176,10 @@ const cars = [
 		name: 'Škoda Octavia II',
 		year: 2005,
 		engineName: '2.0 FSI 110kW',
+		description: [
+			'Nejvýkonnější atmosferický motor mladoboleslavské produkce si našel cestu do druhé generace oblíbeného rodinného sedanu.',
+			'Octavia II se vyráběla v letech 2004 - 2013, avšak v roce 2009 se jí bohužel přihodila tragédie jménem "facelift".'
+		],
 
 		graphic: {
 			img: 'octavia',
@@ -242,6 +256,10 @@ const cars = [
 		name: 'Chevrolet Camaro',
 		year: 2017,
 		engineName: '6.2 V8 339kW',
+		description: [
+			'\'Murica fuck yeah!',
+			'Legendární detroitský V8, hypertrofovaný až do neskutečných šesti litrů, je jednou z nejvýkonnějších atmosfér na trhu. Užívejte si trhání asfaltu!'
+		],
 
 		graphic: {
 			img: 'camaro',

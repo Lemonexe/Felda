@@ -1,61 +1,103 @@
-<h1>
-	Autosalón:
-	<select ng-model="showroom.index" id="showroomSelectCar" ng-change="enterShowroom(showroom.index)">
-		<option ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
-	</select>
-</h1>
+<h1>Autosalón</h1>
+
+<div class="buttonContainer">
+	<input type="button" class="mediumButton" ng-click="tab('menu')" value="Zpět" tooltip="Esc">
+	<input type="button" class="mediumButton" ng-if="S" ng-click="continue()" value="Pokračovat">
+</div>
+
+<select ng-model="showroom.index" id="showroomSelectCar" ng-change="enterShowroom(showroom.index)">
+	<option ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
+</select><br>
+
+<input type="button" ng-click="showroomTab('general')" value="Obecné">
+<input type="button" ng-click="showroomTab('engine')" value="Motor">
+<input type="button" ng-click="showroomTab('transmission')" value="Převodovka">
 
 <div style="position: relative">
-	<div style="position: absolute; left: 0px; top: 0px">
-		<div class="buttonContainer">
-			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
-			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
-		</div>
-
+<!-- LEFT PANELS -->
+	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'general'">
 		<h3>Obecné</h3>
+
 		<table class="showroomTable">
 			<tr><td>Hmotnost:</td><td>{{showroom.car.m.toFixed()}} kg</td></tr>
 			<tr><td>Délka:</td><td>{{(showroom.car.graphic.width*1000).toFixed()}} mm</td></tr>
 			<tr><td>Výška:</td><td>{{(showroom.car.graphic.height*1000).toFixed()}} mm</td></tr>
 			<tr><td>Průměr kol:</td><td>{{(showroom.car.graphic.r*1000).toFixed()}} mm</td></tr>
 		</table>
-		<p>&nbsp;</p>
 
+		<p ng-repeat="line in showroom.car.description">{{line}}</p>
+	</div>
+
+	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'engine'">
 		<h3>Motor</h3>
+
 		<table class="showroomTable">
 			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V.toFixed(3)}} l</td></tr>
-			<tr><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I.toFixed(2)}} kg·m²</td></tr>
-			<tr tooltip="@ {{(showroom.Pmaxf*60).toFixed()}} RPM"><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, CS.unitPow)}}</td></tr>
-			<tr tooltip="@ {{(showroom.Tmaxf*60).toFixed()}} RPM"><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td></tr>
+			<tr tooltip="tato hodnota je vycucána z prstu"><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I.toFixed(2)}} kg·m²</td></tr>
+			<tr><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, CS.unitPow)}}</td><td>@ {{(showroom.Pmaxf*60).toFixed()}} RPM</td></tr>
+			<tr><td>Max. točivý moment:</td><td>{{showroom.Tmax.toFixed()}} N·m</td><td>@ {{(showroom.Tmaxf*60).toFixed()}} RPM</td></tr>
 		</table>
+
 		<p>
 			Plyn:
-			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="drawPerformancePlot()">
+			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="preparePerformancePlot(); drawPlot()">
 			{{ctrl.showroomGas.toPercent()}}
 		</p>
-		<p>&nbsp;</p>
 
-		<h3>Převodovka</h3>
+		<p>
+			Graf vpravo vyjadřuje závislost výkonu (červená) a točivého momentu (modrá) na otáčkách motoru.
+			Ve výchozím stavu graf ukazuje charakteristiky za plného plynu, posuvníkem můžete plyn změnit.
+		</p>
+	</div>
+
+	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'transmission'">
+		<h3>Převodovka apod.</h3>
+
 		<table class="showroomTable">
-			<tr><td>Max. kapacita spojky:</td><td>{{showroom.car.transmission.TclutchMax.toFixed()}} N·m</td></tr>
-			<tr><td>Koeficient tření brzd:</td><td>{{showroom.car.transmission.friction.toFixed(1)}}</td></tr>
+			<tr tooltip="tato hodnota je vycucána z prstu"><td>Max. kapacita spojky:</td><td>{{showroom.car.transmission.TclutchMax.toFixed()}} N·m</td></tr>
+			<tr tooltip="tato hodnota je vycucána z prstu"><td>Koeficient tření brzd:</td><td>{{showroom.car.transmission.friction.toFixed(1)}}</td></tr>
+			<tr><td>Max. rychlost:</td><td>{{st.calculateUnit(showroom.vmax, CS.unitVel)}}</td></tr>
+			<tr tooltip="tato funkce je určena korelací">
+				<td>Odporové síly na auto:</td><td>F = {{showroom.car.transmission.loss.a.toFixed(0)}} + {{showroom.car.transmission.loss.b.toFixed(2)}}·v<sup>2</sup></td>
+			</tr>
 		</table>
+
 		<p><u>Převody:</u></p>
 		<table class="showroomTable">
 			<tr ng-repeat="(key, value) in showroom.car.transmission.gears" ng-if="key !== 'fix'">
-				<td>{{key}}:</td><td>{{value.toFixed(3)}}</td>
+				<td>{{key}}:</td>
+				<td>{{value.toFixed(3)}}</td>
+				<td>
+					<input type="checkbox" ng-model="ctrl.showroomGears[key]" ng-change="prepareVelocityPlot(); drawPlot()">
+					<span class="littleSquare" ng-style="{backgroundColor: showroom.colors[key]}"></span>
+				</td>
 			</tr>
 			<tr tooltip="tímto převodem se násobí všechny ostatní"><td>fixní</td><td>{{showroom.car.transmission.gears.fix.toFixed(3)}}</td></tr>
 		</table>
-		<p>&nbsp;</p>
+
+		<p>
+			Stoupání:
+			<input type="range" style="width: 200px" min="-30" max="30" step="1" ng-model="ctrl.showroomSlope" ng-change="prepareVelocityPlot(); drawPlot()">
+			{{ctrl.showroomSlope.toFixed(0)}}°
+		</p>
+
+		<p>
+			Graf vpravo vyjadřuje závislost sil na rychlosti. Černá křivka je síla odporová + gravitační (posuvníkem lze zadat sklon),
+			zatímco barevné křivky jsou síly, kterými motor působí na auto skrze jednotlivé převody (lze vybrat v seznamu)
+		</p><p>
+			Pokud je křivka převodu pod černou křivkou, motor to prostě neutáhne! Průsečík tedy ukazuje maximální rychlost pro daný převod.
+		</p>
 	</div>
 
-	<div style="position: absolute; left: 400px; top: 0px">
-		<div style="position: relative; margin-bottom: 30px">
+<!-- RIGHT PANELS -->
+	<div class="showroomRightPanel" ng-show="ctrl.showroomTab === 'general'" style="top: -60px">
+		<div style="position: relative">
 			<img ng-src="{{showroom.img.src}}" ng-style="showroom.carStyle">
 			<img ng-src="{{showroom.imgWH.src}}" ng-repeat="w in showroom.wheelStyles" ng-style="w">
 		</div>
-		<canvas id="plot" width="600" height="600" ng-init="drawPerformancePlot()"></canvas>
-		<div class="footerDefense"></div>
+	</div>
+
+	<div class="showroomRightPanel" ng-show="ctrl.showroomTab === 'engine' || ctrl.showroomTab === 'transmission'" style="top: -160px">
+		<canvas id="plot" width="600" height="600" ng-init="drawPlot()"></canvas>
 	</div>
 </div>

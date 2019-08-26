@@ -125,11 +125,11 @@
 
 		<p>
 			Jednotky rychlosti:
-			<select ng-model="CS.unitVel" ng-options="opt.txt for opt in optsVel"></select>,
+			<select ng-model="CS.unitVel" ng-options="opt.txt for opt in optsVel track by opt.txt"></select>,
 			zrychlení:
-			<select ng-model="CS.unitAcc" ng-options="opt.txt for opt in optsAcc"></select>,
+			<select ng-model="CS.unitAcc" ng-options="opt.txt for opt in optsAcc track by opt.txt"></select>,
 			výkonu:
-			<select ng-model="CS.unitPow" ng-options="opt.txt for opt in optsPow"></select>
+			<select ng-model="CS.unitPow" ng-options="opt.txt for opt in optsPow track by opt.txt"></select>
 		</p>
 
 		<p tooltip="pomalejší ovládání = hladší řazení a rozjíždění">
@@ -167,12 +167,13 @@
 			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
 		</p>
 
-		<div ng-show="showExplanation" ng-include="'app/ng/explanation.html'" style="padding-left: 50px; margin-top: 10px"></div>
+		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
+		<div ng-show="showExplanation" ng-include="'app/ng/explanation.html?version=1'" style="padding-left: 50px; margin-top: 10px"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->
 	<div ng-switch-when="carShowroom">
-		<div ng-include="'app/ng/showroom.html'"></div>
+		<div ng-include="'app/ng/showroom.html?version=1'"></div>
 	</div>
 
 <!-- GAME -->
@@ -183,9 +184,9 @@
 
 		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics" minimap></canvas>
 
-		<div id="stats" ng-include="'app/ng/stats.html'" ng-style="style.stats"></div>
+		<div id="stats" ng-include="'app/ng/stats.html?version=1'" ng-style="style.stats"></div>
 
-		<div id="advanced" ng-include="'app/ng/advanced.html'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
+		<div id="advanced" ng-include="'app/ng/advanced.html?version=1'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
 
 		<div id="controls" ng-style="style.controls" ng-show="!S.disable.controls">
 			<div class="ctrlContainer">
@@ -271,7 +272,7 @@
 </div>
 
 <div class="footerDefense"></div>
-<div id="footer">
+<div id="footer" ng-show="CS.tab === 'menu'">
 	Vytvořil <a href="http://jira.zby.cz/">Jiří Zbytovský</a> v letech 2017-2019 za použití <a href="https://angularjs.org/" target="_blank">AngularJS</a>
 	a různých zdrojů (<a class="fakeLink" ng-click="disclaimer()">více informací</a>)
 </div>

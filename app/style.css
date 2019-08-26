@@ -206,11 +206,33 @@ img {
 }
 
 #showroomSelectCar {
-	font-size: 26px;
+	width: 450px;
+	font-size: 18px;
 	font-family: "Courier New";
-	border: none;
-	outline: none;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
+#showroomContents {
+	font-size: 20px;
+	cursor: pointer;
+	margin-top: 0px;
+}
+.showroomLeftPanel {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	max-width: 480px;
+}
+.showroomRightPanel {
+	position: absolute;
+	left: 500px;
+}
+.showroomTable {margin-bottom: 20px;}
 .showroomTable td {
-	padding-right: 20px;
+	padding-right: 15px;
+}
+.littleSquare {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
 }

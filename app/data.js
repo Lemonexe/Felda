@@ -10,7 +10,7 @@ const config = {
 	imgLoadingArea: 1e4, //images will be split into areas of this length [m]
 	minimapDistance: 1e4, //miniMap displays such distance [m]
 	signDistance: 500, //intervals between special distance signs [m]
-	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [1/m])
+	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [m-1])
 	ppm_max: 200,
 	minResolution: [1150, 650], //minimal recommended resolution
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
@@ -20,6 +20,8 @@ const config = {
 	maxMarks: 15, //maximum number of marks on a plot
 	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
 	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to tabelate values for plot [Hz]
+	ppmShowroom: 120, //ppm for image of car in showroom [m-1]
+	gearColors: {'1': 'red', '2': 'gold', '3': 'green', '4': 'blue', '5': 'magenta', '6': 'cyan'}, //colors for plot datasets
 	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash
 };
 

@@ -41,8 +41,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//control variables
 	let ctrl = {
 		key2bind: false, //selection of key to be binded
-		showroomGas: 1 //gas throttle for T,P(f) plot in car showroom
+		showroomTab: 'general', //sub tab for showroom
+		showroomGas: 1, //gas throttle for T,P(f) plot in car showroom
+		showroomSlope: 0, //slope for F(v) plot in car showroom
+		showroomGears: {}
 	};
+	['4', '5', '6'].forEach(g => (ctrl.showroomGears[g] = true));
 	$scope.ctrl = ctrl;
 
 	//switch game tab
@@ -227,7 +231,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 		let hAdv = 101 * (CS.enableDetails && S && !S.tutorial); // height of advanced stats
 		// height of canvas: (available height) - stats - ?advanced? - controls - margin
-		let hMap = height - 141 - hAdv - 241 - 30;
+		let hMap = height - 141 - hAdv - 241 - 10;
 		hMap = CS.enableGraphics ? Math.max(200, hMap) : 40;
 
 		let m = geto('map');
@@ -313,9 +317,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		Tmax: 0, //max torque [N*m]
 		Tmaxf: 0, //@ frequency [RPM]
 		Pmax: 0, //max power [W]
-		Pmaxf: 0 //@ frequency [RPM]
+		Pmaxf: 0, //@ frequency [RPM]
+		vmax: 0, //max speed [m/s]
+		objPerformance: null, //object with request to draw a plot of performance - see R.drawPlot for explanation of the object
+		objVelocity: null, //same for velocity plot
+		colors: config.gearColors
 	};
-	$scope.showroom = showroom
+	$scope.showroom = showroom;
 	
 	//switch to showroom, i = index of car
 	$scope.enterShowroom = function(i) {
@@ -325,9 +333,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		showroom.img   = imgs[cars[i].graphic.img].img;
 		showroom.imgWH = imgs[cars[i].graphic.imgWH].img;
 
+		//pixel sizes of image resources
 		let [width,   height]   = [showroom.img.width,   showroom.img.height];
 		let [widthWH, heightWH] = [showroom.imgWH.width, showroom.imgWH.height];
-		let s = cars[i].graphic.width * 100 / width; //image scale (to get width of 100px per real meter)
+		//cars[i].graphic.width is real size [m]
+		let s = cars[i].graphic.width * config.ppmShowroom / width; //image scale (to get width of 120 pixels per real meter)
 
 		//ng-styles
 		showroom.wheelStyles = cars[i].graphic.wheels.map(w => //generate ng-styles
@@ -342,11 +352,20 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			height: (s*height).toFixed() + 'px'}
 
 		$scope.tab('carShowroom');
-		$scope.drawPerformancePlot();
+
+		//prepare data (and draw plot?)
+		$scope.preparePerformancePlot(); //this also obtains max values of P & T
+		$scope.prepareVelocityPlot(); //this also obtains max velocity
+		$scope.drawPlot();
 	};
 
-	//draw plot of torque and power as function of RPM
-	$scope.drawPerformancePlot = function() {
+	$scope.showroomTab = (tab) => (ctrl.showroomTab = tab) && $scope.drawPlot();
+
+	//call canvas to draw a plot using the prepared plot object
+	$scope.drawPlot = () => R.drawPlot((ctrl.showroomTab === 'engine') ? showroom.objPerformance : showroom.objVelocity);
+
+	//prepare data to draw plot of torque and power as a function of RPM
+	$scope.preparePerformancePlot = function() {
 		let car = showroom.car;
 		let step = config.fPlotInt; //frequency increment [Hz]
 		let fSpan = config.fPlotSpan; //span of frequency [Hz]
@@ -356,12 +375,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		let T = new Array(n).fill(0); //vector of torque [N*m]
 		let P = new Array(n).fill(0); //vector of power [W]
 
-		//calculate f, T, P values
+		//tabelate the whole dataset of f, T, P values
 		for(let i = 0; i < n; i++) {
 			f[i] = fSpan[0] + i*step;
-			//car index, frequency, no starter, slider gas, no nitro, std pressure
+			//TORQUE [N·m]: car index, frequency, no starter, slider gas, no nitro, std pressure
 			T[i] = M.getTorque(showroom.index, f[i], 0, ctrl.showroomGas, false, 1);
-			P[i] = T[i] * 2*Math.PI * f[i];
+			P[i] = T[i] * 2*Math.PI * f[i]; //power [kW]
 		}
 
 		//find index of maximal values for T and P
@@ -379,20 +398,130 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		P = P.map(item => item * CS.unitPow.val);
 		f = f.map(item => item * 60);
 
-		//create request to draw plot - see R.drawPlot for explanation of the argument object
-		R.drawPlot({
-			axisX: {span: false, int: false, color: 'black', name: 'RPM'},
-			axisY: {span: false, int: false, color: 'red',   name: `P [${CS.unitPow.txt}]`},
+		//create request to draw plot
+		showroom.objPerformance = {
+			axisX: {span: [NaN, NaN], int: NaN, color: 'black', name: 'RPM'},
+			axisY: {span: [0  , NaN], int: NaN, color: 'red',   name: `P [${CS.unitPow.txt}]`},
 			axisY2: {color: 'blue',  name: 'T [N·m]'},
 			data: [
 				{x: f, y: P, color: 'red'},
 				{x: f, y: T, color: 'blue'}
 			]
-		});
+		};
 	};
 
-	//TODO
-	$scope.drawVelocityPlot = function() {};
+	//prepare data to draw plot of force as a function of velocity
+	$scope.prepareVelocityPlot = function() {
+		let car = showroom.car;
+		let step = config.fPlotInt; //frequency increment [Hz]
+		let fSpan = config.fPlotSpan; //span of frequency [Hz]
+		let n = Math.round((fSpan[1] - fSpan[0])/step + 1); //number of elements in vectors
+
+		//gears that are selected and available
+		let gears = Object.keys(ctrl.showroomGears)
+			.filter(g => ctrl.showroomGears[g] && car.transmission.gears.hasOwnProperty(g));
+
+		//no gears, no drawing
+		if(gears.length === 0) {
+			showroom.vmax = 0;
+			showroom.objVelocity = null;
+			return;
+		}
+
+		let angle = ctrl.showroomSlope * Math.PI / 180; //slope from slider [rad]
+
+		//array of dataset objects forEach gear
+		let data = gears.map(item => ({
+			x: new Array(n).fill(0),
+			y: new Array(n).fill(0),
+			color: config.gearColors[item]
+		}));
+
+		let nDiss = 300; //number of points for dissipative force, will be cut down later
+		let vDissStep = 1; //step for dissipative force [m/s]
+
+		let f  = new Array(n).fill(0); //frequency [Hz] - a mere auxiliary variable
+		let v  = new Array(nDiss).fill(0); //velocity for dissipative force [m/s]
+		let Fo = new Array(nDiss).fill(0); //dissipative force [N]
+
+		//Fo = Fo(v)
+		const Fdiss = v => car.transmission.loss.a + car.transmission.loss.b*v**2 + car.m*constants.g*Math.sin(angle);
+
+		//tabelate the dataset for dissipative force
+		for(let i = 0; i < nDiss; i++) {
+			v[i] = i * vDissStep; //velocity [m/s]
+			Fo[i] = Fdiss(v[i]); //force [N]
+		}
+
+		//bounds of v, F for all gear datasets (in order to appropriately limit dissipative dataset)
+		let vBound = 0, FBound = 0;
+
+		//calculate v, P values forEach dataset
+		data.forEach(function(dataset, j) {
+			//effective wheel radius [m]
+			let re = car.transmission.r / car.transmission.gears.fix / car.transmission.gears[gears[j]];
+
+			//tabelate the whole dataset
+			for(let i = 0; i < n; i++) {
+				f[i] = fSpan[0] + i*step;
+				let v = 2*Math.PI * f[i] * re; //velocity [m/s]
+
+				//TORQUE [N*m]: car index, frequency, no starter, full gas, no nitro, std pressure
+				let T = M.getTorque(showroom.index, f[i], 0, 1, false, 1);
+				let F = T / re; //force [N]
+
+				dataset.x[i] = v;
+				dataset.y[i] = F;
+			}
+
+			//maximum of v, F for current dataset
+			let vMax = Math.max.apply(null, dataset.x);
+			let FMax = Math.max.apply(null, dataset.y);
+			//maximum of v, F for all datasets
+			(vMax > vBound) && (vBound = vMax);
+			(FMax > FBound) && (FBound = FMax);
+		});
+
+		//find top speed, first as vector of velocities forEach gear
+		let vmaxVector = data.map(function(d) {
+			let i;
+
+			//find the greatest velocity where engine overpowers Fdiss
+			for(i = n; i > 0; i--) {
+				if(Fdiss(d.x[i]) <= d.y[i]) {break;}
+			}
+
+			//Fdiss is too high, engine cannot operate at all
+			if(i <= 0) {return 0;}
+			//Fdiss is too low, engine can run at max RPM
+			if(i === n-1) {return d.x[n-1];}
+
+			//interpolate the point of intersection
+			return d.x[i] + (Fdiss(d.x[i]) - d.y[i]) * (d.x[i+1] - d.x[i]) / (d.y[i+1] - d.y[i] - Fdiss(d.x[i+1]) + Fdiss(d.x[i]));
+		});
+
+		//find the best gear - get absolute top speed and save it
+		showroom.vmax = Math.max.apply(null, vmaxVector);
+
+		//finalize dissipative data: cut and create object
+		let i = Fo.findIndex(item => item > FBound);
+		let j =  v.findIndex(item => item > vBound);
+		i = Math.min(i, j);
+		Fo = Fo.slice(0, i+1);
+		v  =  v.slice(0, i+1);
+
+		(i > 0) && data.push({x: v, y: Fo, color: 'black'});
+
+		//convert all velocities from m/s to custom unit
+		data.forEach(d => (d.x = d.x.map(v => v * CS.unitVel.val)));
+
+		//create request to draw plot
+		showroom.objVelocity = {
+			axisX: {span: [0, NaN], int: NaN, color: 'black', name: `v [${CS.unitVel.txt}]`},
+			axisY: {span: [0, NaN], int: NaN, color: 'black', name: 'F [N]'},
+			data: data
+		};
+	};
 
 	/*CONTROL GAME*/
 	//create a new simulation
