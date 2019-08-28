@@ -75,6 +75,7 @@ function ECMA6test() {
 		alert('FATÁLNÍ CHYBA:\n(chybí podpora ECMA6 Javascriptu)\nZdá se, že používáte velmi starý webový prohlížeč, v němž aplikace nemůže fungovat!');
 	}
 }
+ECMA6test();
 
 //initialize a database of images
 function imgPreload() {
@@ -111,6 +112,8 @@ window.onresize = function() {
 };
 
 window.onerror = function(err) {
-	alert(`FATÁLNÍ CHYBA:\n(${err})\nToto může být způsobeno starým, nekompatibilním savem.\nSave bude resetován a stránka bude obnovena`);
-	saveService.clear();
+	(err.length >= 200) && (err = err.slice(0, 200) + '...');
+	let msg = 'FATÁLNÍ CHYBA:\n(' + err + ')\n\nChyba by mohla být způsobena starým, nekompatibilním savem.\nPřejete si jej resetovat a obnovit stránku?';
+	confirm(msg) && saveService.clear();
+	window.onerror = null;
 };

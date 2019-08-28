@@ -19,7 +19,6 @@ const config = {
 	derivatorSwitch: 0.5, //derivator is turned off when velocity error is LOWER than this threshold [m/s]
 	maxMarks: 15, //maximum number of marks on a plot
 	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
-	fPlotSpan: [1000/60, 7000/60], //frequency boundaries to tabelate values for plot [Hz]
 	ppmShowroom: 120, //ppm for image of car in showroom [m-1]
 	gearColors: {'1': 'red', '2': 'gold', '3': 'green', '4': 'blue', '5': 'magenta', '6': 'cyan'}, //colors for plot datasets
 	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash

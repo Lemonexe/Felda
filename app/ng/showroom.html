@@ -1,21 +1,10 @@
-<h1>Autosalón</h1>
-
-<div class="buttonContainer">
-	<input type="button" class="mediumButton" ng-click="tab('menu')" value="Zpět" tooltip="Esc">
-	<input type="button" class="mediumButton" ng-if="S" ng-click="continue()" value="Pokračovat">
-</div>
-
-<select ng-model="showroom.index" id="showroomSelectCar" ng-change="enterShowroom(showroom.index)">
-	<option ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
-</select><br>
-
 <input type="button" ng-click="showroomTab('general')" value="Obecné">
 <input type="button" ng-click="showroomTab('engine')" value="Motor">
 <input type="button" ng-click="showroomTab('transmission')" value="Převodovka">
 
 <div style="position: relative">
 <!-- LEFT PANELS -->
-	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'general'">
+	<div class="showroomLeftPanel" ng-show="showroom.tab === 'general'">
 		<h3>Obecné</h3>
 
 		<table class="showroomTable">
@@ -28,7 +17,7 @@
 		<p ng-repeat="line in showroom.car.description">{{line}}</p>
 	</div>
 
-	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'engine'">
+	<div class="showroomLeftPanel" ng-show="showroom.tab === 'engine'">
 		<h3>Motor</h3>
 
 		<table class="showroomTable">
@@ -40,8 +29,8 @@
 
 		<p>
 			Plyn:
-			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="ctrl.showroomGas" ng-change="preparePerformancePlot(); drawPlot()">
-			{{ctrl.showroomGas.toPercent()}}
+			<input type="range" style="width: 200px" min="0.25" max="1" step="0.01" ng-model="showroom.gas" ng-change="preparePerformancePlot(); drawPlot()">
+			{{showroom.gas.toPercent()}}
 		</p>
 
 		<p>
@@ -50,13 +39,13 @@
 		</p>
 	</div>
 
-	<div class="showroomLeftPanel" ng-show="ctrl.showroomTab === 'transmission'">
+	<div class="showroomLeftPanel" ng-show="showroom.tab === 'transmission'">
 		<h3>Převodovka apod.</h3>
 
 		<table class="showroomTable">
 			<tr tooltip="tato hodnota je vycucána z prstu"><td>Max. kapacita spojky:</td><td>{{showroom.car.transmission.TclutchMax.toFixed()}} N·m</td></tr>
 			<tr tooltip="tato hodnota je vycucána z prstu"><td>Koeficient tření brzd:</td><td>{{showroom.car.transmission.friction.toFixed(1)}}</td></tr>
-			<tr><td>Max. rychlost:</td><td>{{st.calculateUnit(showroom.vmax, CS.unitVel)}}</td></tr>
+			<tr><td>Max. rychlost:</td><td>{{st.calculateUnit(showroom.vmax, CS.unitVel)}} <span ng-if="showroom.vmax > 0">(převod {{showroom.vmaxg}})</span></td></tr>
 			<tr tooltip="tato funkce je určena korelací">
 				<td>Odporové síly na auto:</td><td>F = {{showroom.car.transmission.loss.a.toFixed(0)}} + {{showroom.car.transmission.loss.b.toFixed(2)}}·v<sup>2</sup></td>
 			</tr>
@@ -68,7 +57,7 @@
 				<td>{{key}}:</td>
 				<td>{{value.toFixed(3)}}</td>
 				<td>
-					<input type="checkbox" ng-model="ctrl.showroomGears[key]" ng-change="prepareVelocityPlot(); drawPlot()">
+					<input type="checkbox" ng-model="showroom.gears[key]" ng-change="prepareVelocityPlot(); drawPlot()">
 					<span class="littleSquare" ng-style="{backgroundColor: showroom.colors[key]}"></span>
 				</td>
 			</tr>
@@ -77,8 +66,8 @@
 
 		<p>
 			Stoupání:
-			<input type="range" style="width: 200px" min="-30" max="30" step="1" ng-model="ctrl.showroomSlope" ng-change="prepareVelocityPlot(); drawPlot()">
-			{{ctrl.showroomSlope.toFixed(0)}}°
+			<input type="range" style="width: 200px" min="-30" max="30" step="1" ng-model="showroom.slope" ng-change="prepareVelocityPlot(); drawPlot()">
+			{{showroom.slope.toFixed(0)}}°
 		</p>
 
 		<p>
@@ -90,14 +79,14 @@
 	</div>
 
 <!-- RIGHT PANELS -->
-	<div class="showroomRightPanel" ng-show="ctrl.showroomTab === 'general'" style="top: -60px">
+	<div class="showroomRightPanel" ng-show="showroom.tab === 'general'" style="top: -60px">
 		<div style="position: relative">
 			<img ng-src="{{showroom.img.src}}" ng-style="showroom.carStyle">
 			<img ng-src="{{showroom.imgWH.src}}" ng-repeat="w in showroom.wheelStyles" ng-style="w">
 		</div>
 	</div>
 
-	<div class="showroomRightPanel" ng-show="ctrl.showroomTab === 'engine' || ctrl.showroomTab === 'transmission'" style="top: -160px">
+	<div class="showroomRightPanel" ng-show="showroom.tab === 'engine' || showroom.tab === 'transmission'" style="top: -160px">
 		<canvas id="plot" width="600" height="600" ng-init="drawPlot()"></canvas>
 	</div>
 </div>

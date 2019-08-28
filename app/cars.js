@@ -101,8 +101,8 @@ const cars = [
 		year: 1977,
 		engineName: '34kW',
 		description: [
-			'Kdo by neznal rezivějící vozidlo socialistického lidu, které je ikonou dávno minulé éry?',
-			'Modelovou řadu Škoda 742 vyráběl AZNP v letech 1976 - 1990.',
+			'Kdo by neznal toto vozidlo socialistického lidu, které je ikonou dávno minulé éry?',
+			'Modelovou řadu Škoda 742 vyráběl AZNP v letech 1976 - 1990, dnes už tedy bývají poněkud rezavé.',
 			'Zdolávat horské vrcholy raději nezkoušejte, neboť stopětka je nejslabší motorizací z této řady.'
 		],
 
