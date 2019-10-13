@@ -9,10 +9,11 @@ let app = angular.module('Felda', []);
 
 app.controller('ctrl', function($scope, $interval, $timeout) {
 	//current version
-	$scope.version = [1, 0];
+	$scope.version = [1, 1];
 
 	//version history
 	$scope.vHistory = [
+		{name: 'v1.1',  date: '13.10.2019', desc: 'přidány zvuky!'},
 		{name: 'v1.0',  date: '02.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
 		{name: 'beta+', date: '13.10.2017', desc: 'nové obrázky a drobné změny, na dlouhou dobu vývoj ustal'},
 		{name: 'beta',  date: '22.09.2017', desc: 'přidána první canvas grafika a generace levelů'},
@@ -23,6 +24,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.disclaimer = function() {
 		let msg = ['Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.',
 			'Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují autora.'];
+		popup(msg, false, false, 620);
+	};
+
+	//hint to enable sounds
+	$scope.soundTroubleshoot = function() {
+		let msg = ['Pokud je zvuk zapnut v operačním systému i na reproduktorech, a přesto je auto tiché jako myš, možná je ve vašem prohlížeči zakázáno automatické spouštění zvuku.',
+		'Najděte na začátku adresního řádku ikonku - po jejím rozklikutí by se měla objevit možnost povolit zvuk.'];
 		popup(msg, false, false, 620);
 	};
 
@@ -51,8 +59,30 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		CS.tab = tab;
 	};
 
-	//escape game via cross in upper-right corner
-	$scope.escapeGame = () => keyBindFunctions.esc(false);
+	//escape game via cross in upper-right corner or Esc button
+	$scope.escapeGame = function(button) {//'button' = whether it originated from keyboard
+		//always remove tooltip
+		CS.tooltip.visible = false;
+
+		//keyboard button either closes popup, or switches tab to menu, while the graphical button switches right away
+		if(button && CS.popup) {
+			CS.popup = false;
+		}
+		else {
+			$scope.tab('menu');
+			S && (S.running = false);
+			soundService.stopAll();
+		}
+	};
+
+	//toggle in-game minimap on or off
+	$scope.toggleMap = function(e) {
+		CS.showMap = e;
+		if(!e) {
+			CS.tooltip.visible = false;
+			CS.miniMapCursor.enabled = false;
+		}
+	};
 
 	//getter / setter function for pedals
 	$scope.getSetGas    = newVal => (typeof newVal === 'number') ? (S.gasSlider    = newVal) : S.gasSlider;
@@ -139,25 +169,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//functions that are called by keyListeners to operate the simulation.
 	//'e' = 'down' passed from $scope.keyPress()
 	const keyBindFunctions = {
-		//escape button always removes tooltip, and then either closes popup, or switches tab to menu
-		esc: function(e) {
-			if(e) {return;}
-			CS.tooltip.visible = false;
-			if(CS.popup) {
-				CS.popup = false;
-			}
-			else {
-				$scope.tab('menu');
-				S && (S.running = false);
-			}
-		},
-		map: function(e) {
-			CS.showMap = e;
-			if(!e) {
-				CS.tooltip.visible = false;
-				CS.miniMapCursor.enabled = false;
-			}
-		},
+		esc: e => !e && $scope.escapeGame(true) ,
+		map: e => $scope.toggleMap(e),
 		neutral: e => !e && M.shift('N'),
 		'1':     e => !e && M.shift('1'),
 		'2':     e => !e && M.shift('2'),
@@ -331,6 +344,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			S.running = true;
 			M.initCalculations();
 			exec(levels[CS.levelSelect].listeners.onstart);
+			soundService.init();
 		}
 		function reject(err) {
 			S = null;
@@ -346,6 +360,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		CS.keyBinding = false;
 		$scope.tab('game');
 		S.running = true && !S.finished;
+		soundService.init();
 	};
 
 	//decrement countdowns and decide what to do

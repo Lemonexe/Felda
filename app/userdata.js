@@ -119,6 +119,9 @@ function ControllerState() {return {
 	FPS: 30, //frames per second for drawing [Hz]
 	ppm: 100, //pixels per meter for graphical rendering [1/m]
 
+	enableSounds: true,
+	volume: 50, //master sound volume [%]
+
 	enableGraphics: true,
 	enableVibration: true,
 	enablePID: false, //show cruise control button

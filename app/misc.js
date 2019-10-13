@@ -77,27 +77,42 @@ function ECMA6test() {
 }
 ECMA6test();
 
-//initialize a database of images
-function imgPreload() {
+//initialize a database of images & sounds
+function resourcePreload() {
 	//load one image
-	function load(src) {
+	function loadIMG(src) {
 		let elem = new Image()
 		elem.src = src;
 		return elem;
 	}
 
+	//load all images as HTML img elements
 	for(let i of Object.keys(imgs)) {
 		//static image
 		if(imgs[i].hasOwnProperty('img')) {
-			imgs[i].img = load(imgs[i].img);
+			imgs[i].img = loadIMG(imgs[i].img);
 		}
 		//animation
 		else if(imgs[i].hasOwnProperty('frames')) {
-			imgs[i].frames = imgs[i].frames.map(o => load(o));
+			imgs[i].frames = imgs[i].frames.map(o => loadIMG(o));
 		}
 	}
+
+	//load all sounds as array buffers (raw mp3 files)
+	for(let i of Object.keys(sounds)) {
+		sounds[i].buffer = null;
+		sounds[i].source = null;
+		sounds[i].gainNode = null;
+		let request = new XMLHttpRequest();
+		request.open('GET', sounds[i].src, true);
+		request.responseType = 'arraybuffer';
+		request.onload = function() {
+			sounds[i].buffer = request.response;
+		}
+		request.send();
+	}
 }
-imgPreload();
+resourcePreload();
 
 //zoom game
 window.onwheel = function(event) {

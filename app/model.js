@@ -6,6 +6,7 @@
 const M = {
 	//the governing function of simulation - calls a sequence of functions each game tick
 	tick: function() {
+		M.engineSound();
 		if(!S || !S.running || (S.tutorial && CS.popup)) {return;}
 
 		M.processPedals();
@@ -46,6 +47,7 @@ const M = {
 			if((S.gear === 'N' || S.clutch < 1e-2)) {
 				//set starter timeout
 				S.starter = cars[S.car].engine.starter;
+				soundService.play('start');
 			}
 			else{popup('Nelze startovat bez neutrálu či spojky', true, 1000);}
 		}
@@ -58,6 +60,7 @@ const M = {
 		if(S.clutch < 1e-2) {
 			S.gear = gear;
 			flash(gear);
+			soundService.play('shift');
 		}
 		else {popup('Nelze zařadit bez spojky', true, 1000);}
 	},
@@ -143,7 +146,10 @@ const M = {
 		//countdown starter torque
 		if(S.starter > 0) {
 			S.starter -= config.dt;
-			if(S.f > cars[S.car].engine.idleRPM) {S.starter = 0;}
+			if(S.f > cars[S.car].engine.idleRPM) {
+				S.starter = 0;
+				soundService.stop('start');
+			}
 		}
 
 		S.consumption = S.pR * S.mFuelPerCycle * S.f / 2 * S.gas; //calculated theoretical consumption [g/s]
@@ -345,6 +351,41 @@ const M = {
 		if(trans.gears.hasOwnProperty(newGear)) {
 			S.gear = newGear;
 			flash(newGear);
+			soundService.play('shift');
 		}
+	},
+
+	//update all continuous sounds
+	engineSound: function() {
+		if(!S) {return;}0
+
+		let car = cars[S.car];
+		let paused = !S.running || (S.tutorial && CS.popup);
+
+		//engine sounds
+		let volume = (0.5 + 0.5*S.gas) * (0.5 + 0.5*S.f/car.engine.maxRPM);
+		volume = volume.limit(0,1);
+		let rate = 0.3 + 2*S.f/car.engine.maxRPM;
+
+		//update the looped sound with new volume and playbackRate, or stop it altogether
+		if(!paused && S.f > 2) {
+			soundService.start('engine', volume, rate);
+		}
+		else {
+			soundService.stop('engine');
+		}
+
+		//update or end looping of nitro
+		if(!paused && S.nitro && S.f > car.engine.minRPM) {
+			volume = 0.3 + 0.7*S.gas;
+			soundService.start('nitro', volume);
+		}
+		else {soundService.end('nitro');}
+
+		//update or end looping of brakes
+		if(!paused && S.brakes && !S.disable.brakes && S.v > 1) {
+			soundService.start('brake');
+		}
+		else {soundService.end('brake');}
 	}
 };

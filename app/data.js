@@ -33,7 +33,7 @@ const constants = {
 	T: 298, //temperature [K]
 	xO2: 0.21, //mole fraction of oxygen in air
 
-	Mair: 0.0289644, // molar mass of air [kg/mol]
+	Mair: 0.0289644, //molar mass of air [kg/mol]
 
 	//NATURAL 95
 	dHsp: 46.4e3, //specific enthalpy of combustion [J/g]
@@ -53,7 +53,9 @@ const units = {
 	hp:   {val: 1.341e-3, txt: 'hp', dgt: 0}
 };
 
-/*IMAGE SOURCES - these images will be preloaded by imgPreload() in misc.js
+/*IMAGE SOURCES
+	these images will be preloaded by imgPreload() in misc.js
+	that means the 'img' property will be REPLACED with HTML img element
 properties:
 	img: image src as string (static images)
 	t: duration of each frame [ms] (animations)
@@ -64,41 +66,58 @@ properties:
 	mirror: if defined, image is mirrorable (decorations, optional)
 (C) means that the image might be copyrighted
 */
-let imgs = {
+const imgs = {
 	//car images
-	felicia:   {img: 'res/felicia.png'}, //(C)
-	feliciaWH: {img: 'res/feliciaWH.png'}, //(C)
-	Skoda105:   {img: 'res/Skoda105.png'}, //(C)
-	Skoda105WH: {img: 'res/Skoda105WH.png'}, //(C)
-	octavia:    {img: 'res/octavia.png'}, //(C)
-	octaviaWH:  {img: 'res/octaviaWH.png'}, //(C)
-	camaro:    {img: 'res/camaro.png'}, //(C)
-	camaroWH:  {img: 'res/camaroWH.png'}, //(C)
+	felicia:   {img: 'res/cars/felicia.png'}, //(C)
+	feliciaWH: {img: 'res/cars/feliciaWH.png'}, //(C)
+	Skoda105:   {img: 'res/cars/Skoda105.png'}, //(C)
+	Skoda105WH: {img: 'res/cars/Skoda105WH.png'}, //(C)
+	octavia:    {img: 'res/cars/octavia.png'}, //(C)
+	octaviaWH:  {img: 'res/cars/octaviaWH.png'}, //(C)
+	camaro:    {img: 'res/cars/camaro.png'}, //(C)
+	camaroWH:  {img: 'res/cars/camaroWH.png'}, //(C)
 
 	//decoration images
-	oak:     {img: 'res/oak.png', width: 3, height: 4, mirror: true},
-	radar:   {img: 'res/radar.png', width: 2, height: 3.5}, //(C)
-	smrk:    {img: 'res/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
-	cow:     {t: 500, frames: ['res/cow1.png', 'res/cow2.png'], width: 2.5, height: 1.775, mirror: true}, //(C)
-	prejezd: {t: 500, frames: ['res/prejezd1.png', 'res/prejezd2.png'], width: 0.833, height: 2.5}, //(C)
-	heli:    {t: 200, frames: ['res/heli1.png', 'res/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true}, //(C)
-	plane:   {t: 100, frames: ['res/plane1.png', 'res/plane2.png', 'res/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true}, //(C)
+	oak:     {img: 'res/env/oak.png', width: 3, height: 4, mirror: true},
+	radar:   {img: 'res/env/radar.png', width: 2, height: 3.5}, //(C)
+	smrk:    {img: 'res/env/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
+	cow:     {t: 500, frames: ['res/env/cow1.png', 'res/env/cow2.png'], width: 2.5, height: 1.775, mirror: true}, //(C)
+	prejezd: {t: 500, frames: ['res/env/prejezd1.png', 'res/env/prejezd2.png'], width: 0.833, height: 2.5}, //(C)
+	heli:    {t: 200, frames: ['res/env/heli1.png', 'res/env/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true}, //(C)
+	plane:   {t: 100, frames: ['res/env/plane1.png', 'res/env/plane2.png', 'res/env/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true}, //(C)
 
-	zn_km:       {img: 'res/zn_km.png',       width: 1, height: 1},
-	zn_50:       {img: 'res/zn_50.png',       width: 1, height: 2},
-	zn_prace:    {img: 'res/zn_prace.png',    width: 1, height: 2},
-	zn_diry:     {img: 'res/zn_diry.png',     width: 1, height: 2},
-	zn_stop:     {img: 'res/zn_stop.png',     width: 1, height: 2},
-	zn_prednost: {img: 'res/zn_prednost.png', width: 1, height: 2},
-	zn_radar:    {img: 'res/zn_radar.png',    width: 1, height: 2},
-	zn_letadlo:  {img: 'res/zn_letadlo.png',  width: 1, height: 2},
-	zn_vitr:     {img: 'res/zn_vitr.png',     width: 1, height: 2},
-	zn_kameni:   {img: 'res/zn_kameni.png',   width: 1, height: 2},
-	zn_krava:    {img: 'res/zn_krava.png',    width: 1, height: 2},
-	zn_mraz:     {img: 'res/zn_mraz.png',     width: 1, height: 2},
-	zn_serpent:  {img: 'res/zn_serpent.png',  width: 1, height: 2},
-	zn_12up:     {img: 'res/zn_12up.png',     width: 1, height: 2},
-	zn_12down:   {img: 'res/zn_12down.png',   width: 1, height: 2}
+	zn_km:       {img: 'res/signs/zn_km.png',       width: 1, height: 1},
+	zn_50:       {img: 'res/signs/zn_50.png',       width: 1, height: 2},
+	zn_prace:    {img: 'res/signs/zn_prace.png',    width: 1, height: 2},
+	zn_diry:     {img: 'res/signs/zn_diry.png',     width: 1, height: 2},
+	zn_stop:     {img: 'res/signs/zn_stop.png',     width: 1, height: 2},
+	zn_prednost: {img: 'res/signs/zn_prednost.png', width: 1, height: 2},
+	zn_radar:    {img: 'res/signs/zn_radar.png',    width: 1, height: 2},
+	zn_letadlo:  {img: 'res/signs/zn_letadlo.png',  width: 1, height: 2},
+	zn_vitr:     {img: 'res/signs/zn_vitr.png',     width: 1, height: 2},
+	zn_kameni:   {img: 'res/signs/zn_kameni.png',   width: 1, height: 2},
+	zn_krava:    {img: 'res/signs/zn_krava.png',    width: 1, height: 2},
+	zn_mraz:     {img: 'res/signs/zn_mraz.png',     width: 1, height: 2},
+	zn_serpent:  {img: 'res/signs/zn_serpent.png',  width: 1, height: 2},
+	zn_12up:     {img: 'res/signs/zn_12up.png',     width: 1, height: 2},
+	zn_12down:   {img: 'res/signs/zn_12down.png',   width: 1, height: 2}
+};
+
+/*SOUND SOURCES
+properties:
+	src: audio src as string
+	repStart: where to start when repeating audio [ms]
+	repEnd: where to end when repeating audio [ms]
+	buffer: stores decoded audio, will be initiated as null
+	source: AudioContext source object if currently playing, otherwise null
+	gainNode: AudioContext gainNode object if currently playing, otherwise null
+*/
+const sounds = {
+	engine: {src: 'res/sound/engine.wav', repStart: 0, repEnd: 2221},
+	brake:  {src: 'res/sound/brake.mp3', repStart: 300, repEnd: 1300},
+	nitro:  {src: 'res/sound/nitro.mp3', repStart: 200, repEnd: 400},
+	start:  {src: 'res/sound/start.mp3'},
+	shift:  {src: 'res/sound/shift.mp3'}
 };
 
 //levels contain definitions of levels. For explanation comments see 'Česká krajina'
