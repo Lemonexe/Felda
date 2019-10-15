@@ -40,10 +40,6 @@
 	<p style="text-align: center" ng-if="CS.popup && CS.popup.okButton"><input type="button" ng-click="CS.popup = false" value="OK" tooltip="Esc"></p>
 </div>
 
-<div ng-repeat="f in CS.flashes track by $index" ng-style="style.flash">
-	<div class="flash">{{f[1]}}</div>
-</div>
-
 <div ng-switch="CS.tab">
 <!-- MENU -->
 	<div ng-switch-when="menu">
@@ -110,81 +106,8 @@
 
 <!-- OPTIONS -->
 	<div ng-switch-when="options">
-		<h1>Nastavení</h1>
-
-		<div class="buttonContainer">
-			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
-			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
-		</div>
-
-		<p ng-if="CS.isLoadedGame">
-			Byla automaticky načtena data z minula.
-			<a class="fakeLink" onclick="confirm('Opravdu smazat data?') && saveService.clear()">Smazat a obnovit</a>
-		</p>
-		<p>&nbsp;</p>
-
-		<p>Nastavení kláves:
-			<select ng-model="ctrl.key2bind" ng-options="x.description for x in optsKeys"></select>:
-			"{{viewKey(ctrl.key2bind.action)}}"
-			<input type="button" ng-click="setKey()" onclick="this.blur()" value="Změnit">
-		</p>
-
-		<p>
-			Jednotky rychlosti:
-			<select ng-model="CS.unitVel" ng-options="opt.txt for opt in optsVel track by opt.txt"></select>,
-			zrychlení:
-			<select ng-model="CS.unitAcc" ng-options="opt.txt for opt in optsAcc track by opt.txt"></select>,
-			výkonu:
-			<select ng-model="CS.unitPow" ng-options="opt.txt for opt in optsPow track by opt.txt"></select>
-		</p>
-
-		<p tooltip="pomalejší ovládání = hladší řazení a rozjíždění">
-			Rychlost ovládání pedálů pomocí kláves:
-			<select ng-model="CS.pedalSpeed" ng-options="x for (x, y) in optsPedals"></select>
-		</p>
-
-		<p tooltip="čím vyšší, tím hezčí, ale při zasekávání programu raději snižte">
-			FPS (počet snímků za vteřinu):
-			<input type="range" min="10" max="120" step="10" ng-model="CS.FPS"> {{CS.FPS}}
-		</p>
-
-		<p>
-			<input type="checkbox" ng-model="CS.enableSounds" id="formSounds">
-			<label for="formSounds"> zapnout zvuk</label>
-			<a class="fakeLink" style="font-size: 11px" ng-click="soundTroubleshoot()">zvuk nehraje?</a>
-			<span ng-show="CS.enableSounds"><br>
-				<input type="range" min="0" max="100" step="1" ng-model="CS.volume"> {{CS.volume}}%
-			</span>
-		</p>
-
-		<p>&nbsp;</p>
-
-		<p>
-			<input type="checkbox" ng-model="CS.enableGraphics" id="formGraphics">
-			<label for="formGraphics"> vykreslovat grafiku</label><br>
-
-			<input type="checkbox" ng-model="CS.enableVibration" id="formVibration">
-			<label for="formVibration"> vibrace</label><br>
-			
-			<input type="checkbox" ng-model="CS.enablePID" id="formPID">
-			<label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
-			
-			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat">
-			<label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
-			
-			<input type="checkbox" ng-model="CS.enableGearstick" id="formGearstick">
-			<label for="formGearstick" tooltip="jako alternativní způsob řazení vedle kláves"> zobrazit řadící páku</label><br>
-
-			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert" ng-change="invertPedals()">
-			<label for="formInvert" tooltip="pedály budou mít opačný význam"> obrátit ovládání pedálů</label><br>
-			
-			<input type="checkbox" ng-model="CS.enableDetails" id="formDetails">
-			<label for="formDetails"> pokročilé statistiky</label>
-			<a class="fakeLink" ng-click="showExplanation = !showExplanation">{{showExplanation ? 'skrýt' : 'vysvětlení'}}</a>
-		</p>
-
 		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
-		<div ng-show="showExplanation" ng-include="'app/ng/explanation.html?version=1'" style="padding-left: 50px; margin-top: 10px"></div>
+		<div ng-include="'app/ng/options.html?version=1'"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->

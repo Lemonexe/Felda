@@ -59,6 +59,31 @@ img {
 .pedalSlider:focus {
 	outline-width: 0;
 }
+.pedalSlider::-moz-range-thumb {
+	width: 20px;
+	height: 10px;
+	background-color: #eeeeee;
+	border: 1px solid #999999;
+	border-radius: 0px;
+}
+.pedalSlider::-moz-range-track {
+	background-color: #eeeeee;
+	height: 150px;
+	width: 4px;
+}
+
+.tabSwitchContainer {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 15px;
+	border-bottom: 2px solid #888888;
+}
+.tabSwitchContainer > tab{
+	margin: 0px;
+	padding: 10px;
+	border: 2px solid #888888;
+}
+.tabSwitchActive {border-bottom: 2px solid white !important;}
 
 /*COMMUNICATION*/
 #popup {
@@ -75,19 +100,6 @@ img {
 @keyframes vanish {
 	0%   {opacity: 1;}
 	100% {opacity: 0;}
-}
-
-.flash{
-	position: absolute;
-	width: 400px;
-	text-align: center;
-	font-family: Arial;
-	animation: flash 0.4s linear forwards;
-}
-@keyframes flash {
-	0%   {opacity: 1;   bottom: 0px;  font-size: 0px;}
-	50%  {opacity: 0.7; bottom: 30px; font-size: 150px;}
-	100% {opacity: 0;   bottom: 60px; font-size: 300px;}
 }
 
 .fakeLink {
@@ -231,7 +243,7 @@ img {
 .showroomTable td {
 	padding-right: 15px;
 }
-.littleSquare {
+.littleSquare { /*used in showroom map legend*/
 	display: inline-block;
 	width: 12px;
 	height: 12px;

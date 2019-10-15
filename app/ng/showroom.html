@@ -1,6 +1,8 @@
-<input type="button" ng-click="showroomTab('general')" value="Obecné">
-<input type="button" ng-click="showroomTab('engine')" value="Motor">
-<input type="button" ng-click="showroomTab('transmission')" value="Převodovka">
+<div class="tabSwitchContainer" style="width: 380px; padding-left: 80px">
+	<tab control="showroom.tab" value="general" ng-click="drawPlot()">Obecné</tab>
+	<tab control="showroom.tab" value="engine" ng-click="drawPlot()">Motor</tab>
+	<tab control="showroom.tab" value="transmission" ng-click="drawPlot()">Převodovka</tab>
+</div>
 
 <div style="position: relative">
 <!-- LEFT PANELS -->

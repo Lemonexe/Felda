@@ -37,6 +37,7 @@ let R = {
 		this.drawLines();
 		this.drawDecorations();
 		this.drawCar();
+		this.drawFlashTexts();
 
 		//end message
 		if(S.finished) {
@@ -207,6 +208,22 @@ let R = {
 			this.xc + (i * S.level.int - S.d) * CS.ppm,
 			this.yc - (S.level.map[i] - S.altitude) * CS.ppm
 		];	
+	},
+
+	//draw all CS.flashes
+	drawFlashTexts: function() {
+		let ctx = this.ctx;
+		let w = this.canvas.width;
+		let h = this.canvas.height;
+
+		CS.flashes.forEach(function(f) {
+			let t = 1 - f[0]/config.flash; //dimensionless elapsed lifetime of flash text
+
+			ctx.textAlign = 'center';
+			ctx.fillStyle = `rgba(0, 0, 0, ${1-t})`; //opacity is remaining time
+			ctx.font = (t*320).toFixed(0) + 'px Arial'; //font size scales with elapsed time
+			ctx.fillText(f[1], Math.round(w/2), Math.round(h*(0.9-0.3*t))); //flash ascends with time
+		});
 	},
 
 	//draw minimap over existing map

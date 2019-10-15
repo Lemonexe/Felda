@@ -72,7 +72,7 @@ const cars = [
 			idleGas: 0.186, //standard gas throttle during idling (but it will be adjusted in model)
 			starter: 2, //how long does starting take [s]
 			starterT: 9, //starter torque [N*m]
-			PID: [0.5, 10, 1], //PID parameters [r0, Ti, Td] (see model.js)
+			PID: [0.5, 10, 0], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
 			//it is imperative that specs cover the whole interval between minRPM and maxRPM
 			specs: [
@@ -152,7 +152,7 @@ const cars = [
 		idleGas: 0.191,
 		starter: 3,
 		starterT: 4,
-		PID: [0.7, 10, 0.5],
+		PID: [0.7, 10, 0],
 			specs: [
 				[500/60,  13, 66 ],
 				[1000/60, 14, 75 ],
@@ -229,7 +229,7 @@ const cars = [
 		idleGas: 0.165,
 		starter: 1.6,
 		starterT: 25,
-		PID: [0.4, 9, 1],
+		PID: [0.4, 9, 0],
 			specs: [
 				[500/60,  24,  134],
 				[1000/60, 27,  175],
@@ -309,7 +309,7 @@ const cars = [
 		idleGas: 0.170,
 		starter: 1.5,
 		starterT: 100,
-		PID: [0.25, 8, 0.5],
+		PID: [0.25, 8, 0],
 			specs: [
 				[500/60,  75,  431],
 				[1000/60, 84,  507],

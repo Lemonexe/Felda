@@ -126,6 +126,16 @@ window.onresize = function() {
 	angular.element(document).scope().resolutionCheck();
 };
 
+//mute sounds when in background
+window.onblur = function() {
+	if(CS.enableBackgroundMute) {
+		soundService.enableSounds = false;
+		soundService.stopAll();
+	}
+}
+//enable them again
+window.onfocus = () => (soundService.enableSounds = true);
+
 window.onerror = function(err) {
 	(err.length >= 200) && (err = err.slice(0, 200) + '...');
 	let msg = 'FATÁLNÍ CHYBA:\n(' + err + ')\n\nChyba by mohla být způsobena starým, nekompatibilním savem.\nPřejete si jej resetovat a obnovit stránku?';

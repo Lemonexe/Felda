@@ -30,6 +30,8 @@ image preloading a objekt `saveService`, který slouží na ukládání/načít�
 
 **app/render.js** definuje objekt `R`, který zajišťuje vykreslování canvasu pro herní grafiku, grafy a řadící páku (bez Angularu)
 
+**app/sounds.js** definuje objekt `soundService`, který zajišťuje zvukové efekty
+
 **app/level.js** definuje objekt `L`, který zajišťuje generaci levelů z předpisů a jejich čtení pro účely modelu
 
 **app/data.js** definuje všechna statická data aplikace kromě dat pro jednotlivá auta

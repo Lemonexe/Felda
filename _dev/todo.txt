@@ -5,10 +5,14 @@ více aut, ale možná už to stačí
 	Mazda RX-8 (protože je to atmoška, kdežto RX-7 je oturbená)
 		podle mé rešerše je modelování příkonu jako dvoutakt - jeden zážeh na jeden cyklus
 	Citroën 2CV (22kW) jakožto ultimátní drožka?
+	VW Beetle instead of C2CV !!
 
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
+sublevels
+	Letiště > Drag (1/4 mile time race)
+	Česká krajina, Alpská krajina > Economy (nádrž s palivem, sběr kanystrů, locked Felicia)
 
 
 <<<META>>>
@@ -18,5 +22,6 @@ English language yes okay well?
 	dynamic title
 	publish in english
 
-Edge nefunguje (slider). Whatever.
+Edge nefunguje - cyklus M.tick() je velmi zpomalený
+test on Safari
 test on Android (tablet)

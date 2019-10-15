@@ -71,3 +71,28 @@ app.directive('gearstick', () => ({
 		$scope.shiftGear = g => M.shift(g); //throw in a gear
 	}]
 }));
+
+//stylized button to switch a tab in showroom, options etc.
+app.directive('tab', () => ({
+	restrict: 'E',
+	link: function(scope, elem, attrs) {
+		/*attributes of a 'tab' element:
+			'control' is the variable controlled by these buttons. Must be a path in current scope object, e.g. control = 'ctrl.optionTab' refers to scope.ctrl.optionTab
+			'value' is what this particular button sets control to*/
+
+		//set style according to whether it's currently active
+		function setStyle() {
+			let isCurrent = eval(`scope.${attrs.control} === '${attrs.value}'`);
+			isCurrent ? elem.addClass('tabSwitchActive') : elem.removeClass('tabSwitchActive');
+		};
+		setStyle();
+
+		//click the button to switch a tab
+		function click() {
+			eval(`scope.${attrs.control} = '${attrs.value}'`);
+			scope.$broadcast('updateTabs')
+		}
+		elem.on('click', click);
+		scope.$on('updateTabs', setStyle); //to update ALL buttons
+	}
+}));

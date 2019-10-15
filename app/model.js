@@ -298,8 +298,9 @@ const M = {
 		let dt = config.dt;
 		let e = S.vTarget - S.v; //velocity difference [m/s] = ERROR VALUE
 
-		int     = (Math.abs(e) < config.integratorSwitch) ?  int + e*dt : 0; //integrale: integrator is turned off when (e > threshold), to prevent oscillation
-		let der = (Math.abs(e) > config.derivatorSwitch)  ? (e - ep)/dt : 0; //derivation: derivator is turned off when (e < threshold), to prevent oscillation
+		let cap = config.integratorCap * Ti / r0; //calculate cap of integration sum [m] from the specified gas cap
+		int = (int + e*dt).limit(-cap, cap); //integrale of error
+		let der = (e - ep)/dt; //derivation of error
 
 		//ＡＥＳＴＨＥＴＨＩＣ　ＣＯＤＥ
 		let P = r0 * e;

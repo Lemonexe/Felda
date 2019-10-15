@@ -119,7 +119,8 @@ function ControllerState() {return {
 	FPS: 30, //frames per second for drawing [Hz]
 	ppm: 100, //pixels per meter for graphical rendering [1/m]
 
-	enableSounds: true,
+	enableSounds: true, //master switch for all sounds
+	enableBackgroundMute: true, //mute sounds when bluring window to background
 	volume: 50, //master sound volume [%]
 
 	enableGraphics: true,

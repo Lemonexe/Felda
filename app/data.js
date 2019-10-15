@@ -15,13 +15,12 @@ const config = {
 	minResolution: [1150, 650], //minimal recommended resolution
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
-	integratorSwitch: 5, //in PID controller, integrator is turned off when velocity error is GREATER than this threshold, to prevent oscillation [m/s]
-	derivatorSwitch: 0.5, //derivator is turned off when velocity error is LOWER than this threshold [m/s]
+	integratorCap: 2, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
 	maxMarks: 15, //maximum number of marks on a plot
 	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
 	ppmShowroom: 120, //ppm for image of car in showroom [m-1]
 	gearColors: {'1': 'red', '2': 'gold', '3': 'green', '4': 'blue', '5': 'magenta', '6': 'cyan'}, //colors for plot datasets
-	flash: 400 //duration of flash text [ms]. Note: this number is also in CSS @keyframes flash
+	flash: 400 //duration of flash text [ms]
 };
 
 //constants contain physical constants

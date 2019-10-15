@@ -11,6 +11,9 @@ const soundService = {
 	//audio context for all audio work, will be created during this.init() when game is entered
 	ctx: null,
 
+	//master switch for sounds (along with CS.enableSounds - CS is for user muting, this is for automatic muting)
+	enableSounds: true,
+
 	//initiate audio context and decode all audio files to finalize soundService for use
 	init: function() {
 		if(this.ctx) {return;}
@@ -28,7 +31,7 @@ const soundService = {
 		let s = sounds[name];
 
 		let result = this.sound(name, volume, playbackRate);
-		if(!result) {return;}
+		if(!result || !CS.enableSounds || !this.enableSounds) {return;}
 		[s.source, s.gainNode] = result;
 
 		s.source.start(0);
@@ -56,7 +59,7 @@ const soundService = {
 
 		//sound is not playing, initiate regular loop
 		let result = this.sound(name, volume, playbackRate);
-		if(!result) {return;}
+		if(!result || !CS.enableSounds || !this.enableSounds) {return;}
 		[s.source, s.gainNode] = result;
 
 		s.source.loop = true;
@@ -86,9 +89,10 @@ const soundService = {
 		if(!(sounds[name].buffer instanceof AudioBuffer)) {return;} //decoded audio isn't ready
 		source.buffer = sounds[name].buffer;
 		source.connect(gainNode);
-		CS.enableSounds && gainNode.connect(context.destination);
+		CS.enableSounds && this.enableSounds && gainNode.connect(context.destination);
 
 		//set volume and playbackRate
+		if(!CS.volume) {CS.volume = 50;} //compatibility
 		gainNode.gain.value = CS.volume/100 * volume;
 		source.playbackRate.value = playbackRate;
 

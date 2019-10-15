@@ -35,19 +35,17 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	};
 
 	//link global variables to $scope
-	$scope.CS = CS;
+	$scope.CS = CS; //S will be referenced when created
 	$scope.levels = levels;
 	$scope.cars = cars;
 	$scope.csts = constants;
+	$scope.config = config;
 	$scope.tt = tooltips;
-	//S will be referenced when created
-
-	//link global functions to $scope
-	$scope.popup = popup;
-	$scope.flash = flash;
+	$scope.popup = popup; //global function to $scope
 
 	//control variables
 	let ctrl = {
+		optionTab: 'control', //current option section
 		key2bind: false //selection of key to be binded
 	};
 	$scope.ctrl = ctrl;
@@ -141,7 +139,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			CS.keyBinds[j][2] = event.key;
 			CS.popup = false;
 			CS.keyBinding = false;
-			flash('OK');
+			popup('OK', true, 600);
 		}
 	}
 
@@ -213,7 +211,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//Angular ng-style definitions. The numeric values are just placeholders, they are overwritten by resize()
 	$scope.style = {
-		flash: {position: 'absolute', top: '500px', left: '500px'},
 		popup: {top: '300px', left: '400px', width: '300px'},
 		stats: {top: '401px'},
 		advanced: {top: '542px'},
@@ -229,9 +226,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//resize responsive game elements
 	function resize() {
 		let [width, height]  = getScreenSize();
-
-		$scope.style.flash.top = (height/2) + 'px';
-		$scope.style.flash.left = (width/2 - 200) + 'px';
 
 		$scope.style.popup.width = CS.popup.width + 'px';
 		$scope.style.popup.top = (height/3) + 'px';
@@ -398,6 +392,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			alert('FATÁLNÍ CHYBA:\n(při načítání uložených dat)\nSave není kompatibilní, proto bude resetován a stránka bude obnovena.');
 			saveService.clear();
 		}
+
+		//detect M$ Edge and issue a warning
+		!!window.StyleMedia && popup(['Byl detekován prohlížeč Microsoft Explorer či Edge.', 'Aplikace nemusí správně fungovat, doporučuji použít Google Chrome či Mozilla Firefox.'], false, false, 400);
 
 		$scope.resolutionCheck();
 

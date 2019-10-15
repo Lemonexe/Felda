@@ -70,8 +70,6 @@ app.directive('showroom', () => ({
 		//when car is changed using the <select>
 		$scope.$on('enterShowroom', enterShowroom);
 
-		$scope.showroomTab = (tab) => (showroom.tab = tab) && $scope.drawPlot();
-
 		//call canvas to draw a plot using the prepared plot object
 		$scope.drawPlot = () => R.drawPlot((showroom.tab === 'engine') ? showroom.objPerformance : showroom.objVelocity);
 
