@@ -49,17 +49,25 @@ app.directive('showroom', () => ({
 			//cars[i].graphic.width is real size [m]
 			let s = cars[i].graphic.width * config.ppmShowroom / width; //image scale (to get width of 120 pixels per real meter)
 
+			//whether to draw wheels behind body (false) or before (true)
+			let WHbottom = cars[i].graphic.hasOwnProperty('WHbottom') && cars[i].graphic.WHbottom;
+
 			//ng-styles
 			showroom.wheelStyles = cars[i].graphic.wheels.map(w => //generate ng-styles
-				({position: 'absolute',
+				({
+					position: 'absolute',
 					top:  (s*(w[1] - heightWH/2)).toFixed() + 'px',
 					left: (s*(w[0] - widthWH /2)).toFixed() + 'px',
 					width:  (s*widthWH) .toFixed() + 'px',
-					height: (s*heightWH).toFixed() + 'px'
+					height: (s*heightWH).toFixed() + 'px',
+					zIndex: 2-Number(WHbottom),
 				}));
 			showroom.carStyle = {
+				position: 'absolute',
 				width:  (s*width) .toFixed() + 'px',
-				height: (s*height).toFixed() + 'px'}
+				height: (s*height).toFixed() + 'px',
+				zIndex: 1+Number(WHbottom)
+			}
 
 			//prepare data (and draw plot?)
 			$scope.preparePerformancePlot(); //this also obtains max values of P & T
@@ -74,7 +82,7 @@ app.directive('showroom', () => ({
 		$scope.drawPlot = () => R.drawPlot((showroom.tab === 'engine') ? showroom.objPerformance : showroom.objVelocity);
 
 		//get frequency bounds to draw plot
-		let getfSpan = car => [car.engine.minRPM, car.engine.redlineRPM];
+		let getfSpan = car => [car.engine.minRPM, 0.5*(car.engine.maxRPM+car.engine.redlineRPM)];
 
 		//prepare data to draw plot of torque and power as a function of RPM
 		$scope.preparePerformancePlot = function() {

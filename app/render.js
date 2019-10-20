@@ -129,13 +129,18 @@ let R = {
 		let iw = Math.round(g.width * ppm);
 		let ih = Math.round(g.height * ppm);
 
-		//draw image of car rotated around center of drawing
-		//center of drawing is center of bottom edge
-		ctx.save();
-		ctx.translate(this.xc, this.yc);
-		ctx.rotate(-S.angle);
-		ctx.drawImage(img, -iw/2, -ih, iw, ih);
-		ctx.restore();
+		//whether to draw wheels after car body (false) or before (true)
+		let WHbottom = g.hasOwnProperty('WHbottom') && g.WHbottom;
+
+		//draw image of car rotated around center of drawing (= center of bottom edge)
+		function drawCarBody(xc, yc) {
+			ctx.save();
+			ctx.translate(xc, yc);
+			ctx.rotate(-S.angle);
+			ctx.drawImage(img, -iw/2, -ih, iw, ih);
+			ctx.restore();
+		}
+		!WHbottom && drawCarBody(this.xc, this.yc);
 
 		//draw images of wheels
 		let ir = Math.round(g.r * ppm); //rendered radius of wheels
@@ -154,6 +159,8 @@ let R = {
 			ctx.drawImage(imgWH, -ir, -ir, ir*2, ir*2);
 			ctx.restore();
 		}
+
+		WHbottom && drawCarBody(this.xc, this.yc);
 	},
 
 	//DRAW TERRAIN LINES

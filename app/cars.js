@@ -173,6 +173,81 @@ const cars = [
 	},
 
 	{
+		name: 'Citroën 2CV',
+		year: 1968,
+		engineName: '21kW',
+		description: [
+			'Milovníci pomalé jízdy se mohou vyřádit v tomto fracouzském vozítku známém jako "kachna".',
+			'O oblíbenosti tohoto minimalistického modelu svědčí to, že kačen bylo vyrobeno po celém světě více než 5 milionů.',
+			'Závodní bourák to úplně není, ale který jiný automobil vám nabídne možnost vozit vejce přes čerstvě zorané pole bez rozbití?'
+		],
+		graphic: {
+			img: 'C2CV',
+			imgWH: 'C2CVWH',
+			WHbottom: true, //wheels will be drawn behind car (otherwise before)
+			width: 3.875,
+			height: 1.580,
+			r: 0.300,
+			wheels: [
+				[218, 370], [926, 370]
+			]
+		},
+		m: 610+75,
+		transmission: {
+			clutchInt: [0.25, 0.75],
+			TclutchMax: 100,
+			friction: 0.5,
+			loss: {
+				a: 165,
+				b: 0.52
+			},
+			r: 0.300,
+			gears: {
+				fix: 3.625,
+				1: 7.411,
+				2: 3.573,
+				3: 2.133,
+				4: 1.474
+			},
+			automat: [1500/60, 5500/60]
+		},
+		engine: {
+			lambda: 1,
+			V: 0.602,
+			I: 0.07,
+			minRPM: 500/60, 
+			maxRPM: 8000/60,
+			redlineRPM: 6500/60,
+			vibRPM: 5000/60,
+			TdissUnder: f => 6,
+			TdissOver: f => 2*f - 200.67,
+			idleRPM: 800/60,
+			idleGas: 0.26,
+			starter: 3.5,
+			starterT: 2,
+			PID: [1.1, 12, 0],
+			specs: [
+				[500/60,  7,  24.0],
+				[1000/60, 8,  32.0],
+				[1500/60, 9,  37.2],
+				[2000/60, 10, 42.9],
+				[2500/60, 12, 47.8],
+				[3000/60, 14, 51.7],
+				[3500/60, 16, 55.0],
+				[4000/60, 19, 57.8],
+				[4500/60, 22, 60.1],
+				[5000/60, 26, 63.0],
+				[5500/60, 31, 66.5],
+				[6000/60, 36, 69.4],
+				[6500/60, 42, 72.9],
+				[7000/60, 49, 75.0],
+				[7500/60, 57, 75.0],
+				[8000/60, 66, 66.0]
+			]
+		}
+	},
+
+	{
 		name: 'Škoda Octavia II',
 		year: 2005,
 		engineName: '2.0 FSI 110kW',

@@ -67,14 +67,16 @@ properties:
 */
 const imgs = {
 	//car images
-	felicia:   {img: 'res/cars/felicia.png'}, //(C)
-	feliciaWH: {img: 'res/cars/feliciaWH.png'}, //(C)
+	felicia:    {img: 'res/cars/felicia.png'}, //(C)
+	feliciaWH:  {img: 'res/cars/feliciaWH.png'}, //(C)
 	Skoda105:   {img: 'res/cars/Skoda105.png'}, //(C)
 	Skoda105WH: {img: 'res/cars/Skoda105WH.png'}, //(C)
+	C2CV:       {img: 'res/cars/C2CV.png'}, //(C)
+	C2CVWH:     {img: 'res/cars/C2CVWH.png'}, //(C)
 	octavia:    {img: 'res/cars/octavia.png'}, //(C)
 	octaviaWH:  {img: 'res/cars/octaviaWH.png'}, //(C)
-	camaro:    {img: 'res/cars/camaro.png'}, //(C)
-	camaroWH:  {img: 'res/cars/camaroWH.png'}, //(C)
+	camaro:     {img: 'res/cars/camaro.png'}, //(C)
+	camaroWH:   {img: 'res/cars/camaroWH.png'}, //(C)
 
 	//decoration images
 	oak:     {img: 'res/env/oak.png', width: 3, height: 4, mirror: true},
