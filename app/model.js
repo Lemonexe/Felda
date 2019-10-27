@@ -407,7 +407,7 @@ const M = {
 		let iarr = Math.floor(S.d / config.imgLoadingArea); //index of image area array
 
 		//for each image in current image area array
-		for(let item of S.level.images[iarr]) {
+		for(let item of S.level.images[iarr] || []) {
 			let imgObj = imgs[item[0]]; //get the image object from 'imgs'
 			if(!imgObj.hasOwnProperty('sound')) {continue;} //this decoration doesn't have any sound
 			let ambSound = ambSounds[imgObj.sound]; //current ambient sound

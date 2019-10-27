@@ -70,6 +70,8 @@ function State(i, c) {return {
 		stats23: false
 	},
 
+	onscreenMessage: null, //scripts can write a message on canvas screen
+
 	//PID controller
 	vTarget: false, //target speed for cruise control as number [m/s] or false (cruise control off)
 	PIDmemory: [0, 0], //[error previous, integral]

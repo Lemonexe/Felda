@@ -90,9 +90,9 @@
 		</div>
 
 		<h2>Výběr levelu</h2>
-		<span ng-repeat="l in levels track by $index">
+		<span ng-repeat="l in levels track by $index" ng-class="l.sublevel ? 'sublevel' : ''">
 			<input type="radio" ng-model="CS.levelSelect" ng-value="$index" id="levelSelect{{$index}}">
-			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label><br>
+			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label>{{l.sublevel ? ' (varianta)' : ''}}<br>
 			<span style="padding-left: 30px">{{l.description}}</span><br>
 		</span>
 
@@ -107,7 +107,7 @@
 <!-- OPTIONS -->
 	<div ng-switch-when="options">
 		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
-		<div ng-include="'app/ng/options.html?version=1'"></div>
+		<div ng-include="'app/ng/options.html?version=2'"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->

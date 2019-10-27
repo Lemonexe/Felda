@@ -9,8 +9,10 @@ více aut, ale možná už to stačí
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
 sublevels
-	Letiště > Drag (1/4 mile time race)
-	Česká krajina, Alpská krajina > Economy (nádrž s palivem, sběr kanystrů, locked Felicia)
+	Česká krajina, Alpská krajina > Economy (nádrž s palivem, benzínky, locked Felicia)
+		bude se zobrazovat nádrž číselně i jako progress bar
+		benzínky se budou zobrazovat na minimapce a je u nich potřeba zastavit
+		bude timeout kdy benzínka zavře, aby se muselo jet mezi 50 až 90
 
 
 <<<META>>>

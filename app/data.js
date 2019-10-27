@@ -21,7 +21,7 @@ const config = {
 	integratorCap: 2, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
 	dDecoration: 5, //how far from road are decorations placed [m] for Doppler effect calculation
 	vSound: 343, //speed of sound in air [m/s] for Doppler effect calculation
-	soundExtinction: 0.02, //volume decrease[m-1] for ambient sounds
+	soundExtinction: 0.02, //volume decrease [m-1] for ambient sounds
 	
 	//SHOWROOM
 	maxMarks: 15, //maximum number of marks on a plot
@@ -135,14 +135,10 @@ const sounds = {
 //levels contain definitions of levels. For explanation comments see 'Česká krajina'
 const levels = [
 	{
+		id: 'tutorial',
 		name: 'Tutorial',
 		description: 'Zde bude krok po kroku vysvětleno ovládání hry.',
-		listeners: {
-			onstart: () => tutorialFunctions.onstart(),
-			continuous: () => tutorialFunctions.continuous(),
-			onend: () => tutorialFunctions.onend(),
-			onstall: () => tutorialFunctions.onstall()
-		},
+		listeners: {}, //will be filled later
 		generation: {
 			f: 'straight',
 			int: 1e3,
@@ -153,12 +149,16 @@ const levels = [
 	},
 
 	{
+		id: 'flat',
 		name: 'Letiště',
 		description: 'Rovný nekonečný asfalt bez jakýchkoliv omezení. Ideální pro hraní si a zkoušení všeho možného!',
 		listeners: {
-			onstart: function() {popup('Jeďte bezpečně', true, 1200);},
-			onend: function() {popup('Konec ranveje', true, 2400);},
-			onstall: function() {popup('Motor chcípl', true, 900);}
+			onstart: () => popup('Jeďte bezpečně', true, 1200),
+			onstall: () => popup('Motor chcípl', true, 900),
+			onend: () => (S.onscreenMessage = {
+				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Konec ranveje']
+			})
 		},
 		generation: {
 			f: 'straight',
@@ -175,6 +175,7 @@ const levels = [
 	},
 
 	{
+		id: 'hills', //the id must be unchanged because of references
 		name: 'Česká krajina',
 		description: 'Mírně zvlněný terén. Očekávejte sklon až 10°, zde by žádné vozidlo nemělo mít problém.',
 		/*listeners for "events":
@@ -184,9 +185,12 @@ const levels = [
 			continuous: each tick
 		*/
 		listeners: {
-			onstart: function() {popup('Dávejte pozor na radary a díry v silnici!', true, 1600);},
-			onend: function() {popup('Dojeli jste na hranici, česká krajina zde končí.', true, 2400);},
-			onstall: function() {popup('Motor chcípl', true, 900);}
+			onstart: () => popup('Dávejte pozor na radary a díry v silnici!', true, 1600),
+			onstall: () => popup('Motor chcípl', true, 900),
+			onend: () => (S.onscreenMessage = {
+				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Jste na hranicích', 'česká krajina zde končí']
+			})
 		},
 		//parameters for generation of map
 		generation: {
@@ -219,12 +223,16 @@ const levels = [
 	},
 
 	{
+		id: 'alps',
 		name: 'Alpská krajina',
 		description: 'Vysokohorská krajina s velice hrubým terénem, očekávejte až 30° sklon jakož i mnoho krav.',
 		listeners: {
-			onstart: function() {popup('Dávejte pozor na padající turisty či kamení!', true, 1600);},
-			onend: function() {popup('Přejeli jste celé Alpy, alpská krajina zde končí.', true, 2400);},
-			onstall: function() {popup('Motor chcípl', true, 900);}
+			onstart: () => popup('Dávejte pozor na padající turisty či kamení!', true, 1600),
+			onstall: () => popup('Motor chcípl', true, 900),
+			onend: () => (S.onscreenMessage = {
+				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Přejeli jste celé Alpy', 'alpská krajina zde končí']
+			})
 		},
 		generation: {
 			f: 'noise',
@@ -253,10 +261,57 @@ const levels = [
 	}
 ];
 
-//tutorial functions are exported here to make 'levels' more concise
-const tutorialFunctions = {
+//modify levels post-declaration
+(function() {
+	/*CREATE NEW LEVELS using the original levels as templates*/
+	
+	//DRAG RACE
+	let drag = angular.copy(levels.find(i => i.id === 'flat'));
+	drag.sublevel = 'flat'; drag.id = 'drag'; drag.name = 'Drag';
+	drag.description = 'Klasický závod na čtvrt míle. Vystartuje kdy chcete a začne se počítat čas!';
+	drag.generation.int = drag.generation.length = 402.336;
+	drag.listeners = {
+		onstart: function() {
+			S.initiated = false; //set to true when first accelerating
+			S.t60 = S.t100 = 0; //time when 60 or 100 km/h was reached
+		},
+		continuous: function() {
+			if(!S.initiated && S.d > 0) {
+				S.t = 0;
+				S.initiated = true;
+				flash('GO');
+			}
+
+			//acceleration stats
+			(S.v >= 60/3.6  && S.t60  === 0) && (S.t60  = S.t);
+			(S.v >= 100/3.6 && S.t100 === 0) && (S.t100 = S.t);
+		},
+		onend: () => (S.onscreenMessage = {
+			textAlign: 'right', fillStyle: '#000000', fontSize: 28, fontFamily: 'Tahoma',
+			msg: ['DOJELI JSTE DO CÍLE',
+				`celkový čas: ${S.t.toFixed(1)} s`,
+				`0-60: ${ S.t60 .toFixed(1)} s`,
+				`0-100: ${S.t100.toFixed(1)} s`]
+		})
+		
+	};
+	//push it to the correct position
+	let i = levels.findIndex((item) => item.id === drag.sublevel);
+	levels.splice(i+1, 0, drag);
+
+	/*
+	//FUEL CHALLENGE
+	let fuel = angular.copy(levels.find(i => i.id === 'hills'));
+	fuel.sublevel = 'hills'; fuel.id = 'fuel'; fuel.name = 'Nějak to žere';
+	fuel.description = 'V této výzvě máte omezenou nádrž s palivem. Vystačí vám palivo k další benzínce?';
+	fuel.listeners = {};
+	*/
+
+	/*TUTORIAL FUNCTIONS are exported here to make 'levels' more concise*/
+	let tutorial = levels.find(i => i.id === 'tutorial');
+
 	//define initial conditions
-	onstart: function() {
+	tutorial.listeners.onstart = function() {
 		S.tutorial = true; //has the effect that popups pause the game
 		S.car = 0; //Felicia 4ever!!!
 		S.script = 0; //control variable to advance through the story
@@ -275,9 +330,10 @@ const tutorialFunctions = {
 			'Po odkliknutí OK (či stisknutí Esc) uvidíte vykreslenou grafiku a tabulku s nejdůležitějšími čísly: zařazený převod, rychlost a otáčky motoru.',
 			'Dále je tam zrychlení a sklon - zatímco v realitě je cítíme a vidíme, zde se musí vypisovat.'],
 			false, false, 550);
-	},
+	};
+
 	//the story of tutorial
-	continuous: function() {
+	tutorial.listeners.continuous = function() {
 		if(S.t >= 5 && S.script === 0) {
 			S.script++;
 			S.disable.keys = false;
@@ -329,17 +385,25 @@ const tutorialFunctions = {
 				'Nezapomeňte si také prohlédnout Nastavení, kde lze hru přizpůsobit dle chuti či vyzkoušet různé speciální funkce: tempomat, automatické řazení, řazení pomocí myši či detailní údaje.'],
 				false, false, 500);
 		}
-	},
-	onend: function() {popup(['Dosáhli jste konce dráhy tutorialu. To jsem tedy fakt nečekal!', 'Pokud jste jej ale nedokončili, je třeba jej znovu spustit z menu.'], false, false, 400);},
-	onstall: function() {
+	};
+
+	tutorial.listeners.onend = function() {
+		popup(['Dosáhli jste konce dráhy tutorialu. To jsem tedy fakt nečekal!', 'Pokud jste jej ale nedokončili, je třeba jej znovu spustit z menu.'], false, false, 400);
+		S.onscreenMessage = {
+			textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+			msg: ['Konec cesty :-)']
+		}
+	};
+
+	tutorial.listeners.onstall = function() {
 		(S.stalls === 0) && popup(['Motor chcípl!',
 			'To se stane buď při startování (je třeba více plynu a rozhodně mít zařazenou jedničku), nebo při zabrždění (je třeba stisknout spojku, nebo naopak zrychlit).'],
 			false, false, 500);
 
 		(S.stalls > 0) && popup('Motor chcípl.', true, 1200);
 		S.stalls++;
-	}
-};
+	};
+})();
 
 //tooltips that are present on more than one elements
 const tooltips = {

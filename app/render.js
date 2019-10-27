@@ -38,12 +38,7 @@ let R = {
 		this.drawDecorations();
 		this.drawCar();
 		this.drawFlashTexts();
-
-		//end message
-		if(S.finished) {
-			ctx.textAlign = 'center'; ctx.fillStyle = '#cc4444'; ctx.font = '40px Comic Sans MS';
-			ctx.fillText('konec cesty :-)', Math.round(canvas.width/2), Math.round(canvas.height/3));
-		}
+		this.onscreenMessage();
 
 		//draw minimap if it is open
 		CS.showMap && this.drawMiniMap();
@@ -287,6 +282,23 @@ let R = {
 			ctx.beginPath();
 			ctx.arc(getX(dC), getY(aC), 3, 0, 2*Math.PI);
 			ctx.fill();
+		}
+	},
+
+	//draw text message on screen (usually triggered at the end of level)
+	onscreenMessage: function() {
+		if(!S.onscreenMessage) {return;}
+		let ctx = this.ctx;
+		let canvas = this.canvas;
+		let obj = S.onscreenMessage;
+
+		ctx.textAlign = obj.textAlign;
+		ctx.fillStyle = obj.fillStyle;
+		ctx.font = obj.fontSize + 'px ' + obj.fontFamily;
+
+		//multiple lines
+		for(let i = 0; i < obj.msg.length; i++) {
+			ctx.fillText(obj.msg[i], Math.round(2*canvas.width/3), Math.round(canvas.height/3 + i*obj.fontSize*1.2));
 		}
 	},
 
