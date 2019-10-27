@@ -65,18 +65,18 @@ const cars = [
 			maxRPM: 8000/60, //[Hz] no power above this point
 			redlineRPM: 6000/60, //[Hz] warning shows up and PID turns off
 			vibRPM: 5000/60, //[Hz] everything starts to vibrate insanely
-			//function T(f) for dissipative torque [N*m] if RPM < minRPM  or RPM > maxRPM
-			TdissUnder: f => 15,
-			TdissOver: f => 3*f - 280,
+			//dissipative torque [N*m] as a function of frequency [Hz], if (RPM < minRPM) or (RPM > maxRPM), as [a,b] constants for T = a*f + b
+			TdissUnder: [0, 15],
+			TdissOver: [3, -280],
 			idleRPM: 750/60, //[Hz] if below this RPM, idleGas kicks in
-			idleGas: 0.186, //standard gas throttle during idling (but it will be adjusted in model)
+			idleGas: 0.204, //standard gas throttle during idling (but it will be adjusted in model)
 			starter: 2, //how long does starting take [s]
 			starterT: 9, //starter torque [N*m]
 			PID: [0.5, 10, 0], //PID parameters [r0, Ti, Td] (see model.js)
 			//table of engine specifications as [frequency, dissipative torque, engine torque] with frequency in Hz (RPM/60), torque in N*m
 			//it is imperative that specs cover the whole interval between minRPM and maxRPM
 			specs: [
-				[500/60,  16,  86 ],
+				[500/60,  16,  71 ],
 				[1000/60, 18,  96 ],
 				[1500/60, 20,  103],
 				[2000/60, 23,  111],
@@ -142,19 +142,19 @@ const cars = [
 		lambda: 1,
 		V: 1.046,
 		I: 0.12,
-		minRPM: 500/60, 
+		minRPM: 500/60,
 		maxRPM: 7000/60,
 		redlineRPM: 5500/60,
 		vibRPM: 4500/60,
-		TdissUnder: f => 12,
-		TdissOver: f => 2*f - 148.3,
+		TdissUnder: [0, 12],
+		TdissOver: [2, -148.3],
 		idleRPM: 750/60,
-		idleGas: 0.191,
+		idleGas: 0.206,
 		starter: 3,
 		starterT: 4,
 		PID: [0.7, 10, 0],
 			specs: [
-				[500/60,  13, 66 ],
+				[500/60,  13, 56 ],
 				[1000/60, 14, 75 ],
 				[1500/60, 16, 82 ],
 				[2000/60, 18, 87 ],
@@ -215,14 +215,14 @@ const cars = [
 			lambda: 1,
 			V: 0.602,
 			I: 0.07,
-			minRPM: 500/60, 
+			minRPM: 500/60,
 			maxRPM: 8000/60,
 			redlineRPM: 6500/60,
 			vibRPM: 5000/60,
-			TdissUnder: f => 6,
-			TdissOver: f => 2*f - 200.67,
+			TdissUnder: [0, 6],
+			TdissOver: [2, -200.67],
 			idleRPM: 800/60,
-			idleGas: 0.26,
+			idleGas: 0.264,
 			starter: 3.5,
 			starterT: 2,
 			PID: [1.1, 12, 0],
@@ -294,19 +294,19 @@ const cars = [
 		lambda: 1.01,
 		V: 1.984,
 		I: 0.25,
-		minRPM: 500/60, 
+		minRPM: 500/60,
 		maxRPM: 8500/60,
 		redlineRPM: 6500/60,
 		vibRPM: 5500/60,
-		TdissUnder: f => 23,
-		TdissOver: f => 4*f - 346.6,
+		TdissUnder: [0, 23],
+		TdissOver: [4, -346.6],
 		idleRPM: 750/60,
-		idleGas: 0.165,
+		idleGas: 0.168,
 		starter: 1.6,
 		starterT: 25,
 		PID: [0.4, 9, 0],
 			specs: [
-				[500/60,  24,  134],
+				[500/60,  24,  128],
 				[1000/60, 27,  175],
 				[1500/60, 30,  204],
 				[2000/60, 34,  220],
@@ -378,15 +378,15 @@ const cars = [
 		maxRPM: 8500/60,
 		redlineRPM: 6500/60,
 		vibRPM: 5500/60,
-		TdissUnder: f => 70,
-		TdissOver: f => 8*f - 450,
+		TdissUnder: [0, 70],
+		TdissOver: [8, -450],
 		idleRPM: 750/60,
-		idleGas: 0.170,
+		idleGas: 0.180,
 		starter: 1.5,
 		starterT: 100,
 		PID: [0.25, 8, 0],
 			specs: [
-				[500/60,  75,  431],
+				[500/60,  75,  375],
 				[1000/60, 84,  507],
 				[1500/60, 93,  568],
 				[2000/60, 106, 627],

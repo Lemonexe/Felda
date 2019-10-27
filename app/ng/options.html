@@ -55,6 +55,8 @@
 			Hlasitost: <input type="range" min="0" max="100" step="1" ng-model="CS.volume"> {{CS.volume}}%
 		</p>
 		<p>
+			<input type="checkbox" ng-model="CS.enableAmbientSounds" id="formAmbient">
+			<label for="formAmbient"> zvuky prostředí</label><br>
 			<input type="checkbox" ng-model="CS.enableBackgroundMute" id="formMute">
 			<label for="formMute"> ztlumit když je okno v pozadí</label>
 		</p>

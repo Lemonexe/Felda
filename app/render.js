@@ -110,7 +110,7 @@ let R = {
 			if(item[0] === 'zn_km') {
 				let fontSize = (0.25*ppm).toFixed();
 				let text = (item[1]/1000).toFixed(1).replace('.', ',');
-				ctx.textAlign = 'center'; ctx.fillStyle = 'black'; 
+				ctx.textAlign = 'center'; ctx.fillStyle = 'black';
 				ctx.font = `bold ${fontSize}px Arial`;
 				ctx.fillText(text, dx, dy-dh*2/3);
 			}
@@ -204,9 +204,9 @@ let R = {
 	//determines whether a point (represented by pixel coordinates) is within bounds of camera
 	isInView: function(point) {
 		return (
-			(point[0] >= 0) && 
+			(point[0] >= 0) &&
 			(point[0] <= this.canvas.width) &&
-			(point[1] >= 0) && 
+			(point[1] >= 0) &&
 			(point[1] <= this.canvas.height));
 	},
 	//get pixel coordinates of i-element of current level
@@ -521,7 +521,7 @@ let R = {
 
 		//write numbers
 		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle'; 
+		ctx.textBaseline = 'middle';
 		ctx.fillStyle = '#222222';
 		ctx.font = 'bold 20px Arial';
 

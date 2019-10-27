@@ -12,7 +12,7 @@ app.directive('tooltip', () => ({
 			if(!attrs.tooltip) {return;}
 			CS.tooltip.visible = true;
 			CS.tooltip.style.top = (event.pageY + 25) + 'px';
-			CS.tooltip.style.left = event.pageX + 'px';
+			CS.tooltip.style.left = scope.getTooltipX(event.pageX) + 'px';
 			CS.tooltip.message = [attrs.tooltip];
 		}
 
@@ -37,7 +37,7 @@ app.directive('minimap', () => ({
 			obj.enabled = !isNaN(obj.a);
 			CS.tooltip.visible = obj.enabled;
 			CS.tooltip.style.top  = (event.pageY + 20) + 'px';
-			CS.tooltip.style.left = (event.pageX - 20) + 'px';
+			CS.tooltip.style.left = scope.getTooltipX(event.pageX - 20) + 'px';
 			CS.tooltip.message = [
 				`x: ${(obj.d/1000).toFixed(1)} km`,
 				`y: ${obj.a.toFixed()} m`

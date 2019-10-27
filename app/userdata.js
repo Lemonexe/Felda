@@ -105,7 +105,7 @@ function ControllerState() {return {
 		enabled: false,
 		pageY: 0,
 		pageX: 0,
-		angle: 0, //angle at cursor [rad] 
+		angle: 0, //angle at cursor [rad]
 		d: 0,  //distance at cursor [m]
 		a: 0   //altitude at cursor [m]
 	},
@@ -120,6 +120,7 @@ function ControllerState() {return {
 	ppm: 100, //pixels per meter for graphical rendering [1/m]
 
 	enableSounds: true, //master switch for all sounds
+	enableAmbientSounds: true,
 	enableBackgroundMute: true, //mute sounds when bluring window to background
 	volume: 50, //master sound volume [%]
 

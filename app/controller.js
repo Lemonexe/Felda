@@ -316,6 +316,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.$broadcast('enterShowroom');
 	};
 
+	//this function is used in directives 'tooltip' and 'minimap' to fix left position, X0 is the initially planned left
+	$scope.getTooltipX = function(X0) {
+		let [sw, sh]  = getScreenSize();
+		let ew = geto('tooltip').offsetWidth; //element width, this is vile and disgusting
+		return X0.limit(5, sw-ew-5);
+	};
+
 	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {

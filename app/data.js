@@ -5,6 +5,7 @@
 
 //config contains constants not related to the physics model, but rather governing the behavior of application
 const config = {
+	//APP CONTROL
 	dt: 10/1000, //short time interval for the discreet simulation itself [s]
 	vibration: 40, //frequency of vibration [Hz]
 	imgLoadingArea: 1e4, //images will be split into areas of this length [m]
@@ -13,9 +14,16 @@ const config = {
 	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [m-1])
 	ppm_max: 200,
 	minResolution: [1150, 650], //minimal recommended resolution
+
+	//MODEL
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
 	integratorCap: 2, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
+	dDecoration: 5, //how far from road are decorations placed [m] for Doppler effect calculation
+	vSound: 343, //speed of sound in air [m/s] for Doppler effect calculation
+	soundExtinction: 0.02, //volume decrease[m-1] for ambient sounds
+	
+	//SHOWROOM
 	maxMarks: 15, //maximum number of marks on a plot
 	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
 	ppmShowroom: 120, //ppm for image of car in showroom [m-1]
@@ -63,6 +71,7 @@ properties:
 	height: real width [m] (decorations)
 	hOffset: position offset downwards [m] (decorations, optional)
 	mirror: if defined, image is mirrorable (decorations, optional)
+	sound: reference to sound that will loop when nearby (decorations, optional)
 (C) means that the image might be copyrighted
 */
 const imgs = {
@@ -82,8 +91,8 @@ const imgs = {
 	oak:     {img: 'res/env/oak.png', width: 3, height: 4, mirror: true},
 	radar:   {img: 'res/env/radar.png', width: 2, height: 3.5}, //(C)
 	smrk:    {img: 'res/env/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
-	cow:     {t: 500, frames: ['res/env/cow1.png', 'res/env/cow2.png'], width: 2.5, height: 1.775, mirror: true}, //(C)
-	prejezd: {t: 500, frames: ['res/env/prejezd1.png', 'res/env/prejezd2.png'], width: 0.833, height: 2.5}, //(C)
+	cow:     {t: 500, frames: ['res/env/cow1.png', 'res/env/cow2.png'], width: 2.5, height: 1.775, mirror: true, sound: 'cow'}, //(C)
+	prejezd: {t: 500, frames: ['res/env/prejezd1.png', 'res/env/prejezd2.png'], width: 0.833, height: 2.5, sound: 'prejezd'}, //(C)
 	heli:    {t: 200, frames: ['res/env/heli1.png', 'res/env/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true}, //(C)
 	plane:   {t: 100, frames: ['res/env/plane1.png', 'res/env/plane2.png', 'res/env/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true}, //(C)
 
@@ -117,6 +126,8 @@ const sounds = {
 	engine: {src: 'res/sound/engine.wav', repStart: 0, repEnd: 2221},
 	brake:  {src: 'res/sound/brake.mp3', repStart: 300, repEnd: 1300},
 	nitro:  {src: 'res/sound/nitro.mp3', repStart: 200, repEnd: 400},
+	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015},
+	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900},
 	start:  {src: 'res/sound/start.mp3'},
 	shift:  {src: 'res/sound/shift.mp3'}
 };
@@ -196,7 +207,7 @@ const levels = [
 				//{link to 'imgs', density of images per m [1/m]}
 				{img: 'oak',         density: 1/100},
 				{img: 'radar',       density: 1/200},
-				{img: 'prejezd',     density: 1/800},
+				{img: 'prejezd',     density: 1/600},
 				{img: 'zn_50',       density: 1/200},
 				{img: 'zn_prace',    density: 1/400},
 				{img: 'zn_diry',     density: 1/400},
@@ -298,7 +309,7 @@ const tutorialFunctions = {
 
 			popup(['Výborně!', 'Nyní bude auto zastaveno, zkuste se rozjet na 30 km/h.',
 				'Nejprve je potřeba stisknout spojku a nastartovat pomocí tlačítka START.',
-				'Nejsnažší způsob jak se potom rozjet, je roztočit motor na vysoké otáčky a pak prostě pustit spojku.', '', 
+				'Nejsnažší způsob jak se potom rozjet, je roztočit motor na vysoké otáčky a pak prostě pustit spojku.', '',
 				'Ovšem v realitě to děláme trochu citlivěji... Můžete i zde zkusit koordinovaně pouštět spojku, přidávat plyn a udržet otáčky pod 2000 RPM.',
 				'Je to těžké, ale jde to 😉'],
 				false, false, 600);

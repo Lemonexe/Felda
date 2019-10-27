@@ -7,6 +7,7 @@ const M = {
 	//the governing function of simulation - calls a sequence of functions each game tick
 	tick: function() {
 		M.engineSound();
+		M.ambientSound();
 		if(!S || !S.running || (S.tutorial && CS.popup)) {return;}
 
 		M.processPedals();
@@ -109,12 +110,14 @@ const M = {
 		//apply starter torque
 		if(starter > 0) {return car.engine.starterT;}
 
-		//RPM outside operational bounds
+		//RPM outside operational bound
+		let linF = (p, f) => p[0] * f + p[1]; //linear function
+
 		if(f < car.engine.minRPM) {
-			return -car.engine.TdissUnder(f);
+			return -linF(car.engine.TdissUnder, f);
 		}
 		else if(f > car.engine.maxRPM) {
-			return -car.engine.TdissOver(f);
+			return -linF(car.engine.TdissOver, f);
 		}
 
 		//RPM inside operational bounds
@@ -248,7 +251,7 @@ const M = {
 		}
 
 		//effects of forces + corrections
-		S.f += Te / (2*Math.PI * car.engine.I) * config.dt; 
+		S.f += Te / (2*Math.PI * car.engine.I) * config.dt;
 		S.v += Fc / car.m * config.dt;
 		if(S.f < 0) {S.f = 0;}
 		if(S.v < 0) {S.v = 0;}
@@ -356,9 +359,9 @@ const M = {
 		}
 	},
 
-	//update all continuous sounds
+	//update all continuous sounds from car
 	engineSound: function() {
-		if(!S) {return;}0
+		if(!S) {return;}
 
 		let car = cars[S.car];
 		let paused = !S.running || (S.tutorial && CS.popup);
@@ -388,5 +391,48 @@ const M = {
 			soundService.start('brake');
 		}
 		else {soundService.end('brake');}
+	},
+
+	//update ambient sounds
+	ambientSound: function() {
+		if(!S) {return;}
+
+		let paused = !S.running || (S.tutorial && CS.popup) || !CS.enableAmbientSounds || !CS.enableGraphics; //graphics because it could be pretty confusing
+
+		//initialize all ambient sound types, e.g. {cow: {volume: 0, rate:1}}
+		//each sound file has only one instance - the loudest one will be played
+		let ambSounds = {};
+		Object.keys(imgs).forEach(key => imgs[key].hasOwnProperty('sound') && (ambSounds[key] = {volume: 0, rate: 1}));
+
+		let iarr = Math.floor(S.d / config.imgLoadingArea); //index of image area array
+
+		//for each image in current image area array
+		for(let item of S.level.images[iarr]) {
+			let imgObj = imgs[item[0]]; //get the image object from 'imgs'
+			if(!imgObj.hasOwnProperty('sound')) {continue;} //this decoration doesn't have any sound
+			let ambSound = ambSounds[imgObj.sound]; //current ambient sound
+
+			let dd = item[1] - S.d; //how far ahead is the image [m]
+
+			//linear extinction of sound amplitude
+			let volume = 1 - Math.abs(dd) * config.soundExtinction;
+
+			//Doppler effect
+			let dMin = config.dDecoration; //how far from road are decorations placed [m]
+			let v = 1 / Math.sqrt(dd*dd + dMin*dMin) * dd * S.v; //velocity towards the object: v = dc/dt, where c is Euclidean distance
+			let rate = 1 + v / config.vSound; //new frequency
+			
+			//save the current values if volume is greater
+			(volume > ambSound.volume) && ([ambSound.volume, ambSound.rate] = [volume, rate]);
+		}
+
+		//update all ambient sounds with their calculated volumes and rates
+		Object.keys(ambSounds).forEach(function(key) {
+			let ambSound = ambSounds[key]; //current ambient sound
+			if(!paused && ambSound.volume > 0) {
+				soundService.start(key, ambSound.volume, ambSound.rate);
+			}
+			else {soundService.end(key);}
+		});
 	}
 };
