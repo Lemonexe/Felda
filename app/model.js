@@ -345,7 +345,7 @@ const M = {
 	//a very simple function to shift gears when RPM exceed bounds (which are a property of car)
 	//no clutch is used, gears are thrown in "dirty"
 	automat: function() {
-		if(!CS.enableAutomat || S.f < 10 || S.clutch < 0.99 || S.gear === 'N') {return;}
+		if(!CS.enableAutomat || S.tutorial || S.f < 10 || S.clutch < 0.99 || S.gear === 'N') {return;}
 		let trans = cars[S.car].transmission;
 		
 		if     (S.f < trans.automat[0]) {var newGear = String(Number(S.gear) - 1);}
@@ -402,7 +402,7 @@ const M = {
 		//initialize all ambient sound types, e.g. {cow: {volume: 0, rate:1}}
 		//each sound file has only one instance - the loudest one will be played
 		let ambSounds = {};
-		Object.keys(imgs).forEach(key => imgs[key].hasOwnProperty('sound') && (ambSounds[key] = {volume: 0, rate: 1}));
+		Object.keys(imgs).forEach(key => imgs[key].hasOwnProperty('sound') && (ambSounds[imgs[key].sound] = {volume: 0, rate: 1}));
 
 		let iarr = Math.floor(S.d / config.imgLoadingArea); //index of image area array
 

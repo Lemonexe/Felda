@@ -13,7 +13,7 @@ const config = {
 	signDistance: 500, //intervals between special distance signs [m]
 	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [m-1])
 	ppm_max: 200,
-	minResolution: [1150, 650], //minimal recommended resolution
+	minResolution: [1150, 700], //minimal recommended resolution
 
 	//MODEL
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
@@ -89,7 +89,7 @@ const imgs = {
 
 	//decoration images
 	oak:     {img: 'res/env/oak.png', width: 3, height: 4, mirror: true},
-	radar:   {img: 'res/env/radar.png', width: 2, height: 3.5}, //(C)
+	radar:   {img: 'res/env/radar.png', width: 2, height: 3.5, sound: 'police'}, //(C)
 	smrk:    {img: 'res/env/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
 	cow:     {t: 500, frames: ['res/env/cow1.png', 'res/env/cow2.png'], width: 2.5, height: 1.775, mirror: true, sound: 'cow'}, //(C)
 	prejezd: {t: 500, frames: ['res/env/prejezd1.png', 'res/env/prejezd2.png'], width: 0.833, height: 2.5, sound: 'prejezd'}, //(C)
@@ -127,6 +127,7 @@ const sounds = {
 	brake:  {src: 'res/sound/brake.mp3', repStart: 300, repEnd: 1300},
 	nitro:  {src: 'res/sound/nitro.mp3', repStart: 200, repEnd: 400},
 	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015},
+	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 4000},
 	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900},
 	start:  {src: 'res/sound/start.mp3'},
 	shift:  {src: 'res/sound/shift.mp3'}
@@ -268,7 +269,7 @@ const levels = [
 	//DRAG RACE
 	let drag = angular.copy(levels.find(i => i.id === 'flat'));
 	drag.sublevel = 'flat'; drag.id = 'drag'; drag.name = 'Drag';
-	drag.description = 'Klasický závod na čtvrt míle. Vystartuje kdy chcete a začne se počítat čas!';
+	drag.description = 'Klasický závod na čtvrt míle. Vystartujte kdy chcete a začne se počítat čas!';
 	drag.generation.int = drag.generation.length = 402.336;
 	drag.listeners = {
 		onstart: function() {
@@ -346,7 +347,7 @@ const levels = [
 				'Pozn.: v nastavení lze význam pedálů obrátit'],
 				false, false, 500);
 		}
-		else if(S.f >= 7900/60 && S.script === 1) {
+		else if(S.f >= 7800/60 && S.script === 1) {
 			S.script++;
 
 			popup(['Beze změny převodu to nepůjde.',

@@ -8,11 +8,14 @@ více aut, ale možná už to stačí
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
-sublevels
-	Česká krajina, Alpská krajina > Economy (nádrž s palivem, benzínky, locked Felicia)
+sublevels - verze 1.2
+	Česká krajina > Benzínová žízeň (nádrž s palivem, benzínky, locked Felicia)
 		bude se zobrazovat nádrž číselně i jako progress bar
 		benzínky se budou zobrazovat na minimapce a je u nich potřeba zastavit
 		bude timeout kdy benzínka zavře, aby se muselo jet mezi 50 až 90
+	Alpská krajina > Nebezpečná rychlost: The Game (konstantní rychlost)
+		udržovat rychlost v limitech jinak blow up (auto ztratí kola a obrátí se na záda)
+		rychlost se bude aktualizovat dle sklonu, vždy bude chvíli času na ustálení
 
 
 <<<META>>>
@@ -22,6 +25,5 @@ English language yes okay well?
 	dynamic title
 	publish in english
 
-Edge nefunguje - cyklus M.tick() je velmi zpomalený
 test on Safari
 test on Android (tablet)

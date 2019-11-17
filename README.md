@@ -5,7 +5,9 @@ Nově je zde i mnoho dalších aut!
 
 **[odkaz](http://jira.zby.cz/content/Felda/) na produkční aplikaci**
 
-Jedná se o čistě frontendovou aplikaci napsanou v HTML/CSS/JS za pomoci frameworku [AngularJS](https://angularjs.org/).
+Jedná se o čistě frontendovou aplikaci napsanou v HTML/CSS/JS za pomoci frameworku [AngularJS](https://angularjs.org/)
+
+_Pozn.: v MS Edge hra moc dobře nefunguje, poněvadž tam chybí určitá nativní funkce, kterou chce Angular využívat_
 
 ## Struktura aplikace
 
