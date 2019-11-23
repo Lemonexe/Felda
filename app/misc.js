@@ -101,8 +101,6 @@ function resourcePreload() {
 	//load all sounds as array buffers (raw mp3 files)
 	for(let i of Object.keys(sounds)) {
 		sounds[i].buffer = null;
-		sounds[i].source = null;
-		sounds[i].gainNode = null;
 		let request = new XMLHttpRequest();
 		request.open('GET', sounds[i].src, true);
 		request.responseType = 'arraybuffer';

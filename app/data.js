@@ -119,15 +119,13 @@ properties:
 	repStart: where to start when repeating audio [ms]
 	repEnd: where to end when repeating audio [ms]
 	buffer: stores decoded audio, will be initiated as null
-	source: AudioContext source object if currently playing, otherwise null
-	gainNode: AudioContext gainNode object if currently playing, otherwise null
 */
 const sounds = {
 	engine: {src: 'res/sound/engine.wav', repStart: 0, repEnd: 2221},
 	brake:  {src: 'res/sound/brake.mp3', repStart: 300, repEnd: 1300},
 	nitro:  {src: 'res/sound/nitro.mp3', repStart: 200, repEnd: 400},
 	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015},
-	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 4000},
+	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 3000},
 	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900},
 	start:  {src: 'res/sound/start.mp3'},
 	shift:  {src: 'res/sound/shift.mp3'}

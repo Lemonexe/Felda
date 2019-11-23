@@ -44,7 +44,7 @@ const M = {
 	//turn on the engine starter
 	start: function() {
 		if(!S.running) {return;}
-		if(S.f < cars[S.car].engine.minRPM) {
+		if(S.f < cars[S.car].engine.minRPM && S.starter <= 0) {
 			if((S.gear === 'N' || S.clutch < 1e-2)) {
 				//set starter timeout
 				S.starter = cars[S.car].engine.starter;
@@ -393,16 +393,11 @@ const M = {
 		else {soundService.end('brake');}
 	},
 
-	//update ambient sounds
+	//update ambient sounds, each item has it's own instance
 	ambientSound: function() {
 		if(!S) {return;}
 
 		let paused = !S.running || (S.tutorial && CS.popup) || !CS.enableAmbientSounds || !CS.enableGraphics; //graphics because it could be pretty confusing
-
-		//initialize all ambient sound types, e.g. {cow: {volume: 0, rate:1}}
-		//each sound file has only one instance - the loudest one will be played
-		let ambSounds = {};
-		Object.keys(imgs).forEach(key => imgs[key].hasOwnProperty('sound') && (ambSounds[imgs[key].sound] = {volume: 0, rate: 1}));
 
 		let iarr = Math.floor(S.d / config.imgLoadingArea); //index of image area array
 
@@ -410,7 +405,6 @@ const M = {
 		for(let item of S.level.images[iarr] || []) {
 			let imgObj = imgs[item[0]]; //get the image object from 'imgs'
 			if(!imgObj.hasOwnProperty('sound')) {continue;} //this decoration doesn't have any sound
-			let ambSound = ambSounds[imgObj.sound]; //current ambient sound
 
 			let dd = item[1] - S.d; //how far ahead is the image [m]
 
@@ -422,17 +416,12 @@ const M = {
 			let v = 1 / Math.sqrt(dd*dd + dMin*dMin) * dd * S.v; //velocity towards the object: v = dc/dt, where c is Euclidean distance
 			let rate = 1 + v / config.vSound; //new frequency
 			
-			//save the current values if volume is greater
-			(volume > ambSound.volume) && ([ambSound.volume, ambSound.rate] = [volume, rate]);
+			//update or start this instance, where image position will act as a "unique" instance id
+			//note.: if there are two images with equal position, they will share the instance. That's not a problem!
+			if(!paused && volume > 0) {soundService.start(imgObj.sound, volume, rate, item[1]);}
+			else {soundService.end(imgObj.sound, item[1]);}
 		}
 
-		//update all ambient sounds with their calculated volumes and rates
-		Object.keys(ambSounds).forEach(function(key) {
-			let ambSound = ambSounds[key]; //current ambient sound
-			if(!paused && ambSound.volume > 0) {
-				soundService.start(key, ambSound.volume, ambSound.rate);
-			}
-			else {soundService.end(key);}
-		});
+		soundService.cull(); //remove expired instances
 	}
 };
