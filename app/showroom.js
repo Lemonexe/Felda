@@ -22,6 +22,7 @@ app.directive('showroom', () => ({
 			carStyle: {}, //ng-style for car image
 			wheelStyles: [], //ng-style objects of wheel images
 			colors: config.gearColors,
+			engineType: '', //text description of engine type
 
 			//results of computations
 			Tmax: 0, //max torque [N*m]
@@ -68,6 +69,13 @@ app.directive('showroom', () => ({
 				height: (s*height).toFixed() + 'px',
 				zIndex: 1+Number(WHbottom)
 			}
+
+			//text description
+			engineTypes = {
+				piston: 'čtyřtaktní pístový',
+				wankel: 'Wankelův'
+			};
+			showroom.engineType = engineTypes[cars[i].engineType] || 'jiný';
 
 			//prepare data (and draw plot?)
 			$scope.preparePerformancePlot(); //this also obtains max values of P & T

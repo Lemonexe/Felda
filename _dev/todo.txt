@@ -1,10 +1,4 @@
 <<<RESOURCES & CONTENT>>>
-více aut, ale možná už to stačí
-	Nějaký bávo? E39 M5 (294 kW)
-		nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
-	Mazda RX-8 (protože je to atmoška, kdežto RX-7 je oturbená)
-		podle mé rešerše je modelování příkonu jako dvoutakt - jeden zážeh na jeden cyklus
-
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
 
@@ -16,6 +10,9 @@ sublevels - verze 1.2
 	Alpská krajina > Nebezpečná rychlost: The Game (konstantní rychlost)
 		udržovat rychlost v limitech jinak blow up (auto ztratí kola a obrátí se na záda)
 		rychlost se bude aktualizovat dle sklonu, vždy bude chvíli času na ustálení
+
+BMW E39 M5 (294 kW), ale už to asi stačí!
+	nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
 
 
 <<<META>>>

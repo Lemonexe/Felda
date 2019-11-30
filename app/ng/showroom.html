@@ -23,6 +23,7 @@
 		<h3>Motor</h3>
 
 		<table class="showroomTable">
+			<tr><td>Konstrukce motoru:</td><td colspan="2">{{showroom.engineType}}</td></tr>
 			<tr><td>Zdvihový objem:</td><td>{{showroom.car.engine.V.toFixed(3)}} l</td></tr>
 			<tr tooltip="tato hodnota je vycucána z prstu"><td>Moment setrvačnosti:</td><td>{{showroom.car.engine.I.toFixed(2)}} kg·m²</td></tr>
 			<tr><td>Max. výkon:</td><td>{{st.calculateUnit(showroom.Pmax, CS.unitPow)}}</td><td>@ {{(showroom.Pmaxf*60).toFixed()}} RPM</td></tr>

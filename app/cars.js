@@ -9,6 +9,7 @@ const cars = [
 		name: 'Škoda Felicia',
 		year: 1996,
 		engineName: '1.3 MPI 50kW',
+		engineType: 'piston',
 		//showroom text as array of paragraphs
 		description: [
 			'Tento legendární hatchback z mladoboleslavské produkce je vlajkovou lodí Felda simulátoru, neboť dlouho byl jediným zde implementovaným automobilem.',
@@ -23,7 +24,7 @@ const cars = [
 			width: 3.855, //real length of car [m]
 			height: 1.446, //real height of car [m]
 			r: 0.28, //apparent radius of wheel, should be same as in transmission [m]
-			//positions of all wheels in pixels (of original image) [x, y]
+			//positions of all wheel centers in pixels (of original image) [x, y]
 			wheels: [
 				[65, 121], [316, 121]
 			]
@@ -58,6 +59,7 @@ const cars = [
 
 		//describes engine power and dissipative forces
 		engine: {
+			stroke: 4, //four stroke engine, meaning 2/4 = 0.5 ignitions per revolution
 			lambda: 1.01, //oxygen excess
 			V: 1.289, //engine displacement [l],
 			I: 0.15, //engine moment of inertia [kg*m2]
@@ -100,6 +102,7 @@ const cars = [
 		name: 'Škoda 105',
 		year: 1977,
 		engineName: '34kW',
+		engineType: 'piston',
 		description: [
 			'Kdo by neznal toto vozidlo socialistického lidu, které je ikonou dávno minulé éry?',
 			'Modelovou řadu Škoda 742 vyráběl AZNP v letech 1976 - 1990, dnes už tedy bývají poněkud rezavé.',
@@ -139,20 +142,21 @@ const cars = [
 		},
 
 		engine: {
-		lambda: 1,
-		V: 1.046,
-		I: 0.12,
-		minRPM: 500/60,
-		maxRPM: 7000/60,
-		redlineRPM: 5500/60,
-		vibRPM: 4500/60,
-		TdissUnder: [0, 12],
-		TdissOver: [2, -148.3],
-		idleRPM: 750/60,
-		idleGas: 0.206,
-		starter: 3,
-		starterT: 4,
-		PID: [0.7, 10, 0],
+			stroke: 4,
+			lambda: 1,
+			V: 1.046,
+			I: 0.12,
+			minRPM: 500/60,
+			maxRPM: 7000/60,
+			redlineRPM: 5500/60,
+			vibRPM: 4500/60,
+			TdissUnder: [0, 12],
+			TdissOver: [2, -148.3],
+			idleRPM: 750/60,
+			idleGas: 0.206,
+			starter: 3,
+			starterT: 4,
+			PID: [0.7, 10, 0],
 			specs: [
 				[500/60,  13, 56 ],
 				[1000/60, 14, 75 ],
@@ -176,6 +180,7 @@ const cars = [
 		name: 'Citroën 2CV',
 		year: 1968,
 		engineName: '21kW',
+		engineType: 'piston',
 		description: [
 			'Milovníci pomalé jízdy se mohou vyřádit v tomto fracouzském vozítku známém jako "kachna".',
 			'O oblíbenosti tohoto minimalistického modelu svědčí to, že kačen bylo vyrobeno po celém světě více než 5 milionů.',
@@ -212,6 +217,7 @@ const cars = [
 			automat: [1500/60, 5500/60]
 		},
 		engine: {
+			stroke: 4,
 			lambda: 1,
 			V: 0.602,
 			I: 0.07,
@@ -251,6 +257,7 @@ const cars = [
 		name: 'Škoda Octavia II',
 		year: 2005,
 		engineName: '2.0 FSI 110kW',
+		engineType: 'piston',
 		description: [
 			'Nejvýkonnější atmosferický motor mladoboleslavské produkce si našel cestu do druhé generace oblíbeného rodinného sedanu.',
 			'Octavia II se vyráběla v letech 2004 - 2013, avšak v roce 2009 se jí bohužel přihodila tragédie jménem "facelift".'
@@ -291,20 +298,21 @@ const cars = [
 		},
 
 		engine: {
-		lambda: 1.01,
-		V: 1.984,
-		I: 0.25,
-		minRPM: 500/60,
-		maxRPM: 8500/60,
-		redlineRPM: 6500/60,
-		vibRPM: 5500/60,
-		TdissUnder: [0, 23],
-		TdissOver: [4, -346.6],
-		idleRPM: 750/60,
-		idleGas: 0.168,
-		starter: 1.6,
-		starterT: 25,
-		PID: [0.4, 9, 0],
+			stroke: 4,
+			lambda: 1.01,
+			V: 1.984,
+			I: 0.25,
+			minRPM: 500/60,
+			maxRPM: 8500/60,
+			redlineRPM: 6500/60,
+			vibRPM: 5500/60,
+			TdissUnder: [0, 23],
+			TdissOver: [4, -346.6],
+			idleRPM: 750/60,
+			idleGas: 0.168,
+			starter: 1.6,
+			starterT: 25,
+			PID: [0.4, 9, 0],
 			specs: [
 				[500/60,  24,  128],
 				[1000/60, 27,  175],
@@ -331,6 +339,7 @@ const cars = [
 		name: 'Chevrolet Camaro',
 		year: 2017,
 		engineName: '6.2 V8 339kW',
+		engineType: 'piston',
 		description: [
 			'\'Murica fuck yeah!',
 			'Legendární detroitský V8, hypertrofovaný až do neskutečných šesti litrů, je jednou z nejvýkonnějších atmosfér na trhu. Užívejte si trhání asfaltu!'
@@ -371,20 +380,21 @@ const cars = [
 		},
 
 		engine: {
-		lambda: 1.01,
-		V: 6.162,
-		I: 0.80,
-		minRPM: 500/60, 
-		maxRPM: 8500/60,
-		redlineRPM: 6500/60,
-		vibRPM: 5500/60,
-		TdissUnder: [0, 70],
-		TdissOver: [8, -450],
-		idleRPM: 750/60,
-		idleGas: 0.180,
-		starter: 1.5,
-		starterT: 100,
-		PID: [0.25, 8, 0],
+			stroke: 4,
+			lambda: 1.01,
+			V: 6.162,
+			I: 0.80,
+			minRPM: 500/60, 
+			maxRPM: 8500/60,
+			redlineRPM: 6500/60,
+			vibRPM: 5500/60,
+			TdissUnder: [0, 70],
+			TdissOver: [8, -450],
+			idleRPM: 750/60,
+			idleGas: 0.180,
+			starter: 1.5,
+			starterT: 100,
+			PID: [0.25, 8, 0],
 			specs: [
 				[500/60,  75,  375],
 				[1000/60, 84,  507],
@@ -403,6 +413,92 @@ const cars = [
 				[7500/60, 512, 808],
 				[8000/60, 593, 755],
 				[8500/60, 683, 683]
+			]
+		}
+	},
+
+	{
+		name: 'Mazda RX-8',
+		year: 2008,
+		engineName: '1.3 170kW',
+		engineType: 'wankel',
+		description: [
+			'Zapomeňte na písty a pořádně to roztočte s Wankelovým rotačním motorem!',
+			'Tato pohroma silnic z Hirošimy se vyráběla v letech 2003 - 2012. Emisní limity sice posledního wankela vyřadily z trhu, ale v našich srdcích se bude točit navždy!'
+		],
+
+		graphic: {
+			img: 'RX8',
+			imgWH: 'RX8WH',
+			width: 4.435,
+			height: 1.340,
+			r: 0.330,
+			wheels: [
+				[123, 136], [482, 136]
+			]
+		},
+
+		m: 1323+75,
+
+		transmission: {
+			clutchInt: [0.1, 0.9],
+			TclutchMax: 600,
+			friction: 1.0,
+			loss: {
+				a: 330,
+				b: 0.52
+			},
+			r: 0.330,
+			gears: {
+				fix: 4.444,
+				1: 3.760,
+				2: 2.269,
+				3: 1.645,
+				4: 1.187,
+				5: 1.000,
+				6: 0.843
+			},
+			automat: [2000/60, 8500/60]
+		},
+
+		engine: {
+			stroke: 2,
+			lambda: 1.01,
+			V: 1.308,
+			I: 0.15,
+			minRPM: 500/60, 
+			maxRPM: 1e4/60,
+			redlineRPM: 9000/60,
+			vibRPM: 8500/60,
+			TdissUnder: [0, 15],
+			TdissOver: [4, -460.67],
+			idleRPM: 1000/60,
+			idleGas: 0.160,
+			starter: 1.5,
+			starterT: 15,
+			PID: [0.4, 8, 0],
+			specs: [
+				[500/60,  16,  57.0 ],
+				[1000/60, 18,  112.7],
+				[1500/60, 20,  162.1],
+				[2000/60, 23,  188.8],
+				[2500/60, 26,  206.0],
+				[3000/60, 30,  219.5],
+				[3500/60, 35,  231.2],
+				[4000/60, 40,  241.3],
+				[4500/60, 46,  251.3],
+				[5000/60, 53,  261.4],
+				[5500/60, 61,  272.0],
+				[6000/60, 70,  280.6],
+				[6500/60, 80,  289.2],
+				[7000/60, 92,  299.0],
+				[7500/60, 106, 309.8],
+				[8000/60, 122, 321.8],
+				[8200/60, 129, 327.0],
+				[8500/60, 140, 324.1],
+				[9000/60, 160, 303.0],
+				[9500/60, 182, 264.0],
+				[1e4/60 , 206, 206.0]
 			]
 		}
 	}

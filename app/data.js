@@ -25,7 +25,7 @@ const config = {
 	
 	//SHOWROOM
 	maxMarks: 15, //maximum number of marks on a plot
-	fPlotInt: 500/60, //frequency increment to tabelate values for plot [Hz]
+	fPlotInt: 100/60, //frequency increment to tabelate values for plot [Hz]
 	ppmShowroom: 120, //ppm for image of car in showroom [m-1]
 	gearColors: {'1': 'red', '2': 'gold', '3': 'green', '4': 'blue', '5': 'magenta', '6': 'cyan'}, //colors for plot datasets
 	flash: 400 //duration of flash text [ms]
@@ -86,6 +86,8 @@ const imgs = {
 	octaviaWH:  {img: 'res/cars/octaviaWH.png'}, //(C)
 	camaro:     {img: 'res/cars/camaro.png'}, //(C)
 	camaroWH:   {img: 'res/cars/camaroWH.png'}, //(C)
+	RX8:        {img: 'res/cars/RX8.png'}, //(C)
+	RX8WH:      {img: 'res/cars/RX8WH.png'}, //(C)
 
 	//decoration images
 	oak:     {img: 'res/env/oak.png', width: 3, height: 4, mirror: true},

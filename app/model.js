@@ -34,7 +34,7 @@ const M = {
 	initCalculations: function() {
 		let eng = cars[S.car].engine;
 
-		// mass of gasoline in chamber per one cycle, at standard pressure [g]
+		// mass of gasoline in chamber per one active rotation, at standard pressure [g]
 		S.mFuelPerCycle = (constants.p * eng.V / constants.R / constants.T) * constants.xO2 / eng.lambda / constants.stc * constants.M;
 
 		// constant of barometric equation as pR = exp(const * h) [m^-1]
@@ -155,7 +155,8 @@ const M = {
 			}
 		}
 
-		S.consumption = S.pR * S.mFuelPerCycle * S.f / 2 * S.gas; //calculated theoretical consumption [g/s]
+		let activeCycles = 2 / cars[S.car].engine.stroke; //fraction of rotations w/ ignition to all rotations
+		S.consumption = S.pR * S.mFuelPerCycle * S.f * activeCycles  * S.gas; //calculated theoretical consumption [g/s]
 		if(S.nitro && S.f > cars[S.car].engine.idleRPM) {S.consumption *= constants.N2O;}
 		S.rawPower = S.consumption * constants.dHsp; //reaction heat flow [W]
 		S.ny = S.P / S.rawPower; //efficiency
