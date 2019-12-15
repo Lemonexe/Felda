@@ -5,7 +5,7 @@
 
 app.directive('showroom', () => ({
 	restrict: 'E',
-	templateUrl: 'app/ng/showroom.html?version=2',
+	templateUrl: 'app/ng/showroom.html?version=4',
 	controller: ['$scope', function($scope) {
 		//definition of showroom state variables except the one to rule them all - index of car, which is in CS.showroomIndex
 		let showroom = {
@@ -13,6 +13,7 @@ app.directive('showroom', () => ({
 			tab: 'general', //sub tab for showroom
 			gas: 1, //gas throttle for T,P(f) plot in car showroom
 			slope: 0, //slope for F(v) plot in car showroom
+			altitude: 0, //altitude for F(v) plot in car showroom
 			gears: {}, //which gears are currently selected
 
 			//references and styles
@@ -86,6 +87,8 @@ app.directive('showroom', () => ({
 		//when car is changed using the <select>
 		$scope.$on('enterShowroom', enterShowroom);
 
+		$scope.getPressure = () => M.getPressure(showroom.altitude) * constants.p;
+
 		//call canvas to draw a plot using the prepared plot object
 		$scope.drawPlot = () => R.drawPlot((showroom.tab === 'engine') ? showroom.objPerformance : showroom.objVelocity);
 
@@ -144,6 +147,7 @@ app.directive('showroom', () => ({
 			let step = config.fPlotInt; //frequency increment [Hz]
 			let fSpan = getfSpan(car); //span of frequency [Hz]
 			let n = Math.round((fSpan[1] - fSpan[0])/step + 1); //number of elements in vectors
+			let pR = M.getPressure(showroom.altitude); //relative pressure
 
 			//gears that are selected and available
 			let gears = Object.keys(showroom.gears)
@@ -173,7 +177,7 @@ app.directive('showroom', () => ({
 			let Fo = new Array(nDiss).fill(0); //dissipative force [N]
 
 			//Fo = Fo(v)
-			const Fdiss = v => car.transmission.loss.a + car.transmission.loss.b*v**2 + car.m*constants.g*Math.sin(angle);
+			const Fdiss = v => car.transmission.loss.a + car.transmission.loss.b * pR * v**2 + car.m*constants.g*Math.sin(angle);
 
 			//tabelate the dataset for dissipative force
 			for(let i = 0; i < nDiss; i++) {
@@ -194,8 +198,8 @@ app.directive('showroom', () => ({
 					f[i] = fSpan[0] + i*step;
 					let v = 2*Math.PI * f[i] * re; //velocity [m/s]
 
-					//TORQUE [N*m]: car index, frequency, no starter, full gas, no nitro, std pressure
-					let T = M.getTorque(CS.showroomIndex, f[i], 0, 1, false, 1);
+					//TORQUE [N*m]: car index, frequency, no starter, full gas, no nitro, relative pressure
+					let T = M.getTorque(CS.showroomIndex, f[i], 0, 1, false, pR);
 					let F = T / re; //force [N]
 
 					dataset.x[i] = v;

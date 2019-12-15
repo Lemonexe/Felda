@@ -33,7 +33,7 @@ function State(i, c) {return {
 	altitude: 0, // [m]
 	ascension: 0, //total ascended altitude (descent does not count) [m]
 	angle: 0, //elevation angle [rad]
-	pR: 1, // relative pressure (to standard pressure)
+	pR: 1, //relative pressure (to standard pressure)
 
 	gear: 'N',
 	brakes: false, //whether brakes are currently applied
@@ -137,7 +137,6 @@ function ControllerState() {return {
 	keyBinding: false,
 
 	//current keyBinds, some can be changed. ['action', 'keyCode', 'key']
-	//window.onkeydown = (e) => console.log(e.keyCode+', \''+e.key+'\'')
 	keyBinds: [
 		['esc', 27, 'Escape'],
 		['brake', 32, ' '],

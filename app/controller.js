@@ -82,6 +82,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		}
 	};
 
+	//get name of parent level of a sublevel
+	$scope.getSublevelParent = sub => levels.find(item => item.id === sub).name;
+
 	//getter / setter function for pedals
 	$scope.getSetGas    = newVal => (typeof newVal === 'number') ? (S.gasSlider    = newVal) : S.gasSlider;
 	$scope.getSetClutch = newVal => (typeof newVal === 'number') ? (S.clutchSlider = newVal) : S.clutchSlider;
@@ -181,7 +184,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		cd: e => (S.clutchPedalDown = e),
 		gu: e => (S.gasPedalUp = e),
 		gd: e => (S.gasPedalDown = e),
-		nitro: e => (S.nitro = e)
+		nitro: e => (S.nitro = (e && !S.disableNitro))
 	};
 
 	//OPTIONS TO CHOOSE FROM
@@ -231,8 +234,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.style.popup.top = (height/3) + 'px';
 		$scope.style.popup.left = (width - CS.popup.width)/2 + 'px';
 
-		let hAdv = 101 * (CS.enableDetails && S && !S.tutorial); // height of advanced stats
-		// height of canvas: (available height) - stats - ?advanced? - controls - margin
+		let hAdv = 101 * (CS.enableDetails && S && !S.tutorial); //height of advanced stats
+		//height of canvas: (available height) - stats - ?advanced? - controls - margin
 		let hMap = height - 141 - hAdv - 241 - 10;
 		hMap = CS.enableGraphics ? Math.max(200, hMap) : 40;
 
@@ -344,11 +347,10 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			S.level.map = result;
 			S.running = true;
 			M.initCalculations();
-			exec(levels[CS.levelSelect].listeners.onstart);
 			soundService.init();
 		}
 		function reject(err) {
-			S = null;
+			$scope.S = S = null;
 			popup(['CHYBA', 'Level se nepodařilo načíst', err]);
 		}
 		S.level.map.then(resolve, reject);

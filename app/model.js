@@ -13,7 +13,7 @@ const M = {
 		M.processPedals();
 		M.PID();
 		M.automat();
-		M.getPressure();
+		M.getPressure(S.altitude);
 		M.engine();
 		M.forceExchange();
 
@@ -27,18 +27,17 @@ const M = {
 		S.fuel += S.consumption * config.dt;
 
 		S.firstTick = true;
-		exec(levels[S.level.i].listeners.continuous);
+		S.running && exec(levels[S.level.i].listeners.continuous); //condition because of last tick before end
 	},
 
 	//calculations to be performed on game initiation
 	initCalculations: function() {
+		exec(levels[CS.levelSelect].listeners.onstart);
+
 		let eng = cars[S.car].engine;
 
-		// mass of gasoline in chamber per one active rotation, at standard pressure [g]
+		//mass of gasoline in chamber per one active rotation, at standard pressure [g]
 		S.mFuelPerCycle = (constants.p * eng.V / constants.R / constants.T) * constants.xO2 / eng.lambda / constants.stc * constants.M;
-
-		// constant of barometric equation as pR = exp(const * h) [m^-1]
-		S.barometricConstant = -constants.g * constants.Mair / constants.R / constants.T;
 	},
 
 	//turn on the engine starter
@@ -99,11 +98,11 @@ const M = {
 	},
 
 	//barometric equation to calculate relative pressure at given altitude
-	getPressure: () => (S.pR = (typeof S.altitude === 'number') ? Math.exp(S.barometricConstant * S.altitude) : 1),
+	getPressure: altitude => (S.pR = (typeof altitude === 'number') ? Math.exp(constants.barometric * altitude) : 1),
 
 	//torque function T = T(f), where f is frequency, based on car specs
 	//this function doesn't use S, so it can be called independently... (like car showroom)
-	// c = car index, f = frequency [Hz], starter = its countdown, gas = gas throttle, nitro = is nitro active
+	// c = car index, f = frequency [Hz], starter = its countdown, gas = gas throttle, nitro = is nitro active, pR = relative pressure
 	getTorque: function(c, f, starter, gas, nitro, pR) {
 		let car = cars[c];
 

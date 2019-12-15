@@ -49,6 +49,9 @@ const constants = {
 	rho: 750 //density [g/l]
 };
 
+//constant of barometric equation as pR = exp(const * h) [m^-1]
+constants.barometric = -constants.g * constants.Mair / constants.R / constants.T;
+
 //definition of various units as val: conversion value to SI, txt: text representation, dgt: digits after decimal point to display
 const units = {
 	kmh:  {val: 3.6, txt: 'km/h', dgt: 0},
@@ -129,6 +132,8 @@ const sounds = {
 	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015},
 	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 3000},
 	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900},
+	beep:   {src: 'res/sound/beep.mp3', repStart: 0, repEnd: 500},
+	explode:{src: 'res/sound/explode.mp3'},
 	start:  {src: 'res/sound/start.mp3'},
 	shift:  {src: 'res/sound/shift.mp3'}
 };
@@ -157,7 +162,7 @@ const levels = [
 			onstart: () => popup('Jeďte bezpečně', true, 1200),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
-				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
 				msg: ['Konec ranveje']
 			})
 		},
@@ -189,8 +194,8 @@ const levels = [
 			onstart: () => popup('Dávejte pozor na radary a díry v silnici!', true, 1600),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
-				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
-				msg: ['Jste na hranicích', 'česká krajina zde končí']
+				opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Jste na hranicích.', 'Česká krajina zde končí']
 			})
 		},
 		//parameters for generation of map
@@ -231,8 +236,8 @@ const levels = [
 			onstart: () => popup('Dávejte pozor na padající turisty či kamení!', true, 1600),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
-				textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
-				msg: ['Přejeli jste celé Alpy', 'alpská krajina zde končí']
+				opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Přejeli jste celé Alpy.', 'Alpská krajina zde končí']
 			})
 		},
 		generation: {
@@ -265,7 +270,7 @@ const levels = [
 //modify levels post-declaration
 (function() {
 	/*CREATE NEW LEVELS using the original levels as templates*/
-	
+
 	//DRAG RACE
 	let drag = angular.copy(levels.find(i => i.id === 'flat'));
 	drag.sublevel = 'flat'; drag.id = 'drag'; drag.name = 'Drag';
@@ -288,7 +293,7 @@ const levels = [
 			(S.v >= 100/3.6 && S.t100 === 0) && (S.t100 = S.t);
 		},
 		onend: () => (S.onscreenMessage = {
-			textAlign: 'right', fillStyle: '#000000', fontSize: 28, fontFamily: 'Tahoma',
+			opacity: 0.6, textAlign: 'right', fontSize: 28, fontFamily: 'Tahoma',
 			msg: ['DOJELI JSTE DO CÍLE',
 				`celkový čas: ${S.t.toFixed(1)} s`,
 				`0-60: ${ S.t60 .toFixed(1)} s`,
@@ -296,17 +301,119 @@ const levels = [
 		})
 		
 	};
-	//push it to the correct position
-	let i = levels.findIndex((item) => item.id === drag.sublevel);
-	levels.splice(i+1, 0, drag);
+	levels.push(drag);
 
-	/*
+	
 	//FUEL CHALLENGE
 	let fuel = angular.copy(levels.find(i => i.id === 'hills'));
-	fuel.sublevel = 'hills'; fuel.id = 'fuel'; fuel.name = 'Nějak to žere';
-	fuel.description = 'V této výzvě máte omezenou nádrž s palivem. Vystačí vám palivo k další benzínce?';
-	fuel.listeners = {};
-	*/
+	fuel.sublevel = 'hills'; fuel.id = 'fuel'; fuel.name = 'Need 4 Natural 95';
+	fuel.description = '50 km je dost velká dálka, když mají všechny benzínky vyprodáno! Vystačí vám troška paliva k další pumpě?';
+	fuel.generation.length = 5e4;
+	fuel.listeners = {
+		onstart: function() {
+			S.fuelChallenge = true;
+			S.disableNitro = true;
+			S.car = 0; //Felicia 4ever!!!
+popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České krajiny']);
+		},
+		continuous: function() {
+		},
+		onend: () => (S.onscreenMessage = {
+			opacity: 0.6, fontSize: 28, fontFamily: 'Tahoma',
+			msg: ['VÍTĚZSTVÍ!',
+				`zvládli jste ujet 50 km`,
+				`se spotřebou ${(S.fuel / S.d / constants.rho * 1e5).toFixed(1)} l/100km`]
+		})
+	};
+	levels.push(fuel);
+
+
+	//SPEED CHALLENGE
+	let speed = angular.copy(levels.find(i => i.id === 'hills'));
+	speed.sublevel = 'hills'; speed.id = 'speed'; speed.name = 'Nebezpečná rychlost';
+	speed.description = 'Chytrá bomba vás nutí dodržovat neustále se měnící rychlostní limit. Zvládnete přežít 10 km?';
+	speed.generation.length = 1e4;
+	speed.generation.noises[0] = [2000, 200]; //eliminate extra long slopes
+	speed.generation.baseAlt = 100;
+	speed.listeners = {
+		onstart: function() {
+			S.speedChallenge = true;
+			S.disableNitro = true;
+			S.car = 0; //Felicia 4ever!!!
+
+			S.speedLimit = 0; //currently imposed speed limit [m/s]
+			S.integrale = 0; //integrale of speed error * dt, which triggers the explosion [m]
+			S.lastLimitAt = 0; //distance where last speed limit was imposed [m]
+			S.odd = true; //odd (or even) iteration
+
+			popup(['Po 200 m se aktivuje bomba a uvidíte rychlostní limit',
+				'Chytrá bomba™ mění své požadavky každých 200 m',
+				'Buďte ve střehu a vydržte 10 kilometrů!'],
+				false, false, 600)
+		},
+		continuous: function() {
+			const integraleBoom = 10; //integrale threshold that leads to explosion [m]
+			const int = 200; //interval between new speed limits [m]
+			let initiated = S.d > int; //challenge doesn't start until the first distance interval
+
+			//impose a new limit using a linear regression for Škoda Felicia: v = a*angle + b
+			if(S.d > S.lastLimitAt + int) {
+				const a = -125.6;
+				const b = 41.9;
+				S.odd = !S.odd;
+				S.speedLimit = (a * S.angle + b) * (0.3 + 0.2*S.odd + 0.1*Math.random());
+				S.lastLimitAt = Math.floor(S.d/int)*int;
+			}
+
+			//calculate speed tolerance, lower & upper limit [m/s]
+			let speedTol = 2/3.6 + 0.04*S.speedLimit;
+			let vMin = S.speedLimit - speedTol;
+			let vMax = S.speedLimit + speedTol;
+
+			//accumulate integrale
+			let err = (S.v < vMin || S.v > vMax) ? 1 : -2;
+			S.integrale += initiated * err * config.dt;
+			S.integrale = S.integrale.limit(0, NaN);
+			S.progressBar = S.integrale / integraleBoom; //for rendering purposes
+
+			//beeping sound when in danger
+			let rate = S.v > S.speedLimit ? 2 : 0.6;
+			(initiated && err > 0 && S.progressBar > 0.4) ? soundService.start('beep', 1, rate) : soundService.end('beep');
+
+			//write speed limits
+			let color = err > 0 ? '#ff0000' : '#00aa00';
+			S.onscreenMessage = initiated ? {
+				left: 0.01, top: 0.5, textAlign: 'left', textBaseline: 'middle', fillStyle: color, fontSize: 40, fontFamily: 'Tahoma',
+				msg: [`${Math.ceil(vMin*CS.unitVel.val)} - ${Math.floor(vMax*CS.unitVel.val)} ${CS.unitVel.txt}`]
+			} : null;
+
+			//it goes BOOOOOM !!!
+			if(S.integrale > integraleBoom) {
+				soundService.end('beep');
+				soundService.play('explode');
+				S.exploded = true;
+				S.finished = true;
+				S.running = false;
+				S.onscreenMessage = {
+					top: 0.5, opacity: 0.6, fillStyle: '#ff6600', fontSize: 60, fontFamily: 'Tahoma',
+					msg: ['BOOOOOM !!!', '💥💀']
+				};
+				//add salt to wound if you stare at your death for too long xD
+				window.setTimeout(() => CS.tab === 'game' && S.exploded && popup('ok boomer'), 7e3);
+			}
+		},
+		onend: function() {
+			soundService.end('beep');
+			S.onscreenMessage = {
+				opacity: 0.6, fontSize: 28, fontFamily: 'Tahoma',
+				msg: ['VÍTĚZSTVÍ!',
+					`Sandra Bullock přežila celých 10 km`,
+					'a Chytré Bombě™ došly baterky!']
+			};
+		}
+	};
+	levels.push(speed);
+
 
 	/*TUTORIAL FUNCTIONS are exported here to make 'levels' more concise*/
 	let tutorial = levels.find(i => i.id === 'tutorial');
@@ -391,8 +498,8 @@ const levels = [
 	tutorial.listeners.onend = function() {
 		popup(['Dosáhli jste konce dráhy tutorialu. To jsem tedy fakt nečekal!', 'Pokud jste jej ale nedokončili, je třeba jej znovu spustit z menu.'], false, false, 400);
 		S.onscreenMessage = {
-			textAlign: 'center', fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
-			msg: ['Konec cesty :-)']
+			opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+			msg: ['Konec cesty xD']
 		}
 	};
 

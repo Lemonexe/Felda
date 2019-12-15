@@ -67,15 +67,23 @@
 			<tr tooltip="tímto převodem se násobí všechny ostatní"><td>fixní</td><td>{{showroom.car.transmission.gears.fix.toFixed(3)}}</td></tr>
 		</table>
 
-		<p>
-			Stoupání:
-			<input type="range" style="width: 200px" min="-30" max="30" step="1" ng-model="showroom.slope" ng-change="prepareVelocityPlot(); drawPlot()">
-			{{showroom.slope.toFixed(0)}}°
-		</p>
+		<table>
+			<tr>
+				<td>Stoupání:</td>
+				<td><input type="range" style="width: 200px" min="-30" max="30" step="1" ng-model="showroom.slope" ng-change="prepareVelocityPlot(); drawPlot()">
+				{{showroom.slope.toFixed(0)}}°</td>
+			</tr>
+			<tr>
+				<td>Výška:</td>
+				<td><input type="range" style="width: 200px" min="0" max="3500" step="100" ng-model="showroom.altitude" ng-change="prepareVelocityPlot(); drawPlot()">
+				{{showroom.altitude.toFixed(0)}} m, {{getPressure().toFixed(1)}} kPa</td>
+			</tr>
+		</table>
 
 		<p>
-			Graf vpravo vyjadřuje závislost sil na rychlosti. Černá křivka je síla odporová + gravitační (posuvníkem lze zadat sklon),
-			zatímco barevné křivky jsou síly, kterými motor působí na auto skrze jednotlivé převody (lze vybrat v seznamu)
+			Graf vyjadřuje závislost sil na rychlosti. Černá křivka je síla odporová + gravitační,
+			zatímco barevné křivky jsou síly, kterými motor působí na auto skrze jednotlivé převody (lze vybrat v seznamu).
+			Síly lze modifikovat změnou sklonu či nadmořské výšky (mění barometrický tlak)
 		</p><p>
 			Pokud je křivka převodu pod černou křivkou, motor to prostě neutáhne! Průsečík tedy ukazuje maximální rychlost pro daný převod.
 		</p>

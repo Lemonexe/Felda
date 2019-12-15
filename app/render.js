@@ -39,6 +39,7 @@ let R = {
 		this.drawCar();
 		this.drawFlashTexts();
 		this.onscreenMessage();
+		this.progressBar();
 
 		//draw minimap if it is open
 		CS.showMap && this.drawMiniMap();
@@ -119,6 +120,7 @@ let R = {
 		let ppm = CS.ppm;
 		let img = imgs[g.img].img; //preloaded image of car
 		let ctx = this.ctx;
+		let expl = S.exploded; //graphical effect for the speed challenge
 
 		//rendered image width and height
 		let iw = Math.round(g.width * ppm);
@@ -131,8 +133,8 @@ let R = {
 		function drawCarBody(xc, yc) {
 			ctx.save();
 			ctx.translate(xc, yc);
-			ctx.rotate(-S.angle);
-			ctx.drawImage(img, -iw/2, -ih, iw, ih);
+			ctx.rotate(-S.angle + !!expl*Math.PI);
+			ctx.drawImage(img, -iw/2, -ih*!expl, iw, ih);
 			ctx.restore();
 		}
 		!WHbottom && drawCarBody(this.xc, this.yc);
@@ -141,6 +143,7 @@ let R = {
 		let ir = Math.round(g.r * ppm); //rendered radius of wheels
 		let imgWH = imgs[g.imgWH].img; //image of wheels
 		for(let w of g.wheels) {
+			if(expl) {continue;}
 			ctx.save();
 			//calculation of vector starting in center of drawing and pointing to wheel - original vector
 			let vx = w[0]*iw/img.width - iw/2;
@@ -292,14 +295,44 @@ let R = {
 		let canvas = this.canvas;
 		let obj = S.onscreenMessage;
 
-		ctx.textAlign = obj.textAlign;
-		ctx.fillStyle = obj.fillStyle;
+		//blur everything else
+		if(obj.hasOwnProperty('opacity')) {
+			let opacity = Math.round(255*obj.opacity).toString(16);
+			if(opacity.length === 1) {opacity = '0' + opacity;}
+			ctx.fillStyle = '#ffffff' + opacity;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		}
+
+		//prepare text
+		ctx.textAlign = obj.textAlign || 'center';
+		ctx.fillStyle = obj.fillStyle || 'black';
+		ctx.textBaseline = obj.textBaseline || 'alphabetic';
 		ctx.font = obj.fontSize + 'px ' + obj.fontFamily;
+		let top  = obj.hasOwnProperty('top')  ? obj.top  : 1/3;
+		let left = obj.hasOwnProperty('left') ? obj.left : 1/2;
 
 		//multiple lines
 		for(let i = 0; i < obj.msg.length; i++) {
-			ctx.fillText(obj.msg[i], Math.round(2*canvas.width/3), Math.round(canvas.height/3 + i*obj.fontSize*1.2));
+			ctx.fillText(obj.msg[i], Math.round(left*canvas.width), Math.round(top*canvas.height + i*obj.fontSize*1.2));
 		}
+	},
+
+	//draw progress bar if defined
+	progressBar: function() {
+		if(!S || !S.running || !S.hasOwnProperty('progressBar') || S.progressBar <= 0) {return;}
+		let ctx = this.ctx;
+		let canvas = this.canvas;
+		let w = canvas.width;
+		let h = canvas.height;
+
+		ctx.fillStyle = '#ffffff';
+		ctx.fillRect(1, h-31, 300, 30);
+		ctx.fillStyle = '#ff0000';
+		ctx.fillRect(1, h-31, Math.round(300*S.progressBar), 30);
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = 'black';
+		ctx.strokeRect(1, h-31, 300, 30);
+		ctx.lineWidth = 1;
 	},
 
 	//calculate vibration of canvas and store it in S, because FPS has variable frequency, while vibration is constant
@@ -328,6 +361,10 @@ let R = {
 		raise(
 			(S.nitro && S.f > car.engine.idleRPM),
 			4 * S.gas
+		);
+		raise(
+			(S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
+			6 * (S.progressBar - 0.3)
 		);
 
 		let rnd = (v) => 2*v*(Math.random() - 0.5);

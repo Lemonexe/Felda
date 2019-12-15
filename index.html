@@ -92,7 +92,8 @@
 		<h2>Výběr levelu</h2>
 		<span ng-repeat="l in levels track by $index" ng-class="l.sublevel ? 'sublevel' : ''">
 			<input type="radio" ng-model="CS.levelSelect" ng-value="$index" id="levelSelect{{$index}}">
-			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label>{{l.sublevel ? ' (varianta)' : ''}}<br>
+			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label>
+			<i ng-if="l.sublevel"> (varianta levelu {{getSublevelParent(l.sublevel)}})</i><br>
 			<span style="padding-left: 30px">{{l.description}}</span><br>
 		</span>
 
@@ -157,7 +158,7 @@
 				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
 
 				<!--only when PID enabled-->
-				<span ng-if="CS.enablePID && !S.tutorial"><br>
+				<span ng-if="CS.enablePID && !S.tutorial && !S.speedChallenge"><br>
 					<input type="button" value="tempomat" style="width: 76px; margin-bottom: 5px" tooltip="levý klik zapne, pravý vypne"
 						onclick="M.setPID(); this.blur()" oncontextmenu="M.remPID(); this.blur(); event.preventDefault()"><br>
 

@@ -49,7 +49,7 @@ img {
 /*CONTROLS*/
 .mediumButton {font-size: 18px;}
 .buttonContainer {margin-bottom: 20px;}
-.sublevel {margin-left: 28px;}
+.sublevel {color: #808080;}
 
 .pedalSlider {
 	writing-mode: bt-lr;
