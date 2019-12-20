@@ -1,23 +1,6 @@
-make resolution warning less annoying
-
-
 <<<RESOURCES & CONTENT>>>
 @zbycz custom real world level
 	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
-
-sublevels - verze 1.2
-	Česká krajina > Need 4 Natural 95 (nádrž s palivem, benzínky, locked Felicia)
-		bude se zobrazovat nádrž číselně i jako progress bar
-		benzínky se budou zobrazovat na minimapce a je u nich potřeba zastavit
-		bude timeout kdy benzínka zavře, aby se muselo jet mezi 50 až 90
-
-BMW E39 M5 (294 kW), ale už to asi stačí!
-	nějaké technické údaje https://autobible.euro.cz/za-volantem-bmw-e39-m5-1999-splneny-sen/
-
-supertajný krávovagón - tajné auto odemknuté po ujetí drag, fuel & speed
-	obrázek krávy a místo kol čtyřmetrová dopravní značka "krávy"
-	velmi výkonný motor, ale super divná charakteristika - dva píky s hlubokým sedlem
-	gigantická spotřeba, idlegas strašně přestřelený, PID rozoscilovaný, divný rozsah RPM
 
 
 <<<META>>>

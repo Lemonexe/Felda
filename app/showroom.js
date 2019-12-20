@@ -45,11 +45,11 @@ app.directive('showroom', () => ({
 			showroom.img   = imgs[cars[i].graphic.img].img;
 			showroom.imgWH = imgs[cars[i].graphic.imgWH].img;
 
-			//pixel sizes of image resources
-			let [width  , height]   = [showroom.img.width  , showroom.img.height];
-			let [widthWH, heightWH] = [showroom.imgWH.width, showroom.imgWH.height];
-			//cars[i].graphic.width is real size [m]
-			let s = cars[i].graphic.width * config.ppmShowroom / width; //image scale (to get width of 120 pixels per real meter)
+			let ppm = config.ppmShowroom; //image scale (to get width of 120 pixels per real meter)
+			let [imgWidth, imgHeight] = [showroom.img.width, showroom.img.height]; //image source pixel size (car)
+			
+			let [width, height] = [ppm * cars[i].graphic.width, ppm * cars[i].graphic.height]; //final image pixel size (car)
+			let radius = ppm * cars[i].graphic.r; //final image pixel size (wheel)
 
 			//whether to draw wheels behind body (false) or before (true)
 			let WHbottom = cars[i].graphic.hasOwnProperty('WHbottom') && cars[i].graphic.WHbottom;
@@ -58,23 +58,24 @@ app.directive('showroom', () => ({
 			showroom.wheelStyles = cars[i].graphic.wheels.map(w => //generate ng-styles
 				({
 					position: 'absolute',
-					top:  (s*(w[1] - heightWH/2)).toFixed() + 'px',
-					left: (s*(w[0] - widthWH /2)).toFixed() + 'px',
-					width:  (s*widthWH) .toFixed() + 'px',
-					height: (s*heightWH).toFixed() + 'px',
+					top:  (w[1]/imgHeight*height - radius).toFixed() + 'px',
+					left: (w[0]/imgWidth *width  - radius).toFixed() + 'px',
+					width:  (2*radius).toFixed() + 'px',
+					height: (2*radius).toFixed() + 'px',
 					zIndex: 2-Number(WHbottom),
 				}));
 			showroom.carStyle = {
 				position: 'absolute',
-				width:  (s*width) .toFixed() + 'px',
-				height: (s*height).toFixed() + 'px',
+				width:  width .toFixed() + 'px',
+				height: height.toFixed() + 'px',
 				zIndex: 1+Number(WHbottom)
 			}
 
 			//text description
 			engineTypes = {
 				piston: 'čtyřtaktní pístový',
-				wankel: 'Wankelův'
+				wankel: 'Wankelův',
+				cow: 'hovězí'
 			};
 			showroom.engineType = engineTypes[cars[i].engineType] || 'jiný';
 

@@ -21,7 +21,6 @@ const config = {
 	integratorCap: 2, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
 	dDecoration: 5, //how far from road are decorations placed [m] for Doppler effect calculation
 	vSound: 343, //speed of sound in air [m/s] for Doppler effect calculation
-	soundExtinction: 0.02, //volume decrease [m-1] for ambient sounds
 	
 	//SHOWROOM
 	maxMarks: 15, //maximum number of marks on a plot
@@ -97,9 +96,11 @@ const imgs = {
 	radar:   {img: 'res/env/radar.png', width: 2, height: 3.5, sound: 'police'}, //(C)
 	smrk:    {img: 'res/env/smrk.png', width: 4.3, height: 8, mirror: true}, //(C)
 	cow:     {t: 500, frames: ['res/env/cow1.png', 'res/env/cow2.png'], width: 2.5, height: 1.775, mirror: true, sound: 'cow'}, //(C)
+	cowcar:  {img: 'res/env/cow1.png'},
 	prejezd: {t: 500, frames: ['res/env/prejezd1.png', 'res/env/prejezd2.png'], width: 0.833, height: 2.5, sound: 'prejezd'}, //(C)
-	heli:    {t: 200, frames: ['res/env/heli1.png', 'res/env/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true}, //(C)
-	plane:   {t: 100, frames: ['res/env/plane1.png', 'res/env/plane2.png', 'res/env/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true}, //(C)
+	heli:    {t: 200, frames: ['res/env/heli1.png', 'res/env/heli2.png'], width: 6, height: 4, hOffset: 0.5, mirror: true, sound: 'plane'}, //(C)
+	plane:   {t: 100, frames: ['res/env/plane1.png', 'res/env/plane2.png', 'res/env/plane3.png'], width: 6, height: 3, hOffset: 0.45, mirror: true, sound: 'plane'}, //(C)
+	pump:    {img: 'res/env/pump.png', width: 1.4, height: 4},
 
 	zn_km:       {img: 'res/signs/zn_km.png',       width: 1, height: 1},
 	zn_50:       {img: 'res/signs/zn_50.png',       width: 1, height: 2},
@@ -123,15 +124,18 @@ properties:
 	src: audio src as string
 	repStart: where to start when repeating audio [ms]
 	repEnd: where to end when repeating audio [ms]
+	reach: maximal reach of sound for ambience [m]
 	buffer: stores decoded audio, will be initiated as null
 */
 const sounds = {
 	engine: {src: 'res/sound/engine.wav', repStart: 0, repEnd: 2221},
 	brake:  {src: 'res/sound/brake.mp3', repStart: 300, repEnd: 1300},
 	nitro:  {src: 'res/sound/nitro.mp3', repStart: 200, repEnd: 400},
-	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015},
-	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 3000},
-	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900},
+	cow:    {src: 'res/sound/cow.mp3', repStart: 0, repEnd: 3015, reach: 50},
+	cowcar: {src: 'res/sound/cow.mp3', repStart: 250, repEnd: 2850},
+	police: {src: 'res/sound/police.mp3', repStart: 0, repEnd: 3000, reach: 40},
+	prejezd:{src: 'res/sound/prejezd.mp3', repStart: 670, repEnd: 1900, reach: 90},
+	plane:  {src: 'res/sound/plane.mp3', repStart: 500, repEnd: 2000, reach: 100},
 	beep:   {src: 'res/sound/beep.mp3', repStart: 0, repEnd: 500},
 	explode:{src: 'res/sound/explode.mp3'},
 	start:  {src: 'res/sound/start.mp3'},
@@ -146,7 +150,7 @@ const tooltips = {
 	FcF: 'výsledná síla na auto',
 	TeF: 'výsledný točivý moment na motor',
 	raw: 'teoretický výpočet z otáček a tlaku',
-	ny: 'výkon / příkon',
+	eta: 'výkon / příkon',
 	p: 'tlak vzduchu z barometrické rovnice',
 	Tclutch: 'maximální točivý moment přenositelný spojkou',
 	Tpass: 'točivý moment procházející spojkou od motoru k autu',

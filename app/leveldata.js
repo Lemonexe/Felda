@@ -147,9 +147,13 @@ const levels = [
 		onstart: function() {
 			S.initiated = false; //set to true when first accelerating
 			S.t60 = S.t100 = 0; //time when 60 or 100 km/h was reached
+			S.usedNitro = false; //whether player has cheated
 		},
 		continuous: function() {
-			if(!S.initiated && S.d > 0) {
+			S.usedNitro = S.usedNitro || S.nitro;
+
+			if(S.d <= 0) {S.t = 0;}
+			else if(!S.initiated) {
 				S.t = 0;
 				S.initiated = true;
 				flash('GO');
@@ -159,14 +163,53 @@ const levels = [
 			(S.v >= 60/3.6  && S.t60  === 0) && (S.t60  = S.t);
 			(S.v >= 100/3.6 && S.t100 === 0) && (S.t100 = S.t);
 		},
-		onend: () => (S.onscreenMessage = {
-			opacity: 0.6, textAlign: 'right', fontSize: 28, fontFamily: 'Tahoma',
-			msg: ['DOJELI JSTE DO CÍLE',
-				`celkový čas: ${S.t.toFixed(1)} s`,
-				`0-60: ${ S.t60 .toFixed(1)} s`,
-				`0-100: ${S.t100.toFixed(1)} s`]
-		})
-		
+		onend: function() {
+			S.onscreenMessage = {
+				opacity: 0.6, textAlign: 'right', fontSize: 28, fontFamily: 'Tahoma',
+				msg: ['DOJELI JSTE DO CÍLE',
+					`celkový čas: ${S.t.toFixed(2)} s`,
+					`0-60: ${ S.t60 .toFixed(2)} s`,
+					`0-100: ${S.t100.toFixed(2)} s`]
+			};
+
+			//for each car, there are time limits to get [A, B, C, D, E] (else F), and in the comment the best RPM to shift ;-)
+			let marks = ['A', 'B', 'C', 'D', 'E', 'F'];
+			let markTable = {
+				'felicia':  [18.4, 20.6, 22.8, 24.9, 27.0], //6000 RPM
+				'Skoda105': [20.6, 22.5, 24.4, 26.2, 28.0], //6000 RPM
+				'C2CV':     [21.8, 24.4, 27.0, 29.5, 32.0], //6500 RPM
+				'octavia':  [15.6, 17.2, 18.8, 20.4, 22.0], //6500 RPM
+				'camaro':   [11.5, 13.0, 14.5, 16.0, 17.5], //6000 RPM
+				'RX8':      [13.6, 15.7, 17.8, 19.9, 22.0], //8500 RPM
+				'cow':      [ 7.6,  9.7, 11.8, 13.9, 16.0]  // NaN RPM
+			};
+
+			if(S.usedNitro) {
+				popup('Čas nebyl hodnocen, neboť jste použili nitro.', false, 3e3);
+				return;
+			}
+			//determine mark
+			if(markTable.hasOwnProperty(cars[S.car].id)) {
+				let mRow = markTable[cars[S.car].id];
+				let i;
+				for(i = 0; i < marks.length; i++) {
+					if(S.t <= mRow[i] || i === marks.length-1) {break;}
+				}
+				(i <= 1) && (CS.secretDrag = true); //"A" or "B"
+				this.secret();
+				S.onscreenMessage.msg.push(`hodnocení: "${marks[i]}"`);
+				i > 0 && S.onscreenMessage.msg.push(`(${mRow[i-1].toFixed(1)} s pro "${marks[i-1]}")`);
+			}
+		},
+		//special listener, will be copied to other levels as well - unlock easter egg car
+		secret: function() {
+			if(CS.secretDrag && CS.secretFuel && CS.secretSpeed && !CS.secretUnlock) {
+				CS.secretUnlock = true;
+				window.setTimeout(() => popup(['---TOP SECRET---',
+					'Za zdolání třech náročných řidičských zkoušek se vám uděluje bonusový vůz!',
+					'Ať dobře slouží!'], false, false, 400), 3e3);
+			}
+		}
 	};
 	levels.push(drag);
 
@@ -174,23 +217,102 @@ const levels = [
 	//FUEL CHALLENGE
 	let fuel = angular.copy(levels.find(i => i.id === 'hills'));
 	fuel.sublevel = 'hills'; fuel.id = 'fuel'; fuel.name = 'Need 4 Natural 95';
-	fuel.description = '50 km je dost velká dálka, když mají všechny benzínky vyprodáno! Vystačí vám troška paliva k další pumpě?';
-	fuel.generation.length = 5e4;
+	fuel.description = '20 km je dost velká dálka, když mají všechny benzínky vyprodáno! Vystačí vám troška paliva k další pumpě?';
+	fuel.generation.length = 2e4;
 	fuel.listeners = {
 		onstart: function() {
 			S.fuelChallenge = true;
 			S.disableNitro = true;
 			S.car = 0; //Felicia 4ever!!!
-popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České krajiny']);
+
+			S.fuelTank = 75; //current fuel reserve [g]
+			S.nextPumpAt = 0; //distance of next gas station [m]
+			S.countdown = 1; //countdown for gas station [s]
+
+			popup(['Žlutý ukazatel vlevo dole je vaše nádrž paliva',
+				'Vzdálenost do příští benzínky je napsána vlevo',
+				'U pumpy musíte ZASTAVIT, abyste dostali palivo!',
+				'A hoďte sebou, jinak vám pumpa zavře!',
+				'Jen ti nejzelenější hráči vydrží celých 20 km...'],
+				false, false, 600);
 		},
 		continuous: function() {
+			const dTol = 15; //distance tolerance to stop near a pump [m]
+
+			//create next gas pump
+			function newPump() {
+				const dPump = 2000; //average distance between pumps [m]
+				const dSpread = 500; //spread of dPump [m]
+				const vMin = 50/3.6; //minimal average velocity to reach next pump [m/s]
+
+				let d = dPump + (2*Math.random()-1) * dSpread; //new distance [m]
+				S.nextPumpAt = S.d + d;
+				S.countdown = d/vMin;
+				S.level.images[Math.floor(S.d / config.imgLoadingArea)].push(['pump', S.nextPumpAt]);
+			}
+
+			//harvest gasoline (after next pump has been created)
+			function getGas() {
+				let nextPumpAt = (S.nextPumpAt >= S.level.length) ? S.level.length-1 : S.nextPumpAt; //non-reachable pump?
+				const consEst = 6.5; //assumed consumption [l/100km]
+				const etaEst = 0.25; //assumed engine efficiency
+
+				let d = nextPumpAt - S.d; //distance to next pump [m]
+				let dh = L.getAltitude(nextPumpAt) - S.altitude; //elevation to the next pump [m]
+				let gas1 = d * consEst * 1e-5 * constants.rho; //estimate gas consumption on the distance [g]
+				let gas2 = cars[S.car].m * constants.g * dh / constants.dHsp / etaEst; //estimate consumption on ascent (or savings on descent) [g]
+				const gas3 = 15; //something extra to account for acceleration [g]
+
+				S.fuelTank += (gas1 + gas2 + gas3).limit(0, NaN);
+				S.d > 0 && flash('⛽');
+			}
+
+			//update current state
+			let fuelPrev = S.fuelTank;
+			S.fuelTank -= S.consumption * config.dt;
+			if(S.fuelTank <= 0 && fuelPrev > 0) {
+				soundService.play('beep');
+				S.fuelTank = 0;
+			}
+			S.countdown -= config.dt;
+			const fuelSTD = 375; //full tank meter [g]
+			S.progressBar = S.fuelTank / fuelSTD;
+			S.progressBarColor = '#eecc22';
+
+			//events
+			(S.countdown <= 0) && newPump(); //missed countdown
+			(Math.abs(S.nextPumpAt-S.d) <= dTol && S.v < 0.1) && (newPump() || getGas()); //successfully stopped near a pump
+			(S.d - S.nextPumpAt > dTol) && newPump(); //missed it
+
+			//display
+			let color = S.countdown < 30 ? '#ff0000' : 'black';
+			S.onscreenMessage = S.countdown > 30 || S.countdown % 1 < 0.8 ? { //blink if time is running out
+				left: 0.01, top: 0.5, textAlign: 'left', textBaseline: 'middle', fillStyle: color, fontSize: 40, fontFamily: 'Tahoma',
+				msg: [time2str(S.countdown) + '⏱', (S.nextPumpAt - S.d).toFixed() + ' m']
+			} : false;
+
+			//death of thirst
+			if(S.fuelTank <= 0 && S.v < 0.1 && Math.abs(S.nextPumpAt-S.d) > dTol) {
+				soundService.stopAll();
+				S.finished = true;
+				S.running = false;
+				S.onscreenMessage = {
+					top: 0.5, opacity: 0.6, fillStyle: '#707070', fontSize: 60, fontFamily: 'Tahoma',
+					msg: ['Felda zhynula žízní...', 'rest in RIP']
+				};
+			}
 		},
-		onend: () => (S.onscreenMessage = {
-			opacity: 0.6, fontSize: 28, fontFamily: 'Tahoma',
-			msg: ['VÍTĚZSTVÍ!',
-				`zvládli jste ujet 50 km`,
-				`se spotřebou ${(S.fuel / S.d / constants.rho * 1e5).toFixed(1)} l/100km`]
-		})
+		onend: function() {
+			CS.secretFuel = true;
+			this.secret();
+			S.onscreenMessage = {
+				opacity: 0.6, fontSize: 28, fontFamily: 'Tahoma',
+				msg: ['VÍTĚZSTVÍ!',
+					`zvládli jste ujet 20 km`,
+					`se spotřebou ${(S.fuel / S.d / constants.rho * 1e5).toFixed(1)} l/100km`]
+			};
+		},
+		secret: drag.listeners.secret
 	};
 	levels.push(fuel);
 
@@ -216,7 +338,7 @@ popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České kraji
 			popup(['Po 200 m se aktivuje bomba a uvidíte rychlostní limit',
 				'Chytrá bomba™ mění své požadavky každých 200 m',
 				'Buďte ve střehu a vydržte 10 kilometrů!'],
-				false, false, 600)
+				false, 1e4, 600);
 		},
 		continuous: function() {
 			const integraleBoom = 10; //integrale threshold that leads to explosion [m]
@@ -242,6 +364,7 @@ popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České kraji
 			S.integrale += initiated * err * config.dt;
 			S.integrale = S.integrale.limit(0, NaN);
 			S.progressBar = S.integrale / integraleBoom; //for rendering purposes
+			S.progressBarColor = '#ff0000';
 
 			//beeping sound when in danger
 			let rate = S.v > S.speedLimit ? 2 : 0.6;
@@ -256,7 +379,7 @@ popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České kraji
 
 			//it goes BOOOOOM !!!
 			if(S.integrale > integraleBoom) {
-				soundService.end('beep');
+				soundService.stopAll();
 				soundService.play('explode');
 				S.exploded = true;
 				S.finished = true;
@@ -266,18 +389,20 @@ popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České kraji
 					msg: ['BOOOOOM !!!', '💥💀']
 				};
 				//add salt to wound if you stare at your death for too long xD
-				window.setTimeout(() => CS.tab === 'game' && S.exploded && popup('ok boomer'), 7e3);
+				window.setTimeout(() => CS.tab === 'game' && S.exploded && popup('ok boomer'), 8e3);
 			}
 		},
 		onend: function() {
-			soundService.end('beep');
+			CS.secretSpeed = true;
+			this.secret();
 			S.onscreenMessage = {
 				opacity: 0.6, fontSize: 28, fontFamily: 'Tahoma',
 				msg: ['VÍTĚZSTVÍ!',
 					`Sandra Bullock přežila celých 10 km`,
 					'a Chytré Bombě™ došly baterky!']
 			};
-		}
+		},
+		secret: drag.listeners.secret
 	};
 	levels.push(speed);
 
@@ -368,7 +493,7 @@ popup(['NENÍ HOTOVO!!!', 'tento level zatím není nic než kopie České kraji
 		S.onscreenMessage = {
 			opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
 			msg: ['Konec cesty xD']
-		}
+		};
 	};
 
 	tutorial.listeners.onstall = function() {

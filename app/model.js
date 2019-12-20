@@ -27,12 +27,12 @@ const M = {
 		S.fuel += S.consumption * config.dt;
 
 		S.firstTick = true;
-		S.running && exec(levels[S.level.i].listeners.continuous); //condition because of last tick before end
+		S.running && exec(levels[S.level.i].listeners, 'continuous'); //condition because of last tick before end
 	},
 
 	//calculations to be performed on game initiation
 	initCalculations: function() {
-		exec(levels[CS.levelSelect].listeners.onstart);
+		exec(levels[S.level.i].listeners, 'onstart');
 
 		let eng = cars[S.car].engine;
 
@@ -43,11 +43,13 @@ const M = {
 	//turn on the engine starter
 	start: function() {
 		if(!S.running) {return;}
-		if(S.f < cars[S.car].engine.minRPM && S.starter <= 0) {
+		if(S.hasOwnProperty('fuelTank') && S.fuelTank <= 0) {return;} //fuel challenge
+		let car = cars[S.car];
+		if(S.f < car.engine.minRPM && S.starter <= 0) {
 			if((S.gear === 'N' || S.clutch < 1e-2)) {
 				//set starter timeout
-				S.starter = cars[S.car].engine.starter;
-				soundService.play('start');
+				S.starter = car.engine.starter;
+				soundService.play((car.sound && car.sound.start) || 'start');
 			}
 			else{popup('Nelze startovat bez neutrálu či spojky', true, 1000);}
 		}
@@ -60,7 +62,7 @@ const M = {
 		if(S.clutch < 1e-2) {
 			S.gear = gear;
 			flash(gear);
-			soundService.play('shift');
+			soundService.play((cars[S.car].sound && cars[S.car].sound.shift) || 'shift');
 		}
 		else {popup('Nelze zařadit bez spojky', true, 1000);}
 	},
@@ -141,6 +143,9 @@ const M = {
 
 	//calculate all current values describing engine output
 	engine: function() {
+		//fuel challenge
+		S.hasOwnProperty('fuelTank') && S.fuelTank <= 0 && (S.gas = 0);
+
 		//calculate torque, multiply it by relative pressure and then convert it to power
 		S.T = M.getTorque(S.car, S.f, S.starter, S.gas, S.nitro, S.pR);
 		S.P = S.T * 2*Math.PI * S.f;
@@ -158,7 +163,7 @@ const M = {
 		S.consumption = S.pR * S.mFuelPerCycle * S.f * activeCycles  * S.gas; //calculated theoretical consumption [g/s]
 		if(S.nitro && S.f > cars[S.car].engine.idleRPM) {S.consumption *= constants.N2O;}
 		S.rawPower = S.consumption * constants.dHsp; //reaction heat flow [W]
-		S.ny = S.P / S.rawPower; //efficiency
+		S.eta = S.P / S.rawPower; //overall efficiency
 	},
 
 	//calculate dissipative & gravitational forces on car
@@ -273,7 +278,7 @@ const M = {
 
 		//detect engine stall
 		if(S.f === 0 && oldf !== 0) {
-			exec(levels[S.level.i].listeners.onstall);
+			exec(levels[S.level.i].listeners, 'onstall');
 			M.remPID();
 		}
 	},
@@ -355,7 +360,7 @@ const M = {
 		if(trans.gears.hasOwnProperty(newGear)) {
 			S.gear = newGear;
 			flash(newGear);
-			soundService.play('shift');
+			soundService.play((cars[S.car].sound && cars[S.car].sound.shift) || 'shift');
 		}
 	},
 
@@ -370,27 +375,28 @@ const M = {
 		let volume = (0.5 + 0.5*S.gas) * (0.5 + 0.5*S.f/car.engine.maxRPM);
 		volume = volume.limit(0,1);
 		let rate = 0.3 + 2*S.f/car.engine.maxRPM;
+		let file = (car.sound && car.sound.engine) || 'engine';
 
 		//update the looped sound with new volume and playbackRate, or stop it altogether
 		if(!paused && S.f > 2) {
-			soundService.start('engine', volume, rate);
+			soundService.start(file, volume, rate);
 		}
-		else {
-			soundService.stop('engine');
-		}
+		else {soundService.stop(file);}
 
+		file = (car.sound && car.sound.nitro) || 'nitro';
 		//update or end looping of nitro
 		if(!paused && S.nitro && S.f > car.engine.minRPM) {
 			volume = 0.3 + 0.7*S.gas;
-			soundService.start('nitro', volume);
+			soundService.start(file, volume);
 		}
-		else {soundService.end('nitro');}
+		else {soundService.end(file);}
 
+		file = (car.sound && car.sound.brake) || 'brake';
 		//update or end looping of brakes
 		if(!paused && S.brakes && !S.disable.brakes && S.v > 1) {
-			soundService.start('brake');
+			soundService.start(file);
 		}
-		else {soundService.end('brake');}
+		else {soundService.end(file);}
 	},
 
 	//update ambient sounds, each item has it's own instance
@@ -409,7 +415,8 @@ const M = {
 			let dd = item[1] - S.d; //how far ahead is the image [m]
 
 			//linear extinction of sound amplitude
-			let volume = 1 - Math.abs(dd) * config.soundExtinction;
+			let reach = sounds[imgObj.sound].reach || 50; //maximal reach of sound [m]
+			let volume = 1 - Math.abs(dd) / reach;
 
 			//Doppler effect
 			let dMin = config.dDecoration; //how far from road are decorations placed [m]

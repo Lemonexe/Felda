@@ -9,10 +9,11 @@ let app = angular.module('Felda', []);
 
 app.controller('ctrl', function($scope, $interval, $timeout) {
 	//current version
-	$scope.version = [1, 1];
+	$scope.version = [1, 2];
 
 	//version history
 	$scope.vHistory = [
+		{name: 'v1.2',  date: '20.12.2019', desc: 'přidány nové levely - nové výzvy!'},
 		{name: 'v1.1',  date: '13.10.2019', desc: 'přidány zvuky!'},
 		{name: 'v1.0',  date: '02.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
 		{name: 'beta+', date: '13.10.2017', desc: 'nové obrázky a drobné změny, na dlouhou dobu vývoj ustal'},
@@ -21,18 +22,20 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	];
 
 	//footer disclaimer
-	$scope.disclaimer = function() {
-		let msg = ['Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.',
-			'Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují autora.'];
-		popup(msg, false, false, 620);
-	};
+	$scope.disclaimer = () => popup([
+			'Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.',
+			'Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují autora.'
+		], false, false, 620);
 
 	//hint to enable sounds
-	$scope.soundTroubleshoot = function() {
-		let msg = ['Pokud je zvuk zapnut v operačním systému i na reproduktorech, a přesto je auto tiché jako myš, možná je ve vašem prohlížeči zakázáno automatické spouštění zvuku.',
-		'Najděte na začátku adresního řádku ikonku - po jejím rozklikutí by se měla objevit možnost povolit zvuk.'];
-		popup(msg, false, false, 620);
-	};
+	$scope.soundTroubleshoot = () => popup([
+			'Pokud je zvuk zapnut v operačním systému i na reproduktorech, a přesto je auto tiché jako myš, možná je ve vašem prohlížeči zakázáno automatické spouštění zvuku.',
+			'Najděte na začátku adresního řádku ikonku - po jejím rozklikutí by se měla objevit možnost povolit zvuk.'
+		], false, false, 620);
+
+	//hint to unlock easter egg
+	$scope.easterEgg = () => popup('Pro odemknutí tohoto skvostu vyhrajte Need 4 Natural 95, Nebezpečnou rychlost a Drag (alespoň na "B")', false, false, 430);
+	
 
 	//link global variables to $scope
 	$scope.CS = CS; //S will be referenced when created
@@ -84,6 +87,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//get name of parent level of a sublevel
 	$scope.getSublevelParent = sub => levels.find(item => item.id === sub).name;
+
+	//is unlocked car with index i?
+	$scope.isCarUnlocked = i => cars[i].id !== 'cow' || CS.secretUnlock;
 
 	//getter / setter function for pedals
 	$scope.getSetGas    = newVal => (typeof newVal === 'number') ? (S.gasSlider    = newVal) : S.gasSlider;
@@ -254,6 +260,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//check if there is enough of available resolution (and issue a warning)
 	$scope.resolutionCheck = function() {
+		if(CS.noResizePopup) {return;}
 		let [width, height]  = getScreenSize();
 		let txt = ['VAROVÁNÍ', 'okno je příliš malé, vzhled stránky tedy může být ošklivý a nepřehledný!'];
 		let [w2small, h2small] = [width < config.minResolution[0], height < config.minResolution[1]];
@@ -262,7 +269,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 		//if too small, generate popup
 		if(w2small || h2small) {
-			popup(txt, false, 5000, 400);
+			let button2 = {label: 'Příště nezobrazovat', callback: function() {CS.popup = false; CS.noResizePopup = true;}};
+			popup(txt, false, 5000, 400, button2);
 		}
 		//if big enough and the current popup is this warning, remove the warning
 		else if(CS.popup && CS.popup.lines[0] === txt[0] && CS.popup.lines[1] === txt[1]) {
@@ -283,21 +291,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		f: () => (10 * Math.round(S.f * 60 / 10)).toFixed(),
 
 		//efficiency, frequency difference on clutch and effective radius of wheels
-		ny: () => (!isNaN(S.ny) && isFinite(S.ny) && S.starter <= 0 && Math.abs(S.ny) < 1) ? S.ny.toPercent() : '?',
+		eta:() => (!isNaN(S.eta) && S.eta !== null && isFinite(S.eta) && S.starter <= 0 && S.eta >= 0 && S.eta < 1) ? S.eta.toPercent() : '?',
 		df: () => (S.df !== false) ? (Math.round(S.df * 60).toFixed() + ' RPM') : '?',
 		re: () => (S.re !== false) ? ((S.re * 1000).toFixed() + ' mm') : '?',
 
 		//converts simulation time to a nice time string
-		getTime: function() {
-			let f = t => (t < 10) ? ('0' + t) : t;
-
-			let secs = Math.floor(S.t);
-			let h = Math.floor(secs / 3600);
-			let m = Math.floor((secs - (h * 3600)) / 60);
-			let s = secs - (h * 3600) - (m * 60);
-
-			return h + ':' + f(m) + ':' + f(s);
-		}
+		getTime: () => time2str(S.t)
 	};
 
 	//warnings as object, f is a logical function (whether warning is active), txt is it's content

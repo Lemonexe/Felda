@@ -10,7 +10,8 @@ const L = {
 		if(S.d >= S.level.length) {
 			S.finished = true;
 			S.running = false;
-			exec(levels[S.level.i].listeners.onend);
+			exec(levels[S.level.i].listeners, 'onend');
+			soundService.stopAll();
 			CS.showMap = false;
 			return;
 		}

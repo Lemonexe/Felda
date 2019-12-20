@@ -319,7 +319,7 @@ let R = {
 
 	//draw progress bar if defined
 	progressBar: function() {
-		if(!S || !S.running || !S.hasOwnProperty('progressBar') || S.progressBar <= 0) {return;}
+		if(!S.hasOwnProperty('progressBar') || S.progressBar <= 0) {return;}
 		let ctx = this.ctx;
 		let canvas = this.canvas;
 		let w = canvas.width;
@@ -327,8 +327,9 @@ let R = {
 
 		ctx.fillStyle = '#ffffff';
 		ctx.fillRect(1, h-31, 300, 30);
-		ctx.fillStyle = '#ff0000';
-		ctx.fillRect(1, h-31, Math.round(300*S.progressBar), 30);
+		ctx.fillStyle = S.progressBarColor || '#ff0000';
+		let L = Math.round(300 * S.progressBar.limit(0, 1)); //bar length
+		ctx.fillRect(1, h-31, L, 30);
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = 'black';
 		ctx.strokeRect(1, h-31, 300, 30);
@@ -363,7 +364,7 @@ let R = {
 			4 * S.gas
 		);
 		raise(
-			(S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
+			(S.speedChallenge && S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
 			6 * (S.progressBar - 0.3)
 		);
 

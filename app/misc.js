@@ -18,14 +18,27 @@ Number.prototype.limit = function(a, b) {
 	else {return v;}
 };
 
-//execute function if it exists, used for level listeners where the functions might not exist
-function exec(f) {
-	if(typeof f === 'function') {f();}
+//execute method 'f' on object 'obj' if it exists - used for level listeners where they might not exist
+function exec(obj, f) {
+	if(typeof obj[f] === 'function') {obj[f]();}
 }
 
 //shortcut to DOM
 function geto(id) {
 	return document.getElementById(id);
+}
+
+//time in [s] to h:mm:ss
+function time2str(t) {
+	let f = str => str.length === 1 ? '0'+str : str; //add leading zero?
+
+	t = Math.floor(t);
+	let h = Math.floor(t / 3600);
+	let m = Math.floor((t - (h * 3600)) / 60);
+	let s = t - (m * 60) - (h * 3600);
+	[h, m, s] = [h.toFixed(), m.toFixed(), s.toFixed()];
+
+	return (h !== '0') ? h+':'+f(m)+':'+f(s) : m+':'+f(s);
 }
 
 //saving and loading local save
@@ -52,13 +65,14 @@ const saveService = {
 
 //create popup by feeding m = string or arrays of strings (multiline popup).
 //other arguments are optional: suppress OK button, set timeout to vanish [ms], width [px]
-function popup(m, noButton, timeout, width) {
+function popup(m, noButton, timeout, width, button2) {
 	CS.popup = {
 		lines: (typeof m === 'string') ? [m] : m,
 		okButton: !noButton,
 		width: width || 300
 	};
 	if(timeout) {CS.popup.timeout = timeout;}
+	if(button2) {CS.popup.button2 = button2;}
 }
 
 //create flash text with m string (should be just 1 || 2 chars!)

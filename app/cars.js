@@ -6,6 +6,7 @@
 const cars = [
 	{
 		//these are just for description
+		id: 'felicia', //id is almost useless
 		name: 'Škoda Felicia',
 		year: 1996,
 		engineName: '1.3 MPI 50kW',
@@ -99,6 +100,7 @@ const cars = [
 	},
 
 	{
+		id: 'Skoda105',
 		name: 'Škoda 105',
 		year: 1977,
 		engineName: '34kW',
@@ -177,6 +179,7 @@ const cars = [
 	},
 
 	{
+		id: 'C2CV',
 		name: 'Citroën 2CV',
 		year: 1968,
 		engineName: '21kW',
@@ -254,6 +257,7 @@ const cars = [
 	},
 
 	{
+		id: 'octavia',
 		name: 'Škoda Octavia II',
 		year: 2005,
 		engineName: '2.0 FSI 110kW',
@@ -336,6 +340,7 @@ const cars = [
 	},
 
 	{
+		id: 'camaro',
 		name: 'Chevrolet Camaro',
 		year: 2017,
 		engineName: '6.2 V8 339kW',
@@ -418,6 +423,7 @@ const cars = [
 	},
 
 	{
+		id: 'RX8',
 		name: 'Mazda RX-8',
 		year: 2008,
 		engineName: '1.3 170kW',
@@ -499,6 +505,49 @@ const cars = [
 				[9000/60, 160, 303.0],
 				[9500/60, 182, 264.0],
 				[1e4/60 , 206, 206.0]
+			]
+		}
+	},
+
+	{
+		id: 'cow', name: 'Krávowagón', year: 2345, engineName: '', engineType: 'cow',
+		description: [`Tur domácí (Bos primigenius f. taurus) je domestikovaný sudokopytnatý savec celosvětově chovaný pro mnohostranný hospodářský užitek.
+			Společně s kurem domácím jde v celosvětovém měřítku o nejpočetnější druh chovaného hospodářského zvířete.`],
+		sound: {start: 'explode', engine: 'cowcar', shift: 'beep', brake: 'prejezd', nitro: 'brake'},
+		graphic: {
+			img: 'cowcar', imgWH: 'cowcar',
+			width: 4, height: 1.5, r: 0.5,
+			wheels: [[110, 205], [270, 205]]
+		},
+		m: 700,
+		transmission: {
+			clutchInt: [0.05, 0.95],
+			TclutchMax: 2000,
+			friction: 0.6,
+			loss: {a: 700, b: 0.47},
+			r: 0.5,
+			gears: {fix: 3.5, 1: 0.863, 2: 1.044, 3: 1.289, 4: 1.693, 5: 2.722, 6: 4.643},
+			automat: [2500/60, 3500/60]
+		},
+
+		engine: {
+			stroke: 15, lambda: 1.01, V: 100, I: 4,
+			minRPM: 500/60, maxRPM: 1e4/60, redlineRPM: 8500/60, vibRPM: 6000/60,
+			TdissUnder: [0, 220], TdissOver: [4, -566.67],
+			idleRPM: 700/60, idleGas: 1,
+			starter: 1, starterT: 900,
+			PID: [0.005, 0.01, 5],
+			specs: [
+				[500/60 ,50 ,110 ], [1000/60,70 ,160 ],
+				[1500/60,100,240 ], [2000/60,200,500 ],
+				[2500/60,350,1100], [3000/60,400,1300],
+				[3500/60,350,1200], [4000/60,250,800 ],
+				[4500/60,220,650 ], [5000/60,230,630 ],
+				[5500/60,250,680 ], [6000/60,270,820 ],
+				[6500/60,290,1050], [7000/60,310,1110],
+				[7500/60,330,1010], [8000/60,350,750 ],
+				[8500/60,370,620 ], [9000/60,390,590 ],
+				[9500/60,410,570 ], [1e4/60 ,430,570 ]
 			]
 		}
 	}

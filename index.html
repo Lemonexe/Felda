@@ -38,7 +38,10 @@
 
 <div id="popup" ng-style="style.popup" ng-class="{vanish: CS.popup.timeout < 400}" ng-show="CS.popup">
 	<p ng-if="CS.popup" ng-repeat="l in CS.popup.lines track by $index">{{l}}</p>
-	<p style="text-align: center" ng-if="CS.popup && CS.popup.okButton"><input type="button" ng-click="CS.popup = false" value="OK" tooltip="Esc"></p>
+	<p style="text-align: center" ng-if="CS.popup && (CS.popup.okButton || CS.popup.button2)">
+		<input type="button" ng-if="CS.popup.okButton" ng-click="CS.popup = false" value="OK" tooltip="Esc">
+		<input type="button" ng-if="CS.popup.button2" ng-click="CS.popup.button2.callback()" ng-value="CS.popup.button2.label">
+	</p>
 </div>
 
 <div ng-switch="CS.tab">
@@ -63,6 +66,7 @@
 				V této hře můžete ovládat nejen toto známé lidové vozítko, ale nově i mnoho dalších.</p>
 			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky.<br>
 				Ty můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
+			<p>Nově také byly přidány speciální levely, které vám poskytnou náročné výzvy!</p>
 			<p>Je doporučeno hrát na počítači s klávesnicí, avšak lze se bez ní obejít <i>(viz Ovládání)</i></p>
 			<p>Po výběru levelu a automobilu spusťte hru tlačítkem Nová hra (výše)</p>
 		</div>
@@ -100,9 +104,14 @@
 
 		<h2>Výběr automobilu</h2>
 		<span ng-repeat="c in cars track by $index">
-			<input type="radio" ng-model="CS.carSelect" ng-value="$index" id="carSelect{{$index}}">
-			<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
-			<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón">popis</a><br>
+			<span ng-if="isCarUnlocked($index)">
+				<input type="radio" ng-model="CS.carSelect" ng-value="$index" id="carSelect{{$index}}">
+				<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
+				<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón">popis</a><br>
+			</span>
+			<span ng-if="!isCarUnlocked($index)" class="sublevel">
+				<input type="radio" disabled> bonusové auto <a class="fakeLink" ng-click="easterEgg()">???</a>
+			</span>
 		</span>
 	</div>
 
@@ -122,7 +131,7 @@
 		</div>
 
 		<select ng-model="CS.showroomIndex" id="showroomSelectCar" ng-change="enterShowroom()">
-			<option ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
+			<option ng-if="isCarUnlocked(opt.i)" ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
 		</select><br>
 
 		<showroom></showroom>
@@ -136,9 +145,9 @@
 
 		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics" minimap></canvas>
 
-		<div id="stats" ng-include="'app/ng/stats.html?version=1'" ng-style="style.stats"></div>
+		<div id="stats" ng-include="'app/ng/stats.html?version=2'" ng-style="style.stats"></div>
 
-		<div id="advanced" ng-include="'app/ng/advanced.html?version=1'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
+		<div id="advanced" ng-include="'app/ng/advanced.html?version=2'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
 
 		<div id="controls" ng-style="style.controls" ng-show="!S.disable.controls">
 			<div class="ctrlContainer">
@@ -159,7 +168,7 @@
 				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
 
 				<!--only when PID enabled-->
-				<span ng-if="CS.enablePID && !S.tutorial && !S.speedChallenge"><br>
+				<span ng-if="CS.enablePID && !S.tutorial && !S.speedChallenge && !S.fuelChallenge"><br>
 					<input type="button" value="tempomat" style="width: 76px; margin-bottom: 5px" tooltip="levý klik zapne, pravý vypne"
 						onclick="M.setPID(); this.blur()" oncontextmenu="M.remPID(); this.blur(); event.preventDefault()"><br>
 
@@ -216,7 +225,6 @@
 				<li>Přidána Škoda 105 (1977)</li>
 				<li>Přidána Škoda Octavia II (2005)</li>
 				<li>Přidán Chevrolet Camaro (2017)</li>
-				<li>Přidán Citroën 2CV (1968)</li>
 				<li>Více obrázků v Alpách a na letišti, animované obrázky</li>
 				<li>Zoomování pomocí kolečka myši</li>
 				<li>Řazení umožněno i myší</li>

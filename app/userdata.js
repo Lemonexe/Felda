@@ -92,7 +92,7 @@ function ControllerState() {return {
 	isLoadedGame: false, //has a game been loaded from local storage?
 	showIntro: true, //show or hide intro paragraph in menu
 	showMap: false, //draw in-game minimap of terrain
-	popup: false, //popup = false || object {lines: [strings], okButton: true, width: 300 [px], timeout: 1000 [ms]}
+	popup: false, //popup = false || object: {lines: [strings], okButton: true, width: 300 [px], timeout: 1000 [ms], button2: {label: '', callback: function}}
 	flashes: [], //flash texts (array of arrays=[timeout, text])
 	
 	//current state of tooltip
