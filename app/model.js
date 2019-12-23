@@ -19,7 +19,7 @@ const M = {
 
 		S.t += config.dt;
 		S.d += S.v * config.dt * Math.cos(S.angle);
-		L.mapPosition(S.d); //get new altitude & angle
+		LVL.mapPosition(S.d); //get new altitude & angle
 
 		if(S.angle > 0) {
 			S.ascension += S.v * config.dt * Math.sin(S.angle);

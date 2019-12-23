@@ -20,9 +20,9 @@ function State(i, c) {return {
 		minimapScale: levels[i].generation.minimapScale,
 		//vector of altitude marks [m] that describes the terrain
 		//at first it is created as a promise
-		map: L.levelGeneration(levels[i]),
+		map: LVL.levelGeneration(levels[i]),
 		//array of arrays - level is divided into sectors of config.imgLoadingArea [m], each is collection of generated images
-		images: L.imageGeneration(levels[i])
+		images: LVL.imageGeneration(levels[i])
 	},
 
 	car: c, //index of current car
