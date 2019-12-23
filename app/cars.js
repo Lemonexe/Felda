@@ -510,7 +510,7 @@ const cars = [
 	},
 
 	{
-		id: 'cow', name: 'Krávowagón', year: 2345, engineName: '', engineType: 'cow',
+		id: 'cow', name: 'Crazy Cow', year: 2345, engineName: '', engineType: 'cow',
 		description: [`Tur domácí (Bos primigenius f. taurus) je domestikovaný sudokopytnatý savec celosvětově chovaný pro mnohostranný hospodářský užitek.
 			Společně s kurem domácím jde v celosvětovém měřítku o nejpočetnější druh chovaného hospodářského zvířete.`],
 		sound: {start: 'explode', engine: 'cowcar', shift: 'beep', brake: 'prejezd', nitro: 'brake'},
@@ -521,7 +521,7 @@ const cars = [
 		},
 		m: 700,
 		transmission: {
-			clutchInt: [0.05, 0.95],
+			clutchInt: [0.05, 0.9],
 			TclutchMax: 2000,
 			friction: 0.6,
 			loss: {a: 700, b: 0.47},
@@ -535,7 +535,7 @@ const cars = [
 			minRPM: 500/60, maxRPM: 1e4/60, redlineRPM: 8500/60, vibRPM: 6000/60,
 			TdissUnder: [0, 220], TdissOver: [4, -566.67],
 			idleRPM: 700/60, idleGas: 1,
-			starter: 1, starterT: 900,
+			starter: 1, starterT: 1500,
 			PID: [0.005, 0.01, 5],
 			specs: [
 				[500/60 ,50 ,110 ], [1000/60,70 ,160 ],

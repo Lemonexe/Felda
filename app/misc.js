@@ -135,7 +135,8 @@ window.onwheel = function(event) {
 
 //because there is no ngOnResize directive, I have to trigger it from outside, from a normal event listener, and then force a digest cycle
 window.onresize = function() {
-	angular.element(document).scope().resolutionCheck();
+	let scope = angular.element(document).scope();
+	scope && typeof scope.resolutionCheck === 'function' && scope.resolutionCheck();
 };
 
 //mute sounds when in background

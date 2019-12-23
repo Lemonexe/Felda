@@ -213,13 +213,13 @@ const levels = [
 			//for each car, there are time limits to get [A, B, C, D, E] (else F), and in the comment the best RPM to shift ;-)
 			let marks = ['A', 'B', 'C', 'D', 'E', 'F'];
 			let markTable = {
-				'felicia':  [18.4, 20.6, 22.8, 24.9, 27.0], //6000 RPM
-				'Skoda105': [20.6, 22.5, 24.4, 26.2, 28.0], //6000 RPM
-				'C2CV':     [21.8, 24.4, 27.0, 29.5, 32.0], //6500 RPM
-				'octavia':  [15.6, 17.2, 18.8, 20.4, 22.0], //6500 RPM
-				'camaro':   [11.5, 13.0, 14.5, 16.0, 17.5], //6000 RPM
-				'RX8':      [13.6, 15.7, 17.8, 19.9, 22.0], //8500 RPM
-				'cow':      [ 7.6,  9.7, 11.8, 13.9, 16.0]  // NaN RPM
+				'felicia':  [18.4, 19.1, 20.7, 23.5, 27.0], //6000 RPM
+				'Skoda105': [20.6, 21.2, 22.6, 25.0, 28.0], //6000 RPM
+				'C2CV':     [21.8, 22.6, 24.5, 27.8, 32.0], //6500 RPM
+				'octavia':  [15.6, 16.1, 17.3, 19.4, 22.0], //6500 RPM
+				'camaro':   [11.5, 12.0, 13.1, 15.1, 17.5], //6000 RPM
+				'RX8':      [13.6, 14.2, 15.6, 18.0, 21.0], //8500 RPM
+				'cow':      [ 7.6,  8.3,  9.8, 12.6, 16.0]  // NaN RPM
 			};
 
 			if(S.usedNitro) {
@@ -412,7 +412,8 @@ const levels = [
 			let color = err > 0 ? '#ff0000' : '#00aa00';
 			S.onscreenMessage = initiated ? {
 				left: 0.01, top: 0.5, textAlign: 'left', textBaseline: 'middle', fillStyle: color, fontSize: 40, fontFamily: 'Tahoma',
-				msg: [`${Math.ceil(vMin*CS.unitVel.val)} - ${Math.floor(vMax*CS.unitVel.val)} ${CS.unitVel.txt}`]
+				msg: [`${(S.v*CS.unitVel.val).toFixed()} ${CS.unitVel.txt}`,
+				`→ ${Math.ceil(vMin*CS.unitVel.val)} - ${Math.floor(vMax*CS.unitVel.val)} ${CS.unitVel.txt}`]
 			} : null;
 
 			//it goes BOOOOOM !!!

@@ -1,7 +1,9 @@
 <<<RESOURCES & CONTENT>>>
-@zbycz custom real world level
-	zadám reálné souřadnice a ono mi to načte výškový profil trasy do S.level.map
-
+v1.3 final touches to real world level
+	opravit mapu v showroom
+	opravit console errory
+	UI na zadání těch adres
+		udělat to stejně s letiště -> set const slope -30 až 30
 
 <<<META>>>
 English language yes okay well?

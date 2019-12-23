@@ -340,7 +340,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
                 while (distMap[j][0] <= S.d) j++; // find closest bigger data point
                 const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
                 const latlng = [lnglat[1], lnglat[0]];
-                leafletMap.setView(latlng, 17);
+                leafletMap.setView(latlng, leafletMap.getZoom() || 16);
                 leafletMarker.setLatLng(latlng).update();
             }, 400);
             // TODO destroy interval ??
@@ -367,6 +367,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 			S.level.map = result;
 			S.running = true;
+			CS.invertedPedals && $scope.invertPedals();
 			M.initCalculations();
 			soundService.init();
 			$scope.leafletMapInit();

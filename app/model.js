@@ -13,7 +13,7 @@ const M = {
 		M.processPedals();
 		M.PID();
 		M.automat();
-		M.getPressure(S.altitude);
+		S.pR = M.getPressure(S.altitude);
 		M.engine();
 		M.forceExchange();
 
@@ -100,7 +100,7 @@ const M = {
 	},
 
 	//barometric equation to calculate relative pressure at given altitude
-	getPressure: altitude => (S.pR = (typeof altitude === 'number') ? Math.exp(constants.barometric * altitude) : 1),
+	getPressure: altitude => (typeof altitude === 'number') ? Math.exp(constants.barometric * altitude) : 1,
 
 	//torque function T = T(f), where f is frequency, based on car specs
 	//this function doesn't use S, so it can be called independently... (like car showroom)
@@ -422,6 +422,7 @@ const M = {
 			let dMin = config.dDecoration; //how far from road are decorations placed [m]
 			let v = 1 / Math.sqrt(dd*dd + dMin*dMin) * dd * S.v; //velocity towards the object: v = dc/dt, where c is Euclidean distance
 			let rate = 1 + v / config.vSound; //new frequency
+			rate = rate.limit(1e-2, 1e2);
 			
 			//update or start this instance, where image position will act as a "unique" instance id
 			//note.: if there are two images with equal position, they will share the instance. That's not a problem!
