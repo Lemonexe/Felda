@@ -93,6 +93,44 @@ const levels = [
 		}
 	},
 
+    {
+        id: 'realworld', //the id must be unchanged because of references
+        name: 'Reálná mapa',
+        description: 'Zadáte dvě adresy a o zbytek se postará OpenStreetMap.',
+        /*listeners for "events":
+            onstart: when level is initiated
+            onend: when player travels the whole length of level
+            onstall: when engine stalls
+            continuous: each tick
+        */
+        listeners: {
+            onstart: () => popup('Dávejte pozor na radary a díry v silnici!', true, 1600),
+            onstall: () => popup('Motor chcípl', true, 900),
+            onend: () => (S.onscreenMessage = {
+                opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+                msg: ['Váš cíl je vpravo.', 'Dojeli jste do cíle']
+            })
+        },
+        generation: {
+            f: 'realMap', //name of L function (see level.js)
+            int: 50, //distance between map points [m]
+            length: 1e5, // FIXME needed by imageGeneration()
+            minimapScale: 5, //altitude:distance scale of miniMap (higher number will amplify heights)
+            images: [
+                //{link to 'imgs', density of images per m [1/m]}
+                {img: 'oak',         density: 1/100},
+                {img: 'radar',       density: 1/200},
+                {img: 'prejezd',     density: 1/600},
+                {img: 'zn_50',       density: 1/200},
+                {img: 'zn_prace',    density: 1/400},
+                {img: 'zn_diry',     density: 1/400},
+                {img: 'zn_stop',     density: 1/600},
+                {img: 'zn_prednost', density: 1/400},
+                {img: 'zn_radar',    density: 1/1000}
+            ]
+        }
+    },
+
 	{
 		id: 'alps',
 		name: 'Alpská krajina',

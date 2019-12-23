@@ -79,6 +79,69 @@ const L = {
 		resolve(map);
 	},
 
+	realMap: async ({ generation: { int } }, resolve, reject) => {
+		const fetchApi = async (uri) => {
+			const res = await fetch(`https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`);
+            if (!res.ok || res.status < 200 || res.status >= 300) {
+                throw new Error(await res.text());
+            }
+            return res.json();
+        };
+        const interpolate = (x, [x1, y1], [x2, y2]) => (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+        const getDistance = ([lon1, lat1], [lon2, lat2]) => {
+            const R = 6378000; // Radius of the earth in m
+            const deg2rad = deg => deg * (Math.PI / 180);
+            const dLat = deg2rad(lat2-lat1);
+            const dLon = deg2rad(lon2-lon1);
+            const a =
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distance in km
+        };
+        try {
+            const startStr = prompt("Zadejte startovní adresu:", "Ke Džbánu");
+            const endStr = prompt("Zadejte cílovou adresu:", "Malostranské náměstí");
+
+            const start = await fetchApi(`/geocode/search?text=${startStr}`);
+            const end = await fetchApi(`/geocode/search?text=${endStr}`);
+            const startCoord = start.features[0].geometry.coordinates;
+            const endCoord = end.features[0].geometry.coordinates;
+
+            const data = await fetchApi(`/directions?profile=driving-car&format=geojson&instructions=false&elevation=true&coordinates=${startCoord}|${endCoord}`);
+            const coords = data.features[0].geometry.coordinates;
+            const startElevation = coords[0][2];
+
+            //transform to [dist, elev]
+            const distMap = [[0, startElevation]];
+            let dist = 0;
+            for (let i = 1; i < coords.length; i++) {
+                dist += getDistance(coords[i - 1], coords[i]);
+                distMap.push([dist, coords[i][2]]);
+            }
+
+            // transform to fixed intervals
+            const totalLength = distMap[distMap.length - 1][0];
+            const numOfIntervals = Math.floor(totalLength / int);
+            const map = [startElevation];
+            let j = 0;
+            distMap.push([0, 0]); // so we dont have to check if distMap[j+1] exists
+            for (let i = 1; i <= numOfIntervals; i++) {
+                const currentPosition = int * i;
+                while (distMap[j][0] <= currentPosition) j++; // find closest data point
+                map.push(interpolate(currentPosition, distMap[j], distMap[j + 1]));
+            }
+
+            // levelObject.generation.length = totalLength; // TODO move to resolve
+            resolve(map);
+        }
+        catch (e){
+        	console.error(e);
+        	reject(e);
+		}
+	},
+
 	//generate array of loading areas ('field'), each loading area is an array of images to be rendered
 	imageGeneration: function(levelObject) {
 		let g = levelObject.generation;
