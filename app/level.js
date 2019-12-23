@@ -3,7 +3,7 @@
 	defines L object, which contains all function related generation of levels and their drawing
 */
 
-const L = {
+const LVL = {
 	//reads distance and current map and calculates current altitude and angle
 	mapPosition: function() {
 		//condition to end level
@@ -17,7 +17,7 @@ const L = {
 		}
 		let i = Math.floor(S.d / S.level.int);
 		S.angle = Math.atan((S.level.map[i+1] - S.level.map[i]) / S.level.int);
-		S.altitude = L.getAltitude(S.d);
+		S.altitude = LVL.getAltitude(S.d);
 	},
 
 	//get altitude at a distance
@@ -31,8 +31,8 @@ const L = {
 	levelGeneration: function(levelObject) {
 		return new Promise(function(resolve, reject) {
 			let f = levelObject.generation.f;
-			if(typeof L[f] === 'function') {
-				L[f](levelObject, resolve, reject);
+			if(typeof LVL[f] === 'function') {
+				LVL[f](levelObject, resolve, reject);
 			}
 		});
 	},

@@ -65,7 +65,7 @@ const levels = [
 		},
 		//parameters for generation of map
 		generation: {
-			f: 'noise', //name of L function (see level.js)
+			f: 'noise', //name of LVL function (see level.js)
 			int: 100, //distance between map points [m]
 			baseAlt: 50, //base altitude [m], only when f === 'noise'
 			length: 1e5, //length of level [m]
@@ -112,7 +112,7 @@ const levels = [
             })
         },
         generation: {
-            f: 'realMap', //name of L function (see level.js)
+            f: 'realMap', //name of LVL function (see level.js)
             int: 50, //distance between map points [m]
             length: 1e5, // FIXME needed by imageGeneration()
             minimapScale: 5, //altitude:distance scale of miniMap (higher number will amplify heights)
@@ -296,7 +296,7 @@ const levels = [
 				const etaEst = 0.25; //assumed engine efficiency
 
 				let d = nextPumpAt - S.d; //distance to next pump [m]
-				let dh = L.getAltitude(nextPumpAt) - S.altitude; //elevation to the next pump [m]
+				let dh = LVL.getAltitude(nextPumpAt) - S.altitude; //elevation to the next pump [m]
 				let gas1 = d * consEst * 1e-5 * constants.rho; //estimate gas consumption on the distance [g]
 				let gas2 = cars[S.car].m * constants.g * dh / constants.dHsp / etaEst; //estimate consumption on ascent (or savings on descent) [g]
 				const gas3 = 15; //something extra to account for acceleration [g]

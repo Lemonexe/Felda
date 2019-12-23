@@ -71,7 +71,7 @@ let R = {
 			let dw = Math.round(obj.width * ppm);
 			let dh = Math.round(obj.height * ppm);
 			let dx = Math.round(this.xc + (item[1] - S.d) * ppm);
-			let dy = Math.round(this.yc - (L.getAltitude(item[1]) - S.altitude - hOffset) * ppm);
+			let dy = Math.round(this.yc - (LVL.getAltitude(item[1]) - S.altitude - hOffset) * ppm);
 
 			//if image not in sight, skip it
 			let visible = (dx - dw/2 < w) && (dx + dw/2 > 0);
@@ -276,7 +276,7 @@ let R = {
 		//for minimap directive
 		let obj = CS.miniMapCursor;
 		let dC = (obj.pageX/w - 0.5)*dMiniMap + S.d; //distance of cursor
-		let aC = L.getAltitude(dC); //altitude corresponding to dC (not altitude of cursor)
+		let aC = LVL.getAltitude(dC); //altitude corresponding to dC (not altitude of cursor)
 		obj.d = dC;
 		obj.a = aC;
 		//if dC is actually within map, draw a blue circle on the relief
