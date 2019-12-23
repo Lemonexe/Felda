@@ -7,6 +7,8 @@
 
 let app = angular.module('Felda', []);
 
+let leafletMap, leafletMarker;
+
 app.controller('ctrl', function($scope, $interval, $timeout) {
 	//current version
 	$scope.version = [1, 2];
@@ -347,6 +349,26 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			S.running = true;
 			M.initCalculations();
 			soundService.init();
+
+            if (S.level.i === 3) {
+				leafletMap = L.map('leafletMap');
+				L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`, {
+					maxZoom: 18,
+					attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>'
+				}).addTo(leafletMap);
+				leafletMarker = L.marker([50, 14]).addTo(leafletMap);
+
+				// update map in real world
+				$interval(() => {
+                    const distMap = S.distMap;
+                    let j = 0;
+                    while (distMap[j][0] <= S.d) j++; // find closest data point
+                    const latlng = [distMap[j][1][1], distMap[j][1][0]]; // TODO interpolate with j+1
+                    leafletMap.setView(latlng, 17);
+                    leafletMarker.setLatLng(latlng).update();
+				}, 1000);
+				// TODO destroy interval ??
+            }
 		}
 		function reject(err) {
 			$scope.S = S = null;

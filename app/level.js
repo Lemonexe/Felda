@@ -79,6 +79,7 @@ const LVL = {
 		resolve(map);
 	},
 
+	realMapStorage: {},
 	realMap: async ({ generation: { int } }, resolve, reject) => {
 		const fetchApi = async (uri) => {
 			const res = await fetch(`https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`);
@@ -88,6 +89,7 @@ const LVL = {
             return res.json();
         };
         const interpolate = (x, [x1, y1], [x2, y2]) => (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+        const makeXY = (distMapItem) => [distMapItem[0], distMapItem[1][2]];
         const getDistance = ([lon1, lat1], [lon2, lat2]) => {
             const R = 6378000; // Radius of the earth in m
             const deg2rad = deg => deg * (Math.PI / 180);
@@ -101,6 +103,8 @@ const LVL = {
             return R * c; // Distance in km
         };
         try {
+        	// TODO load distMap from S where loading saved game
+
             const startStr = prompt("Zadejte startovní adresu:", "Ke Džbánu");
             const endStr = prompt("Zadejte cílovou adresu:", "Malostranské náměstí");
 
@@ -111,26 +115,28 @@ const LVL = {
 
             const data = await fetchApi(`/directions?profile=driving-car&format=geojson&instructions=false&elevation=true&coordinates=${startCoord}|${endCoord}`);
             const coords = data.features[0].geometry.coordinates;
-            const startElevation = coords[0][2];
+            const startPoint = coords[0];
+            // L.geoJSON(data).addTo(leafletMap); // TODO
 
-            //transform to [dist, elev]
-            const distMap = [[0, startElevation]];
+            //transform to [dist, [lon,lat,ele] ]
+            const distMap = [[0, startPoint]];
             let dist = 0;
             for (let i = 1; i < coords.length; i++) {
                 dist += getDistance(coords[i - 1], coords[i]);
-                distMap.push([dist, coords[i][2]]);
+                distMap.push([dist, coords[i]]);
             }
+            S.distMap = distMap;
 
             // transform to fixed intervals
             const totalLength = distMap[distMap.length - 1][0];
             const numOfIntervals = Math.floor(totalLength / int);
-            const map = [startElevation];
+            const map = [startPoint[2]];
             let j = 0;
-            distMap.push([0, 0]); // so we dont have to check if distMap[j+1] exists
+            distMap.push([0, [0,0,0]]); // so we dont have to check if distMap[j+1] exists
             for (let i = 1; i <= numOfIntervals; i++) {
                 const currentPosition = int * i;
                 while (distMap[j][0] <= currentPosition) j++; // find closest data point
-                map.push(interpolate(currentPosition, distMap[j], distMap[j + 1]));
+                map.push(interpolate(currentPosition, makeXY(distMap[j]), makeXY(distMap[j + 1])));
             }
 
             // levelObject.generation.length = totalLength; // TODO move to resolve
