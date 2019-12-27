@@ -360,13 +360,14 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 				// update map in real world
 				$interval(() => {
-                    const distMap = S.distMap;
-                    let j = 0;
-                    while (distMap[j][0] <= S.d) j++; // find closest data point
-                    const latlng = [distMap[j][1][1], distMap[j][1][0]]; // TODO interpolate with j+1
-                    leafletMap.setView(latlng, 17);
-                    leafletMarker.setLatLng(latlng).update();
-				}, 1000);
+					const distMap = S.distMap;
+					let j = 0;
+					while (distMap[j][0] <= S.d) j++; // find closest bigger data point
+					const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
+					const latlng = [lnglat[1], lnglat[0]];
+					leafletMap.setView(latlng, 17);
+					leafletMarker.setLatLng(latlng).update();
+				}, 400);
 				// TODO destroy interval ??
             }
 		}
@@ -443,3 +444,14 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	onload();
 });
+
+function interpolateTwoCoords(d, p1, p2) {
+	const dist1 = p1[0];
+	const dist2 = p2[0];
+	const distRelativeToP1 = d - p1[0];
+	const intervalLength = dist2 - dist1;
+	const ratio = distRelativeToP1 / intervalLength;
+	const coords1 = p1[1], coords2 = p2[1];
+	const interpolateOneCoord = (i) => coords1[i] + ratio * (coords2[i] - coords1[i]);
+	return [interpolateOneCoord(0), interpolateOneCoord(1)];
+}

@@ -79,7 +79,6 @@ const LVL = {
 		resolve(map);
 	},
 
-	realMapStorage: {},
 	realMap: async ({ generation: { int } }, resolve, reject) => {
 		const fetchApi = async (uri) => {
 			const res = await fetch(`https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`);
