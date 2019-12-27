@@ -102,8 +102,6 @@ const LVL = {
             return R * c; // Distance in km
         };
         try {
-        	// TODO load distMap from S where loading saved game
-
             const startStr = prompt("Zadejte startovní adresu:", "Ke Džbánu");
             const endStr = prompt("Zadejte cílovou adresu:", "Malostranské náměstí");
 

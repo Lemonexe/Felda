@@ -37,7 +37,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//hint to unlock easter egg
 	$scope.easterEgg = () => popup('Pro odemknutí tohoto skvostu vyhrajte Need 4 Natural 95, Nebezpečnou rychlost a Drag (alespoň na "B")', false, false, 430);
-	
+
 
 	//link global variables to $scope
 	$scope.CS = CS; //S will be referenced when created
@@ -327,6 +327,26 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		return X0.limit(5, sw-ew-5);
 	};
 
+    $scope.leafletMapInit = function () {
+        leafletMap = L.map('leafletMap');
+        L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`, { maxZoom: 18, attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>' }).addTo(leafletMap);
+        leafletMarker = L.marker([50, 14]).addTo(leafletMap);
+
+        if (S.level.i === 3) {
+            // update map in real world
+            $interval(() => {
+                const distMap = S.distMap;
+                let j = 0;
+                while (distMap[j][0] <= S.d) j++; // find closest bigger data point
+                const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
+                const latlng = [lnglat[1], lnglat[0]];
+                leafletMap.setView(latlng, 17);
+                leafletMarker.setLatLng(latlng).update();
+            }, 400);
+            // TODO destroy interval ??
+        }
+    };
+
 	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
@@ -349,27 +369,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			S.running = true;
 			M.initCalculations();
 			soundService.init();
-
-            if (S.level.i === 3) {
-				leafletMap = L.map('leafletMap');
-				L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`, {
-					maxZoom: 18,
-					attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>'
-				}).addTo(leafletMap);
-				leafletMarker = L.marker([50, 14]).addTo(leafletMap);
-
-				// update map in real world
-				$interval(() => {
-					const distMap = S.distMap;
-					let j = 0;
-					while (distMap[j][0] <= S.d) j++; // find closest bigger data point
-					const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
-					const latlng = [lnglat[1], lnglat[0]];
-					leafletMap.setView(latlng, 17);
-					leafletMarker.setLatLng(latlng).update();
-				}, 400);
-				// TODO destroy interval ??
-            }
+			$scope.leafletMapInit();
 		}
 		function reject(err) {
 			$scope.S = S = null;
@@ -386,6 +386,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.tab('game');
 		S.running = true && !S.finished;
 		soundService.init();
+		$scope.leafletMapInit();
 	};
 
 	//decrement countdowns and decide what to do
