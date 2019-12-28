@@ -15,13 +15,13 @@
 <div class="statsLeft" style="width: 220px" ng-show="!S.disable.stats23">
 	výkon<br>
 	točivý moment<br>
-	<span ng-if="S.fuelChallenge">nádrž paliva</span><br>
+	<span ng-if="S && S.level.id === 'fuel'">nádrž paliva</span><br>
 	okamžitá spotřeba<br><br>
 	průměrná spotřeba
 </div><div class="statsRight" style="width: 170px" ng-show="!S.disable.stats23">
 	{{st.calculateUnit(S.P, CS.unitPow)}}<br>
 	{{S.T.toFixed()}} N·m<br>
-	<span ng-if="S.fuelChallenge">{{(1e3 * S.fuelTank / csts.rho).toFixed(0)}} ml</span><br>
+	<span ng-if="S && S.level.id === 'fuel'">{{(1e3 * S.fuelTank / csts.rho).toFixed(0)}} ml</span><br>
 	{{st.kmfuel()}} l/100km<br>
 	{{(S.consumption * 3600 / csts.rho).toFixed(1)}} l/h<br>
 	{{st.avgfuel()}} l/100km

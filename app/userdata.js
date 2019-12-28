@@ -14,6 +14,7 @@ function State(i, c) {return {
 	//level object
 	level: {
 		i: i, //index of current level
+		id: levels[i].id, //id of current level
 		//see levels definitions in data.js
 		int: levels[i].generation.int,
 		length: levels[i].generation.length,
@@ -62,8 +63,10 @@ function State(i, c) {return {
 	consumption: 0, //instantaneous fuel consumption [g/s]
 	fuel: 0, //fuel consumed in total [g]
 
-	//these are only for tutorial level
+	//these are only for special levels
 	disable: {
+		nitro: false,
+		PID: false,
 		keys: false,
 		brakes: false,
 		controls: false,

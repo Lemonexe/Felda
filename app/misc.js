@@ -64,7 +64,7 @@ const saveService = {
 
 
 //create popup by feeding m = string or arrays of strings (multiline popup).
-//other arguments are optional: suppress OK button, set timeout to vanish [ms], width [px]
+//other arguments are optional: suppress OK button, set timeout to vanish [ms], width [px], button2: {label: '', callback: function}
 function popup(m, noButton, timeout, width, button2) {
 	CS.popup = {
 		lines: (typeof m === 'string') ? [m] : m,

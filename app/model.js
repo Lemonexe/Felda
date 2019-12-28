@@ -287,7 +287,7 @@ const M = {
 	//in our case, derivative part isn't important
 	PID: function() {
 		//cruise control is off
-		if(!S.vTarget || !CS.enablePID) {return;}
+		if(!S.vTarget || !CS.enablePID || S.disable.PID) {return;}
 		//turn off
 		if(S.brakes || S.f > cars[S.car].engine.redlineRPM) {
 			M.remPID();

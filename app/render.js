@@ -364,8 +364,8 @@ let R = {
 			4 * S.gas
 		);
 		raise(
-			(S.speedChallenge && S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
-			6 * (S.progressBar - 0.3)
+			(S.level.id === 'speed' && S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
+			8 * (S.progressBar - 0.3)
 		);
 
 		let rnd = (v) => 2*v*(Math.random() - 0.5);

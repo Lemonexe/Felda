@@ -159,6 +159,13 @@ img {
 	border: 1px solid black;
 }
 
+#leafletMap {
+	position: relative;
+	top: 23px;
+	width: 400px;
+	height: 230px;
+}
+
 #stats {
 	position: absolute;
 	left: 0px;

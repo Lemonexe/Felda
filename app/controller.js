@@ -11,10 +11,11 @@ let leafletMap, leafletMarker;
 
 app.controller('ctrl', function($scope, $interval, $timeout) {
 	//current version
-	$scope.version = [1, 2];
+	$scope.version = [1, 3];
 
 	//version history
 	$scope.vHistory = [
+		{name: 'v1.3',  date: '??.12.2019', desc: 'přidána Reálná mapa (zpracoval Pavel Zbytovský)'},
 		{name: 'v1.2',  date: '20.12.2019', desc: 'přidány nové levely - nové výzvy!'},
 		{name: 'v1.1',  date: '13.10.2019', desc: 'přidány zvuky!'},
 		{name: 'v1.0',  date: '02.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
@@ -192,7 +193,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		cd: e => (S.clutchPedalDown = e),
 		gu: e => (S.gasPedalUp = e),
 		gd: e => (S.gasPedalDown = e),
-		nitro: e => (S.nitro = (e && !S.disableNitro))
+		nitro: e => (S.nitro = (e && !S.disable.nitro))
 	};
 
 	//OPTIONS TO CHOOSE FROM
@@ -327,33 +328,51 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		return X0.limit(5, sw-ew-5);
 	};
 
-    $scope.leafletMapInit = function () {
-        leafletMap = L.map('leafletMap');
-        L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`, { maxZoom: 18, attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>' }).addTo(leafletMap);
-        leafletMarker = L.marker([50, 14]).addTo(leafletMap);
+	//initialize realworld map leaflet
+	function leafletMapInit() {
+		if(S.level.id === 'realworld' && !leafletMap && !leafletMarker) {
+			leafletMap = L.map('leafletMap');
+			L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`,
+				{maxZoom: 18, attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>'}).addTo(leafletMap);
+			leafletMarker = L.marker([50, 14]).addTo(leafletMap);
+		}
+	}
 
-        if (S.level.i === 3) {
-            // update map in real world
-            $interval(() => {
-                const distMap = S.distMap;
-                let j = 0;
-                while (distMap[j][0] <= S.d) j++; // find closest bigger data point
-                const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
-                const latlng = [lnglat[1], lnglat[0]];
-                leafletMap.setView(latlng, leafletMap.getZoom() || 16);
-                leafletMarker.setLatLng(latlng).update();
-            }, 400);
-            // TODO destroy interval ??
-        }
-    };
+	//update map marker and map view
+	function updateLeafletMap() {
+		if(S && S.level.id === 'realworld' && S.distMap && leafletMap && leafletMarker && CS.tab === 'game') {
+			const distMap = S.distMap;
+			let j = 0;
+			while (distMap[j][0] <= S.d) j++; // find closest bigger data point
+			const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
+			const latlng = [lnglat[1], lnglat[0]];
+			leafletMap.setView(latlng, leafletMap.getZoom() || 16);
+			leafletMarker.setLatLng(latlng).update();
+		}
+		$timeout(() => updateLeafletMap(), config.dtLeafletMap);
+	}
+
+	//interpolate two coordinates, where d = wanted distance, p1 & p2 = [distance mark, [longtitude, latitude, altitude]]
+	//returns [longtitude, latitude]
+	function interpolateTwoCoords(d, p1, p2) {
+		const dist1 = p1[0];
+		const dist2 = p2[0];
+		const distRelativeToP1 = d - p1[0];
+		const intervalLength = dist2 - dist1;
+		const ratio = distRelativeToP1 / intervalLength;
+		const coords1 = p1[1], coords2 = p2[1];
+		const interpolateOneCoord = (i) => coords1[i] + ratio * (coords2[i] - coords1[i]);
+		return [interpolateOneCoord(0), interpolateOneCoord(1)];
+	}
+
+	//ng-style of map leaflet
+	$scope.leafletStyle = () => ({display: (S && S.level.id === 'realworld' && CS.tab === 'game') ? 'block' : 'none'});
 
 	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
 		CS.keyBinding = false;
-		if(S) {
-			if(!confirm('Běžící hra bude ztracena, přesto pokračovat?')) {return;}
-		}
+		if(S) {if(!confirm('Běžící hra bude ztracena, přesto pokračovat?')) {return;}}
 		popup('Načítání', true);
 
 		//create new level, which contains a promise
@@ -370,7 +389,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			CS.invertedPedals && $scope.invertPedals();
 			M.initCalculations();
 			soundService.init();
-			$scope.leafletMapInit();
+			leafletMapInit();
 		}
 		function reject(err) {
 			$scope.S = S = null;
@@ -387,7 +406,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.tab('game');
 		S.running = true && !S.finished;
 		soundService.init();
-		$scope.leafletMapInit();
+		leafletMapInit();
 	};
 
 	//decrement countdowns and decide what to do
@@ -437,6 +456,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		//first call of FPS, it then calls itself with $timeout
 		FPS();
 
+		//first call of update leaflet map (also $timeout)
+		updateLeafletMap();
+
 		//set interval for vibration
 		$interval(R.vibration, 1000/config.vibration);
 
@@ -446,14 +468,3 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	onload();
 });
-
-function interpolateTwoCoords(d, p1, p2) {
-	const dist1 = p1[0];
-	const dist2 = p2[0];
-	const distRelativeToP1 = d - p1[0];
-	const intervalLength = dist2 - dist1;
-	const ratio = distRelativeToP1 / intervalLength;
-	const coords1 = p1[1], coords2 = p2[1];
-	const interpolateOneCoord = (i) => coords1[i] + ratio * (coords2[i] - coords1[i]);
-	return [interpolateOneCoord(0), interpolateOneCoord(1)];
-}

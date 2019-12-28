@@ -145,7 +145,7 @@
 
 		<canvas id="map" width="800" height="400" ng-if="CS.enableGraphics" minimap></canvas>
 
-		<div id="stats" ng-include="'app/ng/stats.html?version=2'" ng-style="style.stats"></div>
+		<div id="stats" ng-include="'app/ng/stats.html?version=3'" ng-style="style.stats"></div>
 
 		<div id="advanced" ng-include="'app/ng/advanced.html?version=2'" ng-style="style.advanced" ng-if="CS.enableDetails && !S.tutorial"></div>
 
@@ -168,7 +168,7 @@
 				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
 
 				<!--only when PID enabled-->
-				<span ng-if="CS.enablePID && !S.tutorial && !S.speedChallenge && !S.fuelChallenge"><br>
+				<span ng-if="CS.enablePID && S && !S.disable.PID"><br>
 					<input type="button" value="tempomat" style="width: 76px; margin-bottom: 5px" tooltip="levý klik zapne, pravý vypne"
 						onclick="M.setPID(); this.blur()" oncontextmenu="M.remPID(); this.blur(); event.preventDefault()"><br>
 
@@ -231,10 +231,12 @@
 	</div>
 </div>
 
+<!-- REALWORLD MAP -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
-<div id="leafletMap" style="width:400px; height:230px; position:relative; top:23px;" ng-style="{ display: S.level.i === 3 ? 'block' : 'none'}"></div>
+<div id="leafletMap" ng-style="leafletStyle()"></div>
 
+<!-- FOOTER -->
 <div class="footerDefense"></div>
 <div id="footer" ng-show="CS.tab === 'menu'">
 	Vytvořil <a href="http://jira.zby.cz/">Jiří Zbytovský</a> v letech 2017-2019 za použití <a href="https://angularjs.org/" target="_blank">AngularJS</a>
