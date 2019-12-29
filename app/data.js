@@ -9,7 +9,7 @@ const config = {
 	dt: 10/1000, //short time interval for the discreet simulation itself [s]
 	vibration: 40, //frequency of vibration [Hz]
 	dtLeafletMap: 250, //time interval to update leaflet map [ms]
-	imgLoadingArea: 1e4, //images will be split into areas of this length [m]
+	imgDistance: 1e3, //images are generated within this distance [m]
 	minimapDistance: 1e4, //miniMap displays such distance [m]
 	signDistance: 500, //intervals between special distance signs [m]
 	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [m-1])

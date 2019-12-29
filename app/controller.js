@@ -375,16 +375,15 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		if(S) {if(!confirm('Běžící hra bude ztracena, přesto pokračovat?')) {return;}}
 		popup('Načítání', true);
 
-		//create new level, which contains a promise
+		//create new level, level data will be filled later via a promise
 		S = new State(CS.levelSelect, CS.carSelect);
 
 		//fulfill promise
-		function resolve(result) {
+		function resolve() {
 			CS.popup = false;
 			$scope.tab('game');
 			$scope.S = S;
 
-			S.level.map = result;
 			S.running = true;
 			CS.invertedPedals && $scope.invertPedals();
 			M.initCalculations();
@@ -395,7 +394,9 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			$scope.S = S = null;
 			popup(['CHYBA', 'Level se nepodařilo načíst', err]);
 		}
-		S.level.map.then(resolve, reject);
+
+		//create promise
+		LVL.levelGeneration(S.level.i).then(resolve, reject);
 	};
 
 	//continue a running simulation

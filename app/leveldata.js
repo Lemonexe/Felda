@@ -79,7 +79,7 @@ const levels = [
 				[200, 10] //2.9°
 			],
 			images: [
-				//{link to 'imgs', density of images per m [1/m]}
+				//{link to 'imgs', density of images per meter [m-1], OPTIONAL h: [min altitude, max altitude]}
 				{img: 'oak',         density: 1/100},
 				{img: 'radar',       density: 1/200},
 				{img: 'prejezd',     density: 1/600},
@@ -119,14 +119,14 @@ const levels = [
 				[200, 20] //5.7°
 			],
 			images: [
-				{img: 'cow',        density: 1/100},
-				{img: 'smrk',       density: 1/100},
-				{img: 'zn_kameni',  density: 1/1200},
-				{img: 'zn_krava',   density: 1/800},
-				{img: 'zn_mraz',    density: 1/1600},
-				{img: 'zn_serpent', density: 1/400},
-				{img: 'zn_12up',    density: 1/400},
-				{img: 'zn_12down',  density: 1/400}
+				{img: 'cow',         density: 1/100},
+				{img: 'smrk',        density: 1/100},
+				{img: 'zn_kameni',   density: 1/1200},
+				{img: 'zn_krava',    density: 1/800},
+				{img: 'zn_mraz',     density: 1/800, h: [2500, 1e4]},
+				{img: 'zn_serpent',  density: 1/400},
+				{img: 'zn_12up',     density: 1/400},
+				{img: 'zn_12down',   density: 1/400}
 			]
 		}
 	},
@@ -136,28 +136,38 @@ const levels = [
 		name: 'Reálná mapa',
 		description: 'Zadáte dvě adresy a o zbytek se postará OpenStreetMap.',
 		listeners: {
-			onstart: () => popup('Dávejte pozor na radary a díry v silnici!', true, 1600),
+			onstart: () => popup(`Byla naplánovnána trasa o celkové délce ${(S.level.length/1e3).toFixed(1)} km`, true, 2000),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
-				opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
-				msg: ['Váš cíl je vpravo.', 'Dojeli jste do cíle']
+				left: 2/3, opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
+				msg: ['Dojeli jste do cíle :)']
 			})
 		},
 		generation: {
 			f: 'realMap',
 			int: 50,
-			length: 1e5, // FIXME needed by imageGeneration()
+			length: 1e5, //mock value only - S.level.length will be later overwritten by the actual route distance
 			minimapScale: 5,
 			images: [
-				{img: 'oak',         density: 1/100},
-				{img: 'radar',       density: 1/200},
-				{img: 'prejezd',     density: 1/600},
-				{img: 'zn_50',       density: 1/200},
-				{img: 'zn_prace',    density: 1/400},
-				{img: 'zn_diry',     density: 1/400},
-				{img: 'zn_stop',     density: 1/600},
-				{img: 'zn_prednost', density: 1/400},
-				{img: 'zn_radar',    density: 1/1000}
+				//h = [min altitude, max altitude] to draw image
+				{img: 'oak',         density: 1/100, h: [0, 700]},
+				{img: 'radar',       density: 1/200, h: [0, 1000]},
+				{img: 'prejezd',     density: 1/600, h: [0, 700]},
+				{img: 'pump',        density: 1/1000,h: [0, 1000]},
+				{img: 'cow',         density: 1/200, h: [500, 1e4]},
+				{img: 'smrk',        density: 1/100, h: [500, 1e4]},
+				{img: 'zn_50',       density: 1/400},
+				{img: 'zn_prace',    density: 1/1000},
+				{img: 'zn_diry',     density: 1/800},
+				{img: 'zn_stop',     density: 1/1000},
+				{img: 'zn_prednost', density: 1/800},
+				{img: 'zn_radar',    density: 1/2000},
+				{img: 'zn_kameni',   density: 1/1600},
+				{img: 'zn_krava',    density: 1/1000},
+				{img: 'zn_mraz',     density: 1/2400},
+				{img: 'zn_serpent',  density: 1/800},
+				{img: 'zn_12up',     density: 1/800},
+				{img: 'zn_12down',   density: 1/800}
 			]
 		}
 	}
@@ -279,7 +289,10 @@ const levels = [
 				let d = dPump + (2*Math.random()-1) * dSpread; //new distance [m]
 				S.nextPumpAt = S.d + d;
 				S.countdown = d/vMin;
-				S.level.images[Math.floor(S.d / config.imgLoadingArea)].push(['pump', S.nextPumpAt]);
+
+				//update current image, or create new one
+				let img = S.level.images.find(img => img[0] === 'pump');
+				img ? (img[1] = S.nextPumpAt) : S.level.images.push(['pump', S.nextPumpAt]);
 			}
 
 			//harvest gasoline (after next pump has been created)

@@ -19,11 +19,9 @@ function State(i, c) {return {
 		int: levels[i].generation.int,
 		length: levels[i].generation.length,
 		minimapScale: levels[i].generation.minimapScale,
-		//vector of altitude marks [m] that describes the terrain
-		//at first it is created as a promise
-		map: LVL.levelGeneration(levels[i]),
-		//array of arrays - level is divided into sectors of config.imgLoadingArea [m], each is collection of generated images
-		images: LVL.imageGeneration(levels[i])
+		map: [], //vector of altitude marks [m] that describes the terrain
+		images: [], //collection of generated images, each image = ['image id', distance]
+		dimgLoaded: -1, //farthest distance where images have been loaded [m]
 	},
 
 	car: c, //index of current car
@@ -39,7 +37,7 @@ function State(i, c) {return {
 	gear: 'N',
 	brakes: false, //whether brakes are currently applied
 	nitro: false, //whether nitro is currently applied
-	starter: 0, //starter countdown [s]
+	starter: 0, //starter countdown [s], zero when starter is not active
 
 	//ng-model control variables
 	clutchSlider: 1,

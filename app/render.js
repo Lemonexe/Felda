@@ -47,23 +47,11 @@ let R = {
 
 	//DRAW BACKGROUND DECORATION IMAGES
 	drawDecorations: function() {
-		let d = config.imgLoadingArea; //images are divided into sectors of such length
-		let iarr = Math.floor(S.d / d); //index of image array
-
-		//draw current area, one before and one after
-		this.drawArea(S.level.images[iarr-1]);
-		this.drawArea(S.level.images[iarr]);
-		this.drawArea(S.level.images[iarr+1]);
-	},
-	//render all items in given loading area
-	drawArea: function(area) {
-		if(!area) {return;}
-
 		let ppm = CS.ppm;
 		let w = this.canvas.width;
 		let ctx = this.ctx;
 
-		for(let item of area) {
+		for(let item of S.level.images) {
 			let obj = imgs[item[0]]; //get the image object from 'imgs'
 
 			//dimensions of image; center of drawing is center of bottom edge
@@ -87,7 +75,7 @@ let R = {
 				var elem = obj.img;
 			}
 
-			//if mirror is enabled, it will be defined by parity of position, a pseudo-random number that is constant for each item
+			//if mirror is enabled, it will be defined by parity of position, a pseudo-random number (which is constant for each img instance!)
 			let m = obj.hasOwnProperty('mirror') && item[1] % 2 < 1;
 
 			//draw 'elem' either mirrored, or normally (it's faster to draw normally)

@@ -28,6 +28,8 @@ const M = {
 
 		S.firstTick = true;
 		S.running && exec(levels[S.level.i].listeners, 'continuous'); //condition because of last tick before end
+
+		LVL.imageGeneration();
 	},
 
 	//calculations to be performed on game initiation
@@ -405,10 +407,8 @@ const M = {
 
 		let paused = !S.running || (S.tutorial && CS.popup) || !CS.enableAmbientSounds || !CS.enableGraphics; //graphics because it could be pretty confusing
 
-		let iarr = Math.floor(S.d / config.imgLoadingArea); //index of image area array
-
-		//for each image in current image area array
-		for(let item of S.level.images[iarr] || []) {
+		//for each image
+		for(let item of S.level.images) {
 			let imgObj = imgs[item[0]]; //get the image object from 'imgs'
 			if(!imgObj.hasOwnProperty('sound')) {continue;} //this decoration doesn't have any sound
 

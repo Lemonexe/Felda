@@ -27,21 +27,23 @@ const LVL = {
 		return (x*S.level.map[i+1] + (1-x)*S.level.map[i]);
 	},
 
-	//generate map from a given levelObject
-	levelGeneration: function(levelObject) {
+	//generate map for a selected level index
+	levelGeneration: function(i) {
+		let levelObject = levels[i];
 		return new Promise(function(resolve, reject) {
 			let f = levelObject.generation.f;
 			if(typeof LVL[f] === 'function') {
 				LVL[f](levelObject, resolve, reject);
 			}
+			else {reject('Generation function does not exist!');}
 		});
 	},
 
 	//levelGeneration() - the simplest one
 	straight: function(levelObject, resolve, reject) {
-		let int = levelObject.generation.int;
-		let length = levelObject.generation.length;
-		resolve(new Array(length/int + 1).fill(0));
+		let count = 1 + levelObject.generation.length / levelObject.generation.int;
+		S.level.map = new Array(count).fill(0);
+		resolve();
 	},
 
 	//levelGeneration() - several layers of random noise
@@ -55,7 +57,9 @@ const LVL = {
 		//total count of altitude points
 		let count = length/int + 1;
 
+		//initialize map with base altitude
 		let map = new Array(count).fill(baseAlt);
+
 		//for all noise layers (n = [interval, maxAltitude])
 		for(let n of noises) {
 			//two random numbers for previous node and next node
@@ -76,7 +80,8 @@ const LVL = {
 			}
 		}
 
-		resolve(map);
+		S.level.map = map;
+		resolve();
 	},
 
 	//levelGeneration() - altitude map fetched from a route connecting two addresses
@@ -131,15 +136,16 @@ const LVL = {
 			const numOfIntervals = Math.floor(totalLength / int);
 			const map = [startPoint[2]];
 			let j = 0;
-			distMap.push([0, [0,0,0]]); // so we dont have to check if distMap[j+1] exists
+			distMap.push([0, [0,0,0]]); //so we dont have to check if distMap[j+1] exists
 			for (let i = 1; i <= numOfIntervals; i++) {
 				const currentPosition = int * i;
-				while (distMap[j][0] <= currentPosition) j++; // find closest data point
+				while (distMap[j][0] <= currentPosition) j++; //find closest data point
 				map.push(interpolate(currentPosition, makeXY(distMap[j]), makeXY(distMap[j + 1])));
 			}
 
-			//levelObject.generation.length = totalLength; // TODO move to resolve
-			resolve(map);
+			S.level.length = numOfIntervals * int;
+			S.level.map = map;
+			resolve();
 		}
 		catch (e){
 			console.error(e);
@@ -147,39 +153,51 @@ const LVL = {
 		}
 	},
 
-	//generate array of loading areas ('field'), each loading area is an array of images to be rendered
-	imageGeneration: function(levelObject) {
-		let g = levelObject.generation;
-		let d = config.imgLoadingArea;
+	//add new batch of images, delete old
+	imageGeneration: function() {
+		const dimg = config.imgDistance;
 
-		//how many loading areas
-		let n = Math.ceil(g.length / d);
-		let field = new Array(n);
+		//calculate (d1 = beginning, d2 = end) of new area to be generated
+		if(S.level.dimgLoaded >= S.level.length) {return;}
+		else if(S.d >= S.level.dimgLoaded) { //loaded area is exceeded, load 2*dimg (this shouldn't happen except at level initiation)
+			var d1 = S.d;
+			var d2 = S.level.dimgLoaded = S.d + 2*dimg;
+		}
+		else if(S.d >= S.level.dimgLoaded - dimg) { //loaded area ends less than dimg ahead, load another dimg (standard procedure)
+			var d1 = S.level.dimgLoaded;
+			var d2 = S.level.dimgLoaded += dimg;
+		}
+		else {return;} //no action needed
 
-		for(let i = 0; i < n; i++) {
-			field[i] = []; //new array = section with images to be rendered
+		d2 = d2.limit(d1, S.level.length);
 
-			//for j in possible images for this level
-			for(let j = 0; j < g.images.length; j++) {
-				//number of images within section is constant = distance * density
-				let count = Math.ceil(d * g.images[j].density);
-				for(let k = 0; k < count; k++) {
-					//each image instance has random x position within section (y will be calculated during rendering)
-					let pos = Math.round(i*d + d*Math.random());
-					//push image instance as [id, position], id is a pointer to 'imgs' library
-					field[i].push([g.images[j].img, pos]);
-				}
-			}
+		//generate new section of images
+		//for i in possible images for this level
+		const imgs = levels[S.level.i].generation.images;
+		for(let i = 0; i < imgs.length; i++) {
+			//skip image if outside of altitude bounds
+			if(imgs[i].hasOwnProperty('h') && typeof S.altitude === 'number' && (S.altitude < imgs[i].h[0] || S.altitude > imgs[i].h[1])) {continue;}
 
-			//distance signs - they are at fixed distance intervals, rather than randomly dispersed
-			let ds = config.signDistance;
-			//for number of signs per section
-			for(j = 0; j < d / ds; j++) {
-				if(i === 0 && j === 0) {continue;} //don't draw sign at 0.0 km
-				field[i].push(['zn_km', i*d + ds*j]);
+			let n = (d2 - d1) * imgs[i].density; //theoretical number of images within section = (length * density), may not be an integer
+			n = Math.floor(n) + (Math.random() > n%1); //count of images as integer - decide by chance whether to add the fractional part of number
+
+			//create n images instances
+			for(let j = 0; j < n; j++) {
+				let pos = Math.round(d1 + (d2 - d1) * Math.random()); //random x position within section (y will be calculated during rendering)
+				S.level.images.push([imgs[i].img, pos]); //push instance as [id, position], id is a pointer to 'imgs' library
 			}
 		}
 
-		return field;
+		//distance signs - they are at fixed distance intervals, rather than randomly dispersed
+		let ds = config.signDistance;
+		let pos = d1 - d1%ds + ds*(d1<=0); //first position within section, skip 0.0 km
+
+		while(pos < d2) {
+			S.level.images.push(['zn_km', pos]);
+			pos += ds;
+		}
+
+		//cull images left far behind
+		S.level.images = S.level.images.filter(img => S.d - img[1] < dimg);
 	}
 };

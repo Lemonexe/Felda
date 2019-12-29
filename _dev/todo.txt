@@ -1,15 +1,15 @@
 <<<RESOURCES & CONTENT>>>
 v1.3 final touches to real world level
-	opravit konec levelu (refactor images first)
 	UI na zadání těch adres
 		udělat to stejně s letiště -> set const slope -30 až 30
 	prostudovat leaflet.js, abych mohl vykreslit trasu levelu
-	code commentary
 
-REFACTOR IMAGES TO DYNAMIC
-	gas station dynamic!
-	pro realworld vybírat druhy obrázků podle výšky :)
-	level generation: místo resolve map dát rovnou S.level.map = map (& S.level.length = len)
+credit - místo popup dát vokýnko kde to bude všechno napsaný, dát tam Páju, osm, leaflet js
+credit v readme.md
+
+přesunout výběr levelu a auta do nového tabu místo 'menu'
+
+vibrace skládat pythagorsky
 
 <<<META>>>
 English language yes okay well?
