@@ -332,8 +332,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	function leafletMapInit() {
 		if(S.level.id === 'realworld' && !leafletMap && !leafletMarker) {
 			leafletMap = L.map('leafletMap');
-			L.tileLayer(`https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png`,
-				{maxZoom: 18, attribution: '<a href="https://osm.org/copyright">OSM</a>, <a href="https://www.mediawiki.org/wiki/Maps">WM</a>'}).addTo(leafletMap);
+			L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+				{maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>'}).addTo(leafletMap);
 			leafletMarker = L.marker([50, 14]).addTo(leafletMap);
 		}
 	}
