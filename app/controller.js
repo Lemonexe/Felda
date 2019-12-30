@@ -10,9 +10,6 @@ let app = angular.module('Felda', []);
 let leafletMap, leafletMarker;
 
 app.controller('ctrl', function($scope, $interval, $timeout) {
-	//current version
-	$scope.version = [1, 3];
-
 	//version history
 	$scope.vHistory = [
 		{name: 'v1.3',  date: '30.12.2019', desc: 'přidána Reálná mapa (vytvořil Pavel Zbytovský)'},
@@ -23,6 +20,13 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{name: 'beta',  date: '22.09.2017', desc: 'přidána první canvas grafika a generace levelů'},
 		{name: 'alpha', date: '13.08.2017', desc: 'první zveřejněná verze, zatím jen samotný fyzikální model bez grafiky'}
 	];
+
+	//delete all userdata if not compatible with current version
+	function versionCompatibility() {
+		const v2number = v => v[0]*1e3 + v[1];
+		const vLast = [1, 3]; //last supported version of userdata
+		if(CS && (!CS.version || v2number(CS.version) < v2number(vLast))) {saveService.clear();}
+	}
 
 	$scope.credits = () => (CS.popup = {type: 'credits', width: 640}); //footer disclaimer
 	//hint to enable sounds
@@ -43,6 +47,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.config = config;
 	$scope.tt = tooltips;
 	$scope.popup = popup; //global function to $scope
+	$scope.version = version;
 
 	//control variables
 	let ctrl = {
@@ -463,6 +468,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			alert('FATÁLNÍ CHYBA:\n(při načítání uložených dat)\nSave není kompatibilní, proto bude resetován a stránka bude obnovena.');
 			saveService.clear();
 		}
+
+		versionCompatibility();
 
 		//detect M$ Edge and issue a warning
 		!!window.StyleMedia && popup(['Byl detekován prohlížeč Microsoft Explorer či Edge.', 'Aplikace nemusí správně fungovat, doporučuji použít Google Chrome či Mozilla Firefox.'], false, false, 400);

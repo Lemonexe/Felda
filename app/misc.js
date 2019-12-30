@@ -3,6 +3,9 @@
 	declares state objects, defines some generic functions, saveService etc.
 */
 
+//current version
+const version = [1, 3];
+
 //state objects: S is for model (variables related to simulation), CS for view & controller
 let S;
 let CS = ControllerState();

@@ -87,6 +87,7 @@ function State(i, c) {return {
 //CS = CONTROLLER STATE OBJECT
 //factory for new a CS, which is always created in misc.js, but will be overwritten by CS loaded from save
 function ControllerState() {return {
+	version: version, //current game version
 	tab: 'menu', //current view
 	showroomIndex: 0,
 	levelSelect: 0, //current selection of level (index)
