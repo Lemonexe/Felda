@@ -15,7 +15,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//version history
 	$scope.vHistory = [
-		{name: 'v1.3',  date: '??.12.2019', desc: 'přidána Reálná mapa (zpracoval Pavel Zbytovský)'},
+		{name: 'v1.3',  date: '30.12.2019', desc: 'přidána Reálná mapa (vytvořil Pavel Zbytovský)'},
 		{name: 'v1.2',  date: '20.12.2019', desc: 'přidány nové levely - nové výzvy!'},
 		{name: 'v1.1',  date: '13.10.2019', desc: 'přidány zvuky!'},
 		{name: 'v1.0',  date: '02.08.2019', desc: 'zcela fundamentálně přepracováno, mnoho nových funkcí i nová auta'},
@@ -24,12 +24,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{name: 'alpha', date: '13.08.2017', desc: 'první zveřejněná verze, zatím jen samotný fyzikální model bez grafiky'}
 	];
 
-	//footer disclaimer
-	$scope.disclaimer = () => popup([
-			'Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.',
-			'Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují autora.'
-		], false, false, 620);
-
+	$scope.credits = () => (CS.popup = {type: 'credits', width: 640}); //footer disclaimer
 	//hint to enable sounds
 	$scope.soundTroubleshoot = () => popup([
 			'Pokud je zvuk zapnut v operačním systému i na reproduktorech, a přesto je auto tiché jako myš, možná je ve vašem prohlížeči zakázáno automatické spouštění zvuku.',
@@ -64,28 +59,30 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	};
 
 	//escape game via cross in upper-right corner or Esc button
-	$scope.escapeGame = function(button) {//'button' = whether it originated from keyboard
-		//always remove tooltip
+	$scope.escapeGame = function(button) {
 		CS.tooltip.visible = false;
+		$scope.tab('menu');
+		S && (S.running = false);
+		soundService.stopAll();
+	};
 
-		//keyboard button either closes popup, or switches tab to menu, while the graphical button switches right away
-		if(button && CS.popup) {
-			CS.popup = false;
-		}
-		else {
-			$scope.tab('menu');
-			S && (S.running = false);
-			soundService.stopAll();
-		}
+	//reset all userdata
+	$scope.hardReset = function() {
+		confirm2('Opravdu smazat data?', ok => ok && saveService.clear());
 	};
 
 	//toggle in-game minimap on or off
 	$scope.toggleMap = function(e) {
 		CS.showMap = e;
-		if(!e) {
-			CS.tooltip.visible = false;
-			CS.miniMapCursor.enabled = false;
-		}
+		!e && (CS.tooltip.visible = CS.miniMapCursor.enabled = false);
+	};
+
+	//when buttons are clicked on prompt & confirm
+	$scope.sendPrompt = () => CS.popup.callback(CS.popup.fields.map(f => f.value));
+	$scope.sendConfirm = ok => {
+		let cb = CS.popup.callback;
+		CS.popup = false;
+		cb(ok);
 	};
 
 	//get name of parent level of a sublevel
@@ -107,9 +104,26 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//keyPress function - call appropriate listener function or bindKey. While identifying key, event.keyCode is prefered, event.key is fallback
 	$scope.keyPress = function(event, down) {
-		//hardcoded escape - it is available anywhere
-		if(event.keyCode === 27 || event.key === 'Escape') {keyBindFunctions.esc(down);}
-		//identify keys during gameplay
+		const enter = event.keyCode === 13 || event.key === 'Enter';
+		const esc   = event.keyCode === 27 || event.key === 'Escape';
+		
+		//do popups FIRST - while active, they snatch away enter & esc
+		if(!down && CS.popup && (enter || esc)) {
+			if(CS.popup.type === 'confirm') {
+				enter && $scope.sendConfirm(true);
+				esc   && $scope.sendConfirm(false);
+			}
+			else if(CS.popup.type === 'prompt') {
+				enter && $scope.sendPrompt();
+			}
+			else {CS.popup = false;}
+			esc && (CS.keyBinding = false); //cancel keybinding
+		}
+		//escape button anywhere (but not during popup)
+		else if(!down && esc) {$scope.escapeGame();}
+		//enter button during 'newgame' tab
+		else if(!down && enter && CS.tab === 'newgame') {$scope.initGame();}
+		//MOST IMPORTANT - identify keys during gameplay
 		else if(S && S.running && !S.disable.keys) {
 			let i = CS.keyBinds.findIndex(elem => elem[1] === event.keyCode || elem[2] === event.key);
 			if(i > -1) {
@@ -118,18 +132,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			}
 		}
 		//keybinding
-		else if(CS.keyBinding === true && !down) {bindKey(event);}
+		else if(!down && CS.keyBinding === true) {bindKey(event);}
 	};
 
 	//process onkeyup event if key is currently binded
 	function bindKey(event) {
-		//cancel
-		if(event.keyCode === 27 || event.key === 'Escape') {
-			CS.popup = false;
-			CS.keyBinding = false;
-			return;
-		}
-
 		//index of keybind that contains the selected key (for conflicts)
 		let i = CS.keyBinds.findIndex(item => item[1] === event.keyCode || item[2] === event.key)
 		//index of keybind that contains the selected function
@@ -174,12 +181,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.getKey = action => (CS.keyBinds.find(item => item[0] === action) || [])[2];
 
 	//view key currently binded to action next to the form
-	$scope.viewKey = action => ($scope.getKey(action) || 'nenastaveno').trim() || 'Mezera';
+	const largeKey = str => str.length === 1 ? str.toUpperCase() : str;
+	$scope.viewKey = action => largeKey($scope.getKey(action) || 'nenastaveno').trim() || 'Mezera';
 
 	//functions that are called by keyListeners to operate the simulation.
 	//'e' = 'down' passed from $scope.keyPress()
 	const keyBindFunctions = {
-		esc: e => !e && $scope.escapeGame(true) ,
 		map: e => $scope.toggleMap(e),
 		neutral: e => !e && M.shift('N'),
 		'1':     e => !e && M.shift('1'),
@@ -223,7 +230,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//Angular ng-style definitions. The numeric values are just placeholders, they are overwritten by resize()
 	$scope.style = {
-		popup: {top: '300px', left: '400px', width: '300px'},
+		popup: {top: '300px', left: '400px', width: '300px', display: 'block'},
 		stats: {top: '401px'},
 		advanced: {top: '542px'},
 		controls: {top: '643px'}
@@ -239,9 +246,10 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	function resize() {
 		let [width, height]  = getScreenSize();
 
-		$scope.style.popup.width = CS.popup.width + 'px';
+		let pw = CS.popup.width || 300;
+		$scope.style.popup.width = pw + 'px';
 		$scope.style.popup.top = (height/3) + 'px';
-		$scope.style.popup.left = (width - CS.popup.width)/2 + 'px';
+		$scope.style.popup.left = (width - pw)/2 + 'px';
 
 		let hAdv = 101 * (CS.enableDetails && S && !S.tutorial); //height of advanced stats
 		//height of canvas: (available height) - stats - ?advanced? - controls - margin
@@ -275,8 +283,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			let button2 = {label: 'Příště nezobrazovat', callback: function() {CS.popup = false; CS.noResizePopup = true;}};
 			popup(txt, false, 5000, 400, button2);
 		}
-		//if big enough and the current popup is this warning, remove the warning
-		else if(CS.popup && CS.popup.lines[0] === txt[0] && CS.popup.lines[1] === txt[1]) {
+		//if big enough and the current popup is this warning (LOL!), remove the warning
+		else if(CS.popup && CS.popup.type === 'alert' && CS.popup.lines[0] === txt[0] && CS.popup.lines[1] === txt[1]) {
 			CS.popup = false;
 		}
 	};
@@ -371,32 +379,42 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
-		CS.keyBinding = false;
-		if(S) {if(!confirm('Běžící hra bude ztracena, přesto pokračovat?')) {return;}}
-		popup('Načítání', true);
-
-		//create new level, level data will be filled later via a promise
-		S = new State(CS.levelSelect, CS.carSelect);
-
-		//fulfill promise
-		function resolve() {
-			CS.popup = false;
-			$scope.tab('game');
-			$scope.S = S;
-
-			S.running = true;
-			CS.invertedPedals && $scope.invertPedals();
-			M.initCalculations();
-			soundService.init();
-			leafletMapInit();
-		}
-		function reject(err) {
-			$scope.S = S = null;
-			popup(['CHYBA', 'Level se nepodařilo načíst', err]);
+		CS.keyBinding = false; CS.popup = false;
+		//at first, just open the newgame form
+		if(CS.tab === 'menu') {
+			$scope.tab('newgame');
+			return;
 		}
 
-		//create promise
-		LVL.levelGeneration(S.level.i).then(resolve, reject);
+		//ask to init or init right away
+		if(S) {confirm2('Běžící hra bude ztracena, přesto pokračovat?', ok => ok && initGame2());}
+		else{initGame2();}
+
+		//actually init the game, this time for real
+		function initGame2() {
+			//create new level, level data will be filled later via a promise
+			S = new State(CS.levelSelect, CS.carSelect);
+
+			//fulfill promise
+			function resolve() {
+				CS.popup = false;
+				$scope.tab('game');
+				$scope.S = S;
+
+				S.running = true;
+				CS.invertedPedals && $scope.invertPedals();
+				M.initCalculations();
+				soundService.init();
+				leafletMapInit();
+			}
+			function reject(err) {
+				$scope.S = S = null;
+				popup(['CHYBA', 'Level se nepodařilo načíst', err]);
+			}
+
+			//create promise
+			LVL.levelGeneration(S.level.i).then(resolve, reject);
+		}
 	};
 
 	//continue a running simulation
@@ -461,7 +479,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		updateLeafletMap();
 
 		//set interval for vibration
-		$interval(R.vibration, 1000/config.vibration);
+		$interval(M.vibration, 1000/config.vibration);
 
 		//save every second
 		$interval(saveService.save, 1000);

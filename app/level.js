@@ -46,6 +46,25 @@ const LVL = {
 		resolve();
 	},
 
+/*
+	//levelGeneration() - constant slope
+	slope: function(levelObject, resolve, reject) {
+		prompt2([{label: 'Stoupání ve stupních:', value: '0'}], function(fields) {
+			S.level.angle = Number(fields[0]) || 0;
+			straight2(levelObject, resolve, reject);
+		});
+
+		function straight2(levelObject, resolve, reject) {
+			S.pRConst = 1; //prevent pressure change
+			const int = levelObject.generation.int;
+			const inc = int * Math.tan(S.level.angle * Math.PI / 180);
+			const count = 1 + levelObject.generation.length / int;
+			S.level.map = new Array(count).fill(0).map((o,i) => i*inc);
+			resolve();
+		}
+	},
+*/
+
 	//levelGeneration() - several layers of random noise
 	noise: function(levelObject, resolve, reject) {
 		//see data.js > levels > 'Česká krajina'
@@ -86,6 +105,7 @@ const LVL = {
 
 	//levelGeneration() - altitude map fetched from a route connecting two addresses
 	//made by @zbycz, powered by OpenStreetMap
+	//note: realMap won't be executed until the results of realMapInit are obtained
 	realMap: async ({ generation: { int } }, resolve, reject) => {
 		const fetchApi = async (uri) => {
 			const res = await fetch(`https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`);
@@ -109,8 +129,8 @@ const LVL = {
 			return R * c; //distance in [m]
 		};
 		try {
-			const startStr = prompt("Zadejte startovní adresu:", "Letiště Václava Havla");
-			const endStr = prompt("Zadejte cílovou adresu:", "Staroměstské náměstí");
+			const startStr = S.level.startStr;
+			const endStr = S.level.endStr;
 
 			const start = await fetchApi(`/geocode/search?text=${startStr}`);
 			const end = await fetchApi(`/geocode/search?text=${endStr}`);
@@ -151,6 +171,22 @@ const LVL = {
 			console.error(e);
 			reject(e);
 		}
+	},
+
+	//open prompt and wait for input, which will be saved in S.level.startStr & endStr
+	realMapInit: function(levelObject, resolve, reject) {
+		const field1 = {label: 'Zadejte startovní adresu:', value: 'Letiště Václava Havla'};
+		const field2 = {label: 'Zadejte cílovou adresu:',   value: 'Staroměstské náměstí'};
+		prompt2([field1,field2], function(fields) {
+			fields = fields.map(f => f.trim());
+			if(fields[0].length === 0 || fields[1].length === 0) {
+				popup('Je nutné vyplnit obě pole.');
+				return;
+			}
+			popup('Načítání', true);
+			[S.level.startStr, S.level.endStr] = fields;
+			LVL.realMap(levelObject, resolve, reject);
+		});
 	},
 
 	//add new batch of images, delete old

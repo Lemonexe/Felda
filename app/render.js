@@ -200,7 +200,7 @@ let R = {
 		return [
 			this.xc + (i * S.level.int - S.d) * CS.ppm,
 			this.yc - (S.level.map[i] - S.altitude) * CS.ppm
-		];	
+		];
 	},
 
 	//draw all CS.flashes
@@ -260,6 +260,13 @@ let R = {
 		ctx.strokeStyle = 'red';
 		ctx.lineWidth = 3;
 		ctx.stroke();
+
+		//fuel challenge - gas pump icon
+		if(S.level.id === 'fuel' && S.nextPumpAt > 0) {
+			ctx.textAlign = 'center'; ctx.fillStyle = 'black';
+			ctx.font = `normal 20px Arial`;
+			ctx.fillText('⛽', getX(S.nextPumpAt), getY(LVL.getAltitude(S.nextPumpAt)));
+		}
 
 		//for minimap directive
 		let obj = CS.miniMapCursor;
@@ -322,43 +329,6 @@ let R = {
 		ctx.strokeStyle = 'black';
 		ctx.strokeRect(1, h-31, 300, 30);
 		ctx.lineWidth = 1;
-	},
-
-	//calculate vibration of canvas and store it in S, because FPS has variable frequency, while vibration is constant
-	vibration: function() {
-		if(!S || !S.running || !S.firstTick || !CS.enableVibration) {return;}
-
-		let car = cars[S.car];
-		let v = 0; //current vibration amplitude
-
-		//if condition is met, raise vibration amplitude
-		let raise = (cond, n) => cond && n > v && (v = n);
-
-		//calculate vibration sources
-		raise(
-			(S.f > car.engine.vibRPM),
-			(6 * (S.f - car.engine.vibRPM) / (car.engine.maxRPM - car.engine.vibRPM))
-		);
-		raise(
-			(S.df !== false && Math.abs(S.df) > 12 && S.Tclutch > 0.1*car.transmission.TclutchMax),
-			(S.df - 12) * (S.Tclutch / car.transmission.TclutchMax) / 2
-		);
-		raise(
-			(S.brakes && S.v > 0),
-			0.5 + S.v/20
-		);
-		raise(
-			(S.nitro && S.f > car.engine.idleRPM),
-			4 * S.gas
-		);
-		raise(
-			(S.level.id === 'speed' && S.hasOwnProperty('progressBar') && S.progressBar > 0.3),
-			8 * (S.progressBar - 0.3)
-		);
-
-		let rnd = (v) => 2*v*(Math.random() - 0.5);
-		S.vibrationOffset[0] = rnd(v);
-		S.vibrationOffset[1] = rnd(v);
 	},
 
 	/*draw plot using instructions in obj (for an example obj, see controller.js => $scope.preparePerformancePlot)

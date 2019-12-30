@@ -33,6 +33,7 @@ function State(i, c) {return {
 	ascension: 0, //total ascended altitude (descent does not count) [m]
 	angle: 0, //elevation angle [rad]
 	pR: 1, //relative pressure (to standard pressure)
+	pRConst: false, //if set, pR will not be calculated, but held constant
 
 	gear: 'N',
 	brakes: false, //whether brakes are currently applied
@@ -93,8 +94,18 @@ function ControllerState() {return {
 	isLoadedGame: false, //has a game been loaded from local storage?
 	showIntro: true, //show or hide intro paragraph in menu
 	showMap: false, //draw in-game minimap of terrain
-	popup: false, //popup = false || object: {lines: [strings], okButton: true, width: 300 [px], timeout: 1000 [ms], button2: {label: '', callback: function}}
 	flashes: [], //flash texts (array of arrays=[timeout, text])
+
+	/*display popup, which can be false (inactive), or object, distinguished by 'type' property:
+		type: 'alert'     highly customizable alert generated, see popup() misc.js
+			{lines: [strings], okButton: true, width: 300 [px], timeout: 1000 [ms], button2: {label: '', callback: function}}
+		type: 'confirm'   confirmation dialog with buttons that trigger callback(true / false), see confirm2() misc.js
+			text: 'description', callback: function(ok)
+		type: 'prompt'    form with several text fields as {label: '', value: 'ng-model'}, see prompt2() misc.js
+			fields: [], callback: function(array of field values)
+		type: 'credits'   just to display credits section
+	note: confirm will automatically close itself on any button, while prompt won't (has to be closed within callback)*/
+	popup: false,
 	
 	//current state of tooltip
 	tooltip: {
@@ -139,7 +150,6 @@ function ControllerState() {return {
 
 	//current keyBinds, some can be changed. ['action', 'keyCode', 'key']
 	keyBinds: [
-		['esc', 27, 'Escape'],
 		['brake', 32, ' '],
 		['map', 9, 'Tab'],
 		['cu', 81, 'q'],

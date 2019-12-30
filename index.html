@@ -32,16 +32,48 @@
 	</head>
 
 	<body ng-keydown="keyPress($event, true)" ng-keyup="keyPress($event, false)">
+<!--TOOLTIP-->
 <div id="tooltip" ng-show="CS.tooltip.visible" ng-style="CS.tooltip.style">
 	<span ng-repeat="l in CS.tooltip.message track by $index">{{l}}<br></span>
 </div>
 
-<div id="popup" ng-style="style.popup" ng-class="{vanish: CS.popup.timeout < 400}" ng-show="CS.popup">
-	<p ng-if="CS.popup" ng-repeat="l in CS.popup.lines track by $index">{{l}}</p>
-	<p style="text-align: center" ng-if="CS.popup && (CS.popup.okButton || CS.popup.button2)">
-		<input type="button" ng-if="CS.popup.okButton" ng-click="CS.popup = false" value="OK" tooltip="Esc">
-		<input type="button" ng-if="CS.popup.button2" ng-click="CS.popup.button2.callback()" ng-value="CS.popup.button2.label">
-	</p>
+<!--POPUP-->
+<div id="popup" ng-show="CS.popup" ng-style="style.popup" ng-class="{vanish: CS.popup.timeout && CS.popup.timeout < 400}" ng-switch="CS.popup.type">
+<!--standard alert-->
+	<div ng-switch-when="alert">
+		<p ng-repeat="l in CS.popup.lines track by $index">{{l}}</p>
+		<p ng-if="CS.popup.okButton || CS.popup.button2">
+			<input type="button" ng-if="CS.popup.okButton" ng-click="CS.popup = false" value="OK" tooltip="Esc">
+			<input type="button" ng-if="CS.popup.button2" ng-click="CS.popup.button2.callback()" ng-value="CS.popup.button2.label">
+		</p>
+	</div>
+<!--credits-->
+	<div ng-switch-when="credits">
+		<p><b>Credits</b></p>
+		<p>Felda Simulátor využívá framework <a href="https://angularjs.org/" target="_blank">AngularJS</a>.</p>
+		<p>Děkuji <a href="http://zby.cz/" target="_blank">Pavlu Zbytovskému</a> za naprogramování Reálné mapy,<br>
+			ta využívá <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> a <a href="https://leafletjs.com/" target="_blank">Leaflet</a>.</p>
+		<p><b>Disclaimer</b></p>
+		<p>
+			Jiří Zbytovský je autorem pouze samotného programu, zatímco názvy vozidel, jejich vzhled i použité obrázky mohou být intelektuálním vlastnictvím jiných subjektů.<br>
+			Tato aplikace není provozována pro zisk, má pouze zábavní a vzdělávací účel, kdyby si však vlastníci práv přáli odstranění určitých prvků, nechť kontaktují
+			<a href="mailto: zbytek@gmail.com" target="_blank">autora</a>.
+		</p>
+		<p><input type="button" ng-click="CS.popup = false" value="Zavřít" tooltip="Esc"></p>
+	</div>
+<!--confirm-->
+	<div ng-switch-when="confirm">
+		<p>{{CS.popup.text}}</p>
+		<p>
+			<input type="button" ng-click="sendConfirm(true)" value="OK" tooltip="Enter">
+			<input type="button" ng-click="sendConfirm(false)" value="Zrušit" tooltip="Esc">
+		</p>
+	</div>
+<!--prompt with several fields-->
+	<div ng-switch-when="prompt">
+		<p ng-repeat="f in CS.popup.fields">{{f.label}} <input type="text" ng-model="f.value"><br></p>
+		<p><input type="button" ng-click="sendPrompt()" value="OK" tooltip="Enter"></p>
+	</div>
 </div>
 
 <div ng-switch="CS.tab">
@@ -66,9 +98,10 @@
 				V této hře můžete ovládat nejen toto známé lidové vozítko, ale nově i mnoho dalších.</p>
 			<p>Simulace je založená <i>převážně</i> na reálných datech a zahrnuje fyzikální model motoru, převodovky a spojky.<br>
 				Ty můžete ovládat a sledovat tak jízdní vlastnosti včetně spotřeby paliva, a nebo se prostě jen kochat pohledem na ubíhající krajinu!</p>
-			<p>Nově také byly přidány speciální levely, které vám poskytnou náročné výzvy!</p>
+			<p>Nově také byly přidány speciální levely, které vám poskytnou náročné výzvy,<br>
+				a též <i>Reálná mapa</i>, kde bude načten výškový profil ze zadané trasy na mapě.</p>
 			<p>Je doporučeno hrát na počítači s klávesnicí, avšak lze se bez ní obejít <i>(viz Ovládání)</i></p>
-			<p>Po výběru levelu a automobilu spusťte hru tlačítkem Nová hra (výše)</p>
+			<p><b>Hru spustťe tlačítkem Nová hra (výše)</b></p>
 		</div>
 
 		<h2>Ovládání <span ng-click="CS.showIntro = !CS.showIntro" class="fakeLink" style="font-size: 16px">{{CS.showIntro ? 'skrýt' : 'odkrýt'}}</span></h2>
@@ -92,6 +125,17 @@
 				<b>Pozn. 1:</b> simulátor obsahuje i zvukové efekty. Pokud by během hry zvuk nefungoval, <a class="fakeLink" ng-click="soundTroubleshoot()">viz zde</a><br>
 				<b>Pozn. 2:</b> doporučuji stisknout F11, abyste si hru mohli užít na celé obrazovce
 			</p>
+		</div>
+	</div>
+
+<!-- NEW GAME -->
+	<div ng-switch-when="newgame">
+		<h1>Nová hra</h1>
+
+		<div class="buttonContainer">
+			<input type="button" class="mediumButton" ng-if="S" ng-click="continue()" value="Pokračovat">
+			<input type="button" ng-click="initGame()" onclick="this.blur();" value="Nová hra" class="mediumButton" tooltip="Enter">
+			<input type="button" class="mediumButton" ng-click="tab('menu')" value="Zpět" tooltip="Esc">
 		</div>
 
 		<h2>Výběr levelu</h2>
@@ -118,7 +162,7 @@
 <!-- OPTIONS -->
 	<div ng-switch-when="options">
 		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
-		<div ng-include="'app/ng/options.html?version=2'"></div>
+		<div ng-include="'app/ng/options.html?version=3'"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->
@@ -201,7 +245,7 @@
 	<div ng-switch-when="history">
 		<h1>Historie verzí</h1>
 		<div class="buttonContainer">
-			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc"><br>	
+			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc"><br>
 		</div>
 		<p>
 			Na této stránce jsou shrnuty jen ty nejvýznamnější verze hry.<br>
@@ -238,9 +282,8 @@
 
 <!-- FOOTER -->
 <div class="footerDefense"></div>
-<div id="footer" ng-show="CS.tab === 'menu'">
-	Vytvořil <a href="http://jira.zby.cz/">Jiří Zbytovský</a> v letech 2017-2019 za použití <a href="https://angularjs.org/" target="_blank">AngularJS</a>
-	a různých zdrojů (<a class="fakeLink" ng-click="disclaimer()">více informací</a>)
+<div id="footer" ng-show="['menu', 'history', 'newgame'].indexOf(CS.tab) > -1">
+	Vytvořil <a href="http://jira.zby.cz/" target='_blank'>Jiří Zbytovský</a> v letech 2017-2019 za použití <a class="fakeLink" ng-click="credits()">různých zdrojů</a>
 </div>
 
 	</body>

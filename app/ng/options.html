@@ -7,7 +7,7 @@
 
 <p ng-if="CS.isLoadedGame">
 	Byla automaticky načtena data z minula.
-	<a class="fakeLink" onclick="confirm('Opravdu smazat data?') && saveService.clear()">Smazat a obnovit</a>
+	<a class="fakeLink" ng-click="hardReset()">Smazat a obnovit</a>
 </p>
 
 <div class="tabSwitchContainer" style="width: 500px; padding-left: 100px">

@@ -53,6 +53,8 @@ const saveService = {
 		CS = data.CS;
 		if(S) {S.running = false;}
 		CS.tab = 'menu';
+		CS.keyBinding = false;
+		CS.popup = false;
 		CS.isLoadedGame = true;
 	},
 	clear: function() {
@@ -62,17 +64,36 @@ const saveService = {
 	}
 };
 
-
-//create popup by feeding m = string or arrays of strings (multiline popup).
+//  SHORTCUT FUNCTIONS FOR POPUP GENERATION - see CS.popup in userdata.js for more details on data structure
+//ALERT-like with m = either string, or arrays of strings for multiline popup
 //other arguments are optional: suppress OK button, set timeout to vanish [ms], width [px], button2: {label: '', callback: function}
 function popup(m, noButton, timeout, width, button2) {
 	CS.popup = {
+		type: 'alert',
 		lines: (typeof m === 'string') ? [m] : m,
 		okButton: !noButton,
 		width: width || 300
 	};
 	if(timeout) {CS.popup.timeout = timeout;}
 	if(button2) {CS.popup.button2 = button2;}
+}
+//CONFIRM-like popup with text description, callback = function(ok) and optional width [px]
+function confirm2(text, callback, width) {
+	CS.popup = {
+		type: 'confirm',
+		text: text,
+		callback: callback,
+		width: width || 300
+	};
+}
+//PROMPT-like popup with array of field objects, callback = function(array of field values) and optional width [px]
+function prompt2(fields, callback, width) {
+	CS.popup = {
+		type: 'prompt',
+		fields: fields,
+		callback: callback,
+		width: width || 300
+	};
 }
 
 //create flash text with m string (should be just 1 || 2 chars!)

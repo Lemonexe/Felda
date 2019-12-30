@@ -13,7 +13,7 @@ const M = {
 		M.processPedals();
 		M.PID();
 		M.automat();
-		S.pR = M.getPressure(S.altitude);
+		S.pR = S.pRConst || M.getPressure(S.altitude);
 		M.engine();
 		M.forceExchange();
 
@@ -192,7 +192,7 @@ const M = {
 		let oldf = S.f;
 		let car = cars[S.car];
 
-		//get forces on car		
+		//get forces on car
 		let Fc = M.carForces();
 		S.Fc = Fc;
 
@@ -431,5 +431,42 @@ const M = {
 		}
 
 		soundService.cull(); //remove expired instances
+	},
+
+	//calculate vibration of canvas and store it in S for the time being, because FPS has variable frequency, while vibration is constant
+	vibration: function() {
+		if(!S || !S.running || !S.firstTick || !CS.enableVibration) {return;}
+		const car = cars[S.car];
+
+		//calculate vibration sources: [condition, amplitude]
+		const sources = [
+			[
+				S.f > car.engine.vibRPM,
+				6 * (S.f - car.engine.vibRPM) / (car.engine.maxRPM - car.engine.vibRPM)
+			],
+			[
+				S.df !== false && Math.abs(S.df) > 12 && S.Tclutch > 0.1*car.transmission.TclutchMax,
+				(S.df - 12) * (S.Tclutch / car.transmission.TclutchMax) / 2
+			],
+			[
+				S.brakes && S.v > 0,
+				0.5 + S.v/20
+			],
+			[
+				S.nitro && S.f > car.engine.idleRPM,
+				4 * S.gas
+			],
+			[
+				S.level.id === 'speed' && S.hasOwnProperty('progressBar') && S.progressBar > 0.3,
+				6 * (S.progressBar - 0.3)
+			]
+		];
+
+		//current vibration amplitude as Pythagorean sum of all sources with passing condition
+		const v = Math.sqrt( sources.filter(src => src[0]).reduce((sum, src) => sum + src[1]**2, 0) );
+
+		const rnd = v => 2*v*(Math.random() - 0.5);
+		S.vibrationOffset[0] = rnd(v);
+		S.vibrationOffset[1] = rnd(v);
 	}
 };

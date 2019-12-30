@@ -97,6 +97,7 @@ img {
 	font-size: 18px;
 	padding: 10px;
 	padding-bottom: 0px;
+	display: none;
 }
 .vanish {animation: vanish 0.4s linear forwards;}
 @keyframes vanish {

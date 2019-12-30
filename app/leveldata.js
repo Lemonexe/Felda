@@ -136,7 +136,7 @@ const levels = [
 		name: 'Reálná mapa',
 		description: 'Zadáte dvě adresy a o zbytek se postará OpenStreetMap.',
 		listeners: {
-			onstart: () => popup(`Byla naplánovnána trasa o celkové délce ${(S.level.length/1e3).toFixed(1)} km`, true, 2000),
+			onstart: () => popup(['Byla naplánovnána trasa', `z: ${S.level.startStr}`, `do: ${S.level.endStr}`, `o celkové délce ${(S.level.length/1e3).toFixed(1)} km`]),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
 				left: 2/3, opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
@@ -144,7 +144,7 @@ const levels = [
 			})
 		},
 		generation: {
-			f: 'realMap',
+			f: 'realMapInit',
 			int: 50,
 			length: 1e5, //mock value only - S.level.length will be later overwritten by the actual route distance
 			minimapScale: 5,
@@ -273,15 +273,16 @@ const levels = [
 			popup(['Žlutý ukazatel vlevo dole je vaše nádrž paliva',
 				'Vzdálenost do příští benzínky je napsána vlevo',
 				'U pumpy musíte ZASTAVIT, abyste dostali palivo!',
-				'A hoďte sebou, jinak vám pumpa zavře!',
+				'A trochu sebou hoďte, jinak vám pumpa zavře - po ujetí 100 m se začne odpočítávat čas!',
 				'Jen ti nejzelenější hráči vydrží celých 20 km...'],
-				false, false, 600);
+				false, false, 570);
 		},
 		continuous: function() {
+			const dCountdown = 100; //"free" distance before countdown begins [m]
 			const dTol = 15; //distance tolerance to stop near a pump [m]
 
 			//create next gas pump
-			function newPump() {
+			function newPump(gas) { //'gas' = whether the current pump was successfully harvested or missed
 				const dPump = 2000; //average distance between pumps [m]
 				const dSpread = 500; //spread of dPump [m]
 				const vMin = 50/3.6; //minimal average velocity to reach next pump [m/s]
@@ -292,7 +293,10 @@ const levels = [
 
 				//update current image, or create new one
 				let img = S.level.images.find(img => img[0] === 'pump');
-				img ? (img[1] = S.nextPumpAt) : S.level.images.push(['pump', S.nextPumpAt]);
+				(img && !gas) ? (img[1] = S.nextPumpAt) : S.level.images.push(['pump', S.nextPumpAt]);
+
+				//bounty
+				gas && getGas();
 			}
 
 			//harvest gasoline (after next pump has been created)
@@ -318,18 +322,18 @@ const levels = [
 				soundService.play('beep');
 				S.fuelTank = 0;
 			}
-			S.countdown -= config.dt;
+			S.countdown -= config.dt * (S.d >= dCountdown);
 			const fuelSTD = 375; //full tank meter [g]
 			S.progressBar = S.fuelTank / fuelSTD;
 			S.progressBarColor = '#eecc22';
 
 			//events
-			(S.countdown <= 0) && newPump(); //missed countdown
-			(Math.abs(S.nextPumpAt-S.d) <= dTol && S.v < 0.1) && (newPump() || getGas()); //successfully stopped near a pump
-			(S.d - S.nextPumpAt > dTol) && newPump(); //missed it
+			(S.countdown <= 0) && newPump(false); //missed countdown
+			(Math.abs(S.nextPumpAt-S.d) <= dTol && S.v < 0.1) && newPump(true); //successfully stopped near a pump
+			(S.d - S.nextPumpAt > dTol) && newPump(false); //missed it
 
 			//display
-			let color = S.countdown < 30 ? '#ff0000' : 'black';
+			let color = (S.d < dCountdown && 'grey') || (S.countdown < 30 && 'red') || 'black';
 			S.onscreenMessage = S.countdown > 30 || S.countdown % 1 < 0.8 ? { //blink if time is running out
 				left: 0.01, top: 0.5, textAlign: 'left', textBaseline: 'middle', fillStyle: color, fontSize: 40, fontFamily: 'Tahoma',
 				msg: [time2str(S.countdown) + '⏱', (S.nextPumpAt - S.d).toFixed() + ' m']
@@ -465,6 +469,7 @@ const levels = [
 		S.stalls = 0; //counter of stalls
 		S.gear = '2';
 		S.v = 10;
+		S.f = 45;
 		S.a = 0;
 		S.level.mapOLD = angular.copy(S.level.map);
 		S.level.map = S.level.map.map((h, i) => 1000-0.1*i*levels[S.level.i].generation.int); //hardcode a downhill slope
