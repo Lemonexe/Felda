@@ -1,6 +1,5 @@
 <<<RESOURCES & CONTENT>>>
 favicon?
-realmap allow lookaround
 
 <<<META>>>
 English language yes okay well?

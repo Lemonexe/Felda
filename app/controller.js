@@ -360,12 +360,20 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 		//(newgame || continue) && leaflet not initialized: create everything
 		if(!leaflet.map) {
+			//prepare map layers
 			const opts = {maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>'};
 			const map1 = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', opts);
 			const map2 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts);
+
+			//init map, marker and route
 			leaflet.map = L.map('leafletMap', {layers: [map1]});
 			L.control.layers({'Standardní': map1, 'Podrobná': map2}).addTo(leaflet.map);
 			createAccesories();
+
+			//timestamp of last map dragging (in order to freeze map updating)
+			leaflet.timestamp = 0;
+			leaflet.map.on('dragstart', e => (leaflet.timestamp = Infinity));
+			leaflet.map.on('dragend',   e => (leaflet.timestamp = Date.now()));
 		}
 		//newgame && leaflet initialized: only recreate marker and route
 		else if(isNewGame) {
@@ -378,7 +386,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 
 	//update map marker and map view
 	function updateLeafletMap() {
-		if(S && S.level.id === 'realworld' && S.level.distMap && leaflet.map && leaflet.marker && CS.tab === 'game') {
+		//longest if in the entire project!
+		if(
+			S && S.level.id === 'realworld' && CS.tab === 'game' &&
+			S.level.distMap && leaflet.map && leaflet.marker &&
+			Date.now() - leaflet.timestamp > config.leafletFreeze
+		) {
 			const distMap = S.level.distMap;
 			let j = 0;
 			while (distMap[j][0] <= S.d) j++; // find closest bigger data point

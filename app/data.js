@@ -16,6 +16,7 @@ const config = {
 	ppm_max: 200,
 	minResolution: [1150, 700], //minimal recommended resolution
 	dWarning: 1e5, //if realmap is longer, issue a warning [m]
+	leafletFreeze: 2000, //leaflet map is frozen for this long when user fiddles with it [ms]
 
 	//MODEL
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
