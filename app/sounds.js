@@ -50,7 +50,6 @@ const soundService = {
 		gainNode.connect(ctx.destination);
 
 		//set volume and playbackRate
-		if(!CS.volume) {CS.volume = 50;} //savegame compatibility
 		gainNode.gain.value = CS.volume/100 * volume;
 		source.playbackRate.value = playbackRate;
 

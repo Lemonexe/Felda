@@ -81,7 +81,7 @@ const levels = [
 			images: [
 				//{link to 'imgs', density of images per meter [m-1], OPTIONAL h: [min altitude, max altitude]}
 				{img: 'oak',         density: 1/100},
-				{img: 'radar',       density: 1/200},
+				{img: 'radar',       density: 1/400},
 				{img: 'prejezd',     density: 1/600},
 				{img: 'zn_50',       density: 1/200},
 				{img: 'zn_prace',    density: 1/400},
@@ -136,7 +136,7 @@ const levels = [
 		name: 'Reálná mapa',
 		description: 'Zadáte dvě adresy a o zbytek se postará OpenStreetMap.',
 		listeners: {
-			onstart: () => popup(['Byla naplánovnána trasa', `z: ${S.level.startStr}`, `do: ${S.level.endStr}`, `o celkové délce ${(S.level.length/1e3).toFixed(1)} km`]),
+			onstart: () => popup(['Byla naplánovnána trasa', `z: ${CS.realMapFields[0]}`, `do: ${CS.realMapFields[1]}`, `o celkové délce ${(S.level.length/1e3).toFixed(1)} km`]),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
 				left: 2/3, opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
@@ -151,7 +151,7 @@ const levels = [
 			images: [
 				//h = [min altitude, max altitude] to draw image
 				{img: 'oak',         density: 1/100, h: [0, 700]},
-				{img: 'radar',       density: 1/200, h: [0, 1000]},
+				{img: 'radar',       density: 1/600, h: [0, 1000]},
 				{img: 'prejezd',     density: 1/600, h: [0, 700]},
 				{img: 'pump',        density: 1/1000,h: [0, 1000]},
 				{img: 'cow',         density: 1/200, h: [500, 1e4]},
@@ -498,7 +498,7 @@ const levels = [
 				'Pozn.: v nastavení lze význam pedálů obrátit'],
 				false, false, 500);
 		}
-		else if(S.f >= 7800/60 && S.script === 1) {
+		else if(S.f >= 7500/60 && S.script === 1) {
 			S.script++;
 
 			popup(['Beze změny převodu to nepůjde.',

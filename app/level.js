@@ -129,18 +129,20 @@ const LVL = {
 			return R * c; //distance in [m]
 		};
 		try {
-			const startStr = S.level.startStr;
-			const endStr = S.level.endStr;
+			const startStr = CS.realMapFields[0];
+			const endStr = CS.realMapFields[1];
 
 			const start = await fetchApi(`/geocode/search?text=${startStr}`);
 			const end = await fetchApi(`/geocode/search?text=${endStr}`);
+			if(start.features.length === 0) {reject('Nenalezeno ' + startStr); return;}
+			if(end  .features.length === 0) {reject('Nenalezeno ' + endStr)  ; return;}
 			const startCoord = start.features[0].geometry.coordinates;
 			const endCoord = end.features[0].geometry.coordinates;
 
-			const data = await fetchApi(`/directions?profile=driving-car&format=geojson&instructions=false&elevation=true&coordinates=${startCoord}|${endCoord}`);
+			const data = await fetchApi(`/directions?profile=driving-car&format=geojson&instructions=false&elevation=true&coordinates=${startCoord}%7C${endCoord}`);
+			S.level.rawData = data;
 			const coords = data.features[0].geometry.coordinates;
 			const startPoint = coords[0];
-			//L.geoJSON(data).addTo(leafletMap); // TODO
 
 			//transform to [dist, [lon,lat,alt] ]
 			const distMap = [[0, startPoint]];
@@ -149,7 +151,7 @@ const LVL = {
 				dist += getDistance(coords[i - 1], coords[i]); //distance between points [m]
 				distMap.push([dist, coords[i]]);
 			}
-			S.distMap = distMap;
+			S.level.distMap = distMap;
 
 			//transform to fixed intervals
 			const totalLength = distMap[distMap.length - 1][0];
@@ -165,7 +167,12 @@ const LVL = {
 
 			S.level.length = numOfIntervals * int;
 			S.level.map = map;
-			resolve();
+			
+			if(S.level.length > config.dWarning) {
+				confirm2(`Načtená mapa je dlouhá ${(S.level.length/1000).toFixed()} km, což je opravdu hodně a mohlo by to způsobit potíže. Skutečně začít hru?`,
+					ok => ok ? resolve() : reject('Zamítnuto uživatelem'), 400);
+			}
+			else {resolve();}
 		}
 		catch (e){
 			console.error(e);
@@ -173,10 +180,11 @@ const LVL = {
 		}
 	},
 
-	//open prompt and wait for input, which will be saved in S.level.startStr & endStr
+	//open prompt and wait for input, which will be saved in CS.realMapFields
 	realMapInit: function(levelObject, resolve, reject) {
-		const field1 = {label: 'Zadejte startovní adresu:', value: 'Letiště Václava Havla'};
-		const field2 = {label: 'Zadejte cílovou adresu:',   value: 'Staroměstské náměstí'};
+		let fields = CS.realMapFields || [];
+		const field1 = {label: 'Zadejte startovní adresu:', value: fields[0] || 'Letiště Václava Havla'};
+		const field2 = {label: 'Zadejte cílovou adresu:',   value: fields[1] || 'Malostranské náměstí'};
 		prompt2([field1,field2], function(fields) {
 			fields = fields.map(f => f.trim());
 			if(fields[0].length === 0 || fields[1].length === 0) {
@@ -184,7 +192,7 @@ const LVL = {
 				return;
 			}
 			popup('Načítání', true);
-			[S.level.startStr, S.level.endStr] = fields;
+			CS.realMapFields = fields;
 			LVL.realMap(levelObject, resolve, reject);
 		});
 	},

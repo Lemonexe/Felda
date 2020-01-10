@@ -7,9 +7,8 @@
 
 let app = angular.module('Felda', []);
 
-let leafletMap, leafletMarker;
-
 app.controller('ctrl', function($scope, $interval, $timeout) {
+/*INFORMATION*/
 	//version history
 	$scope.vHistory = [
 		{name: 'v1.3',  date: '30.12.2019', desc: 'přidána Reálná mapa (vytvořil Pavel Zbytovský)'},
@@ -39,6 +38,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.easterEgg = () => popup('Pro odemknutí tohoto skvostu vyhrajte Need 4 Natural 95, Nebezpečnou rychlost a Drag (alespoň na "B")', false, false, 430);
 
 
+/*CORE FUNCTIONALITY*/
 	//link global variables to $scope
 	$scope.CS = CS; //S will be referenced when created
 	$scope.levels = levels;
@@ -80,6 +80,14 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.toggleMap = function(e) {
 		CS.showMap = e;
 		!e && (CS.tooltip.visible = CS.miniMapCursor.enabled = false);
+	};
+
+	//pass index of car to directive
+	$scope.enterShowroom = function(i) {
+		i = (typeof i === 'number') ? i : CS.showroomIndex;
+		CS.showroomIndex = i;
+		$scope.tab('carShowroom');
+		$scope.$broadcast('enterShowroom');
 	};
 
 	//when buttons are clicked on prompt & confirm
@@ -233,6 +241,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//headline in showroom contains these options
 	$scope.optsShowroom = cars.map((c,i) => ({i: i, txt: `${c.name} ${c.engineName} (${c.year})`}));
 
+
+/*STYLE AND APPERANCE*/
 	//Angular ng-style definitions. The numeric values are just placeholders, they are overwritten by resize()
 	$scope.style = {
 		popup: {top: '300px', left: '400px', width: '300px', display: 'block'},
@@ -315,7 +325,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		getTime: () => time2str(S.t)
 	};
 
-	//warnings as object, f is a logical function (whether warning is active), txt is it's content
+	//warnings as object, f is a logical function (whether warning is active), txt is its content
 	$scope.warnings = [
 		{f: () => (S.starter > 0), txt: 'startování'},
 		{f: () => (S.f > 0 && S.f < cars[S.car].engine.minRPM && S.starter <= 0), txt: 'motor chcípe'},
@@ -325,15 +335,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		{f: () => (S.nitro && S.f > cars[S.car].engine.idleRPM), txt: 'NITRO'}
 	];
 
-	//pass index of car to directive
-	$scope.enterShowroom = function(i) {
-		(!CS.hasOwnProperty('showroomIndex')) && (CS.showroomIndex = 0); //compatibility
-		i = (typeof i === 'number') ? i : CS.showroomIndex;
-		CS.showroomIndex = i;
-		$scope.tab('carShowroom');
-		$scope.$broadcast('enterShowroom');
-	};
-
 	//this function is used in directives 'tooltip' and 'minimap' to fix left position, X0 is the initially planned left
 	$scope.getTooltipX = function(X0) {
 		let [sw, sh]  = getScreenSize();
@@ -341,26 +342,50 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		return X0.limit(5, sw-ew-5);
 	};
 
-	//initialize realworld map leaflet
-	function leafletMapInit() {
-		if(S.level.id === 'realworld' && !leafletMap && !leafletMarker) {
-			leafletMap = L.map('leafletMap');
-			L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-				{maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>'}).addTo(leafletMap);
-			leafletMarker = L.marker([50, 14]).addTo(leafletMap);
+
+/*LEAFLET MAP*/
+	//container for leaflet objects
+	const leaflet = {};
+
+	//initialize or update realworld map leaflet, arg 'isNewGame' = newGame or continue
+	function leafletMapInit(isNewGame) {
+		if(S.level.id !== 'realworld') {return;}
+		if(S.distMap) {S.level.distMap = S.distMap;} //just a compatibility fix...
+
+		//create marker and route
+		function createAccesories() {
+			leaflet.marker = L.marker([50, 14]).addTo(leaflet.map);
+			leaflet.geoJSON = L.geoJSON(S.level.rawData).addTo(leaflet.map);
 		}
+
+		//(newgame || continue) && leaflet not initialized: create everything
+		if(!leaflet.map) {
+			const opts = {maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>'};
+			const map1 = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', opts);
+			const map2 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts);
+			leaflet.map = L.map('leafletMap', {layers: [map1]});
+			L.control.layers({'Standardní': map1, 'Podrobná': map2}).addTo(leaflet.map);
+			createAccesories();
+		}
+		//newgame && leaflet initialized: only recreate marker and route
+		else if(isNewGame) {
+			leaflet.marker && leaflet.marker.remove();
+			leaflet.geoJSON && leaflet.geoJSON.remove();
+			createAccesories();
+		}
+		//else: continue && leaflet initialized: don't do anything
 	}
 
 	//update map marker and map view
 	function updateLeafletMap() {
-		if(S && S.level.id === 'realworld' && S.distMap && leafletMap && leafletMarker && CS.tab === 'game') {
-			const distMap = S.distMap;
+		if(S && S.level.id === 'realworld' && S.level.distMap && leaflet.map && leaflet.marker && CS.tab === 'game') {
+			const distMap = S.level.distMap;
 			let j = 0;
 			while (distMap[j][0] <= S.d) j++; // find closest bigger data point
 			const lnglat = interpolateTwoCoords(S.d, distMap[j-1], distMap[j]);
 			const latlng = [lnglat[1], lnglat[0]];
-			leafletMap.setView(latlng, leafletMap.getZoom() || 16);
-			leafletMarker.setLatLng(latlng).update();
+			leaflet.map.setView(latlng, leaflet.map.getZoom() || 16);
+			leaflet.marker.setLatLng(latlng).update();
 		}
 		$timeout(() => updateLeafletMap(), config.dtLeafletMap);
 	}
@@ -381,15 +406,26 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//ng-style of map leaflet
 	$scope.leafletStyle = () => ({display: (S && S.level.id === 'realworld' && CS.tab === 'game') ? 'block' : 'none'});
 
-	/*CONTROL GAME*/
+	//try to process leaflet.js error report into a friendlier string
+	function generateLeafletError(err) {
+		const errMessages = {
+			2004: 'Příliš vzdálené cíle (musí být blíže než 6000 km)',
+			2009: 'Nenalezena trasa mezi zadanými cíli'
+		};
+		if(typeof err !== 'object' || !err.message) {return err;}
+		let obj = JSON.parse(err.message);
+		if(!obj.error || !obj.error.code || !errMessages[obj.error.code]) {return err;}
+		return errMessages[obj.error.code];
+	}
+
+
+/*CONTROL GAME*/
 	//create a new simulation
 	$scope.initGame = function() {
 		CS.keyBinding = false; CS.popup = false;
+
 		//at first, just open the newgame form
-		if(CS.tab === 'menu') {
-			$scope.tab('newgame');
-			return;
-		}
+		if(CS.tab === 'menu') {$scope.tab('newgame'); return;}
 
 		//ask to init or init right away
 		if(S) {confirm2('Běžící hra bude ztracena, přesto pokračovat?', ok => ok && initGame2());}
@@ -410,11 +446,12 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 				CS.invertedPedals && $scope.invertPedals();
 				M.initCalculations();
 				soundService.init();
-				leafletMapInit();
+				leafletMapInit(true);
 			}
 			function reject(err) {
 				$scope.S = S = null;
-				popup(['CHYBA', 'Level se nepodařilo načíst', err]);
+				err = generateLeafletError(err);
+				popup(['CHYBA', 'Level se nepodařilo načíst', err], false, false, 600);
 			}
 
 			//create promise
@@ -430,7 +467,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.tab('game');
 		S.running = true && !S.finished;
 		soundService.init();
-		leafletMapInit();
+		leafletMapInit(false);
 	};
 
 	//decrement countdowns and decide what to do

@@ -15,6 +15,7 @@ const config = {
 	ppm_min: 25, //min and max ppm (pixels per meter for graphical rendering [m-1])
 	ppm_max: 200,
 	minResolution: [1150, 700], //minimal recommended resolution
+	dWarning: 1e5, //if realmap is longer, issue a warning [m]
 
 	//MODEL
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]

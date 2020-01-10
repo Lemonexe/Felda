@@ -1,6 +1,6 @@
 <<<RESOURCES & CONTENT>>>
 favicon?
-realmap ukázat trasu
+realmap allow lookaround
 
 <<<META>>>
 English language yes okay well?
