@@ -184,7 +184,7 @@ const LVL = {
 	realMapInit: function(levelObject, resolve, reject) {
 		let fields = CS.realMapFields || [];
 		const field1 = {label: 'Zadejte startovní adresu:', value: fields[0] || 'Letiště Václava Havla'};
-		const field2 = {label: 'Zadejte cílovou adresu:',   value: fields[1] || 'Malostranské náměstí'};
+		const field2 = {label: 'Zadejte cílovou adresu:',   value: fields[1] || 'Malostranské náměstí, Praha'};
 		prompt2([field1,field2], function(fields) {
 			fields = fields.map(f => f.trim());
 			if(fields[0].length === 0 || fields[1].length === 0) {

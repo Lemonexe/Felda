@@ -291,9 +291,14 @@ const levels = [
 				S.nextPumpAt = S.d + d;
 				S.countdown = d/vMin;
 
-				//update current image, or create new one
-				let img = S.level.images.find(img => img[0] === 'pump');
-				(img && !gas) ? (img[1] = S.nextPumpAt) : S.level.images.push(['pump', S.nextPumpAt]);
+				//move current image (if missed), or create new one (if successfully harvested or the 1st time)
+				function updateOrPush(id, pos)  {
+					let img = S.level.images.find(img => img[0] === id);
+					(img && !gas) ? (img[1] = pos) : S.level.images.push([id, pos]);
+				}
+				updateOrPush('pump', S.nextPumpAt);
+				updateOrPush('zn_pump',  S.nextPumpAt-dTol);
+				updateOrPush('zn_pump2', S.nextPumpAt+dTol);
 
 				//bounty
 				gas && getGas();

@@ -106,6 +106,8 @@ const imgs = {
 	pump:    {img: 'res/env/pump.png', width: 1.4, height: 4},
 
 	zn_km:       {img: 'res/signs/zn_km.png',       width: 1, height: 1},
+	zn_pump:     {img: 'res/signs/zn_pump.png',     width: 1, height: 2},
+	zn_pump2:    {img: 'res/signs/zn_pump2.png',    width: 1, height: 2},
 	zn_50:       {img: 'res/signs/zn_50.png',       width: 1, height: 2},
 	zn_prace:    {img: 'res/signs/zn_prace.png',    width: 1, height: 2},
 	zn_diry:     {img: 'res/signs/zn_diry.png',     width: 1, height: 2},

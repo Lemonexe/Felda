@@ -119,7 +119,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.keyPress = function(event, down) {
 		const enter = event.keyCode === 13 || event.key === 'Enter';
 		const esc   = event.keyCode === 27 || event.key === 'Escape';
-		
+
 		//do popups FIRST - while active, they snatch away enter & esc
 		if(!down && CS.popup && (enter || esc)) {
 			if(CS.popup.type === 'confirm') {
@@ -361,13 +361,20 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		//(newgame || continue) && leaflet not initialized: create everything
 		if(!leaflet.map) {
 			//prepare map layers
-			const opts = {maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>'};
-			const map1 = L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', opts);
+			const opts = {maxZoom: 17, attribution: '<a href="https://osm.org/copyright">OSM.org</a>, <a href="https://opentopomap.org/">opentopo</a>, <a href="http://www.mtbmap.cz">mtbmap.cz</a>'};
+			const map1 = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', opts);
 			const map2 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', opts);
+			const map3 = L.tileLayer("http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png", opts);
+			/*
+			alternative options for map3: {maxZoom: 18, attribution: '', code: 'm', basic: true }
+			//painted map, looks interesting but not particularly useful
+			const map4 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg',
+			{maxZoom: 16, attribution: '&copy; CC-BY-SA <a href="https://openstreetmap.org/copyright">OSM</a>, imagery <a href="http://maps.stamen.com">Stamen Design</a>'});
+			*/
 
 			//init map, marker and route
 			leaflet.map = L.map('leafletMap', {layers: [map1]});
-			L.control.layers({'Standardní': map1, 'Podrobná': map2}).addTo(leaflet.map);
+			L.control.layers({'Standardní': map1, 'Alternativní': map2, 'Turistická': map3}).addTo(leaflet.map);
 			createAccesories();
 
 			//timestamp of last map dragging (in order to freeze map updating)
