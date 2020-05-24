@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html ng-app="Felda" ng-controller="ctrl">
+<head>
+<meta charset="UTF-8">
+<title>{{'Felda simulátor'.trans('title')}}</title>
+<script src="../libs/angular.min.js" type="text/javascript"></script>
+<script>
+/*
+	LANGSERVICE - THE CONSTANT LIBRARY
+	the whole language business logic, ready to be shipped
+*/
+const langService = {
+	langs: ['cs', 'en', 'de'],
+	alias: ['Česky', 'English', 'Deutsch'],
+	default: 'cs',
+
+	//here will be object that contains current language setting
+	settings: null,
+
+	//here will be the whole translate table for JS language switch, see below
+	table: null,
+
+	//initialize lang using object 'obj' that will act as 'settings', also needs angular module
+	init: function(obj, ngModule) {
+		this.settings = obj;
+		(!obj.lang || this.langs.indexOf(obj.lang) === -1) && (obj.lang = this.default);
+
+		//create directives for HTML language switch
+		this.langs.forEach(lang => {
+			ngModule.directive(lang, () => ({
+				restrict: 'E',
+				transclude: true,
+				template: '<ng-transclude ng-if="langService.settings.lang === \''+lang+'\'"></ng-transclude>'
+			}));
+		});
+
+		//JS language switch for String prototype. Pls rate my oneliner evilness!
+		String.prototype.trans = function(arg) {
+			const curr = langService.settings.lang;
+			const val = this.valueOf();
+			return (curr === langService.default || !langService.table) ? val : (langService.table[arg || val] || {})[curr] || val;
+		}
+
+		//a useful directive for language selection, you don't have to use it though, you can build your own
+		const temp = `<select ng-model="langService.settings.lang">
+			<option ng-repeat="l in langService.langs track by $index" ng-value="l">{{langService.alias[$index]}}</option>
+		</select>`;
+		ngModule.directive('langSelector', () => ({restrict: 'E', template: temp}));
+	}
+};
+
+
+
+
+/*
+	THE APP
+*/
+//controller state - global object with userdata, nothing there yet
+const CS = {};
+
+//ANGULAR
+let app = angular.module('Felda', []);
+
+app.controller('ctrl', $scope => {
+	$scope.CS = CS;
+	$scope.langService = langService;
+
+	//function to test JS language switch
+	$scope.fun = function() {
+		$scope.txt1 = 'dobře! '.trans(124644);
+		$scope.txt2 = 'ano! '.trans();
+		$scope.txt3 = 'tohle nebylo přeloženo vůbec... '.trans();
+		$scope.txt4 = 'a tohle jenom někde'.trans('this is some ID');
+	};
+});
+
+
+
+/*
+	INITIALIZE & INPUT CONTENT
+*/
+//create directives for HTML language switch
+langService.init(CS, app);
+
+//fill in the translate table
+langService.table = {
+	//allows identification by primitive value for short strings
+	'ano! ': {en: 'yes! ', de: 'EIN BEFEHL!!!!'},
+	//or ID, which can be number or string
+	124644: {en: 'good! ', de: 'DAS WAR '},
+	'this is some ID' : {en: 'do I have to translate this too?'},
+	'title': {en: 'Felda simulator', de: 'der Felda Simulator'}
+};
+
+</script>
+</head>
+<body>
+<lang-selector></lang-selector> = {{CS.lang}}
+<hr>
+<cs>Český text <input type="button" ng-click="fun()" value="klikněte"></cs>
+<en>English text <input type="button" ng-click="fun()" value="click"></en>
+<de>Deutsches text <input type="button" ng-click="fun()" value="KLIKEN SIE !!!"></de>
+<br>
+<br>
+{{txt1}}<br>
+{{txt2}}<br>
+{{txt3}}<br>
+{{txt4}}<br>
+<br>
+<cs>VÍC TEXTU</cs>
+<en>MORE TEXT</en>
+<de>ICH WILL FEGELEIN!!</de>
+
+</body>
+</html>
