@@ -153,7 +153,7 @@
 				<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
 				<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón">popis</a><br>
 			</span>
-			<span ng-if="!isCarUnlocked($index)" class="sublevel">
+			<span ng-if="!isCarUnlocked($index)" class="secretCarSelect">
 				<input type="radio" disabled> bonusové auto <a class="fakeLink" ng-click="easterEgg()">???</a>
 			</span>
 		</span>
@@ -196,14 +196,18 @@
 		<div id="controls" ng-style="style.controls" ng-show="!S.disable.controls">
 			<div class="ctrlContainer">
 				Spojka<br>
-				<input type="range" class="pedalSlider" orient="vertical" min="0" max="1" step="0.01" ng-model="getSetClutch" ng-model-options="{getterSetter: true}"><br>
+				<div class="pedalContainer">
+					<input type="range" style="width: 150px;" min="0" max="1" step="0.01" ng-model="getSetClutch" ng-model-options="{getterSetter: true}">
+				</div>
 				{{getKey('cu')}} &uarr;<br>
 				{{getKey('cd')}} &darr;<br>
 			</div>
 
 			<div class="ctrlContainer">
 				Plyn<br>
-				<input type="range" class="pedalSlider" orient="vertical" min="0" max="1" step="0.01" ng-model="getSetGas" ng-model-options="{getterSetter: true}"><br>
+				<div class="pedalContainer">
+					<input type="range" style="width: 150px;" min="0" max="1" step="0.01" ng-model="getSetGas" ng-model-options="{getterSetter: true}">
+				</div>
 				{{getKey('gu')}} &uarr;<br>
 				{{getKey('gd')}} &darr;<br>
 			</div>
@@ -283,7 +287,7 @@
 <!-- FOOTER -->
 <div class="footerDefense"></div>
 <div id="footer" ng-show="['menu', 'history', 'newgame'].indexOf(CS.tab) > -1">
-	Vytvořil <a href="http://jira.zby.cz/" target='_blank'>Jiří Zbytovský</a> v letech 2017-2020 za použití <a class="fakeLink" ng-click="credits()">různých zdrojů</a>
+	Vytvořil <a href="http://jira.zby.cz/" target='_blank'>Jiří Zbytovský</a> v letech 2017-2019 za použití <a class="fakeLink" ng-click="credits()">různých zdrojů</a>
 </div>
 
 	</body>

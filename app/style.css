@@ -23,15 +23,53 @@ h3 {
 	margin-bottom: 5px;
 }
 
-input[type=button] {
-	cursor: pointer;
-}
-
 img {
 	user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
+}
+
+input[type=button] {
+	cursor: pointer;
+}
+
+/*Slider – unfortunately it's quite a pain!*/
+input[type=range] {
+	height: 24px;
+	background-color: transparent;
+	-webkit-appearance: none;
+}
+input[type=range]:focus {outline: none;}
+/*chromium*/
+input[type=range]::-webkit-slider-runnable-track {
+	height: 4px;
+	background: #888888;
+	cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+	margin-top: -10px;
+	width: 13px;
+	height: 24px;
+	background: #eeeeee;
+	border: 2px solid #888888;
+	border-radius: 2px;
+	cursor: pointer;
+	-webkit-appearance: none;
+}
+/*firefox*/
+input[type=range]::-moz-range-track {
+	height: 4px;
+	background: #888888;
+	cursor: pointer;
+}
+input[type=range]::-moz-range-thumb {
+	width: 9px;
+	height: 20px;
+	background: #eeeeee;
+	border: 2px solid #888888;
+	border-radius: 2px;
+	cursor: pointer;
 }
 
 #footer {
@@ -49,28 +87,12 @@ img {
 /*CONTROLS*/
 .mediumButton {font-size: 18px;}
 .buttonContainer {margin-bottom: 20px;}
-.sublevel {color: #808080;}
-
-.pedalSlider {
-	writing-mode: bt-lr;
-	-webkit-appearance: slider-vertical;
-	height: 150px;
+.secretCarSelect {color: #808080;}
+.pedalContainer {
+	transform: rotate(270deg);
+	margin-top: 90px;
+	margin-bottom: 30px;
 	width: 100px;
-}
-.pedalSlider:focus {
-	outline-width: 0;
-}
-.pedalSlider::-moz-range-thumb {
-	width: 20px;
-	height: 10px;
-	background-color: #eeeeee;
-	border: 1px solid #999999;
-	border-radius: 0px;
-}
-.pedalSlider::-moz-range-track {
-	background-color: #eeeeee;
-	height: 150px;
-	width: 4px;
 }
 
 .tabSwitchContainer {

@@ -46,6 +46,15 @@ const langService = {
 			<option ng-repeat="l in langService.langs track by $index" ng-value="l">{{langService.alias[$index]}}</option>
 		</select>`;
 		ngModule.directive('langSelector', () => ({restrict: 'E', template: temp}));
+	},
+
+	//access translation table directly from langService, instead of using String prototype function. ID is required here
+	//Not just for strings! Anything can be a value (useful for translated functions).
+	trans: function(id) {
+		const curr = langService.settings.lang;
+		const lst = langService.table;
+		if(!lst || !lst[id]) {return null;}
+		return lst[id][curr] || lst[id][langService.default] || null;
 	}
 };
 
@@ -65,13 +74,19 @@ app.controller('ctrl', $scope => {
 	$scope.CS = CS;
 	$scope.langService = langService;
 
-	//function to test JS language switch
+	//functions to test JS language switch
 	$scope.fun = function() {
 		$scope.txt1 = 'dobře! '.trans(124644);
 		$scope.txt2 = 'ano! '.trans();
 		$scope.txt3 = 'tohle nebylo přeloženo vůbec... '.trans();
 		$scope.txt4 = 'a tohle jenom někde'.trans('this is some ID');
 	};
+
+	$scope.fun2 = function() {
+		const number = 100*Math.random();
+		const f = langService.trans('translate_fun');
+		f && alert(f(number));
+	}
 });
 
 
@@ -84,12 +99,17 @@ langService.init(CS, app);
 
 //fill in the translate table
 langService.table = {
+
 	//allows identification by primitive value for short strings
 	'ano! ': {en: 'yes! ', de: 'EIN BEFEHL!!!!'},
+
 	//or ID, which can be number or string
 	124644: {en: 'good! ', de: 'DAS WAR '},
 	'this is some ID' : {en: 'do I have to translate this too?'},
-	'title': {en: 'Felda simulator', de: 'der Felda Simulator'}
+	'title': {en: 'Felda simulator', de: 'der Felda Simulator'},
+	
+	//translation using langService.trans(ID)
+	'translate_fun': {cs: num => `Číslo je ${num.toFixed(0)}.`, en: num => `The number is ${num.toFixed(0)}.`, de: num => `Der Nummer ist ${num.toFixed(0)}!`}
 };
 
 </script>
@@ -111,5 +131,6 @@ langService.table = {
 <en>MORE TEXT</en>
 <de>ICH WILL FEGELEIN!!</de>
 
+<br><br><input type="button" ng-click="fun2()" value="fun2">
 </body>
 </html>
