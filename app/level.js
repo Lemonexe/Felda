@@ -107,8 +107,10 @@ const LVL = {
 	//made by @zbycz, powered by OpenStreetMap
 	//note: realMap won't be executed until the results of realMapInit are obtained
 	realMap: async ({ generation: { int } }, resolve, reject) => {
-		const fetchApi = async (uri) => {
-			const res = await fetch(`https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`);
+		const fetchApi = async (uri, postBody) => {
+			const url = `https://api.openrouteservice.org${uri}&api_key=5b3ce3597851110001cf624898c926be72ed4c13a5583a52dfd5b278`;
+			const opts = postBody ? {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(postBody)} : {};
+			const res = await fetch(url, opts);
 			if (!res.ok || res.status < 200 || res.status >= 300) {
 				throw new Error(await res.text());
 			}
@@ -139,9 +141,20 @@ const LVL = {
 			const startCoord = start.features[0].geometry.coordinates;
 			const endCoord = end.features[0].geometry.coordinates;
 
-			const data = await fetchApi(`/directions?profile=driving-car&format=geojson&instructions=false&elevation=true&coordinates=${startCoord}%7C${endCoord}`);
+			const directionsData = await fetchApi(`/v2/directions/driving-car?start=${startCoord}&end=${endCoord}`);
+			const line = directionsData.features[0].geometry;
+
+			const data = await fetchApi('/elevation/line?x', {
+				format_in: 'geojson',
+				format_out: 'geojson',
+				geometry: line,
+			});
+
+			//make valid geojson
+			data.type = 'Feature';
+
 			S.level.rawData = data;
-			const coords = data.features[0].geometry.coordinates;
+			const coords = data.geometry.coordinates;
 			const startPoint = coords[0];
 
 			//transform to [dist, [lon,lat,alt] ]
