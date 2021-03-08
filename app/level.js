@@ -150,7 +150,7 @@ const LVL = {
 				geometry: line,
 			});
 
-			//make valid json
+			//make valid geojson
 			data.type = 'Feature';
 
 			S.level.rawData = data;
