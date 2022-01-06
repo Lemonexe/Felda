@@ -180,6 +180,7 @@ const LVL = {
 
 			S.level.length = numOfIntervals * int;
 			S.level.map = map;
+			S.level.map = LVL.diffusionFilter(map, 0.33, 9);
 			
 			if(S.level.length > config.dWarning) {
 				confirm2(`Načtená mapa je dlouhá ${(S.level.length/1000).toFixed()} km, což je opravdu hodně a mohlo by to způsobit potíže. Skutečně začít hru?`,
@@ -208,6 +209,19 @@ const LVL = {
 			CS.realMapFields = fields;
 			LVL.realMap(levelObject, resolve, reject);
 		});
+	},
+
+	//filter the map vector v, at rate D (from 0 to 0.5), repeat n times
+	diffusionFilter: function(v, D, n) {
+		const L = v.length - 1;
+		for(let i = 0; i < n; i++) {
+			v.forEach((o,i) => {
+				const prev = i > 0 ? D*(v[i]-v[i-1]) : 0;
+				const next = i < L ? D*(v[i+1]-v[i]) : 0;
+				v[i] += next - prev;
+			});
+		}
+		return v;
 	},
 
 	//add new batch of images, delete old

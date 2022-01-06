@@ -21,7 +21,7 @@ const config = {
 	//MODEL
 	idleGasConstant: 0.08, //slope of idleGas = idleGas(frequency error) [s]
 	clutchTolerance: 0.5, //very important - difference of frequency on clutch to detect oscillation [Hz]. Must be bigger than zero, otherwise clutch will oscillate!
-	integratorCap: 2, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
+	integratorCap: 1, //to prevent immense oscillation of PID controller, integration is capped at this value. It has the meaning of control variable (gas)
 	dDecoration: 5, //how far from road are decorations placed [m] for Doppler effect calculation
 	vSound: 343, //speed of sound in air [m/s] for Doppler effect calculation
 	

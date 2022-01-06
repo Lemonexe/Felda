@@ -136,7 +136,12 @@ const levels = [
 		name: 'Reálná mapa',
 		description: 'Zadáte dvě adresy a o zbytek se postará OpenStreetMap.',
 		listeners: {
-			onstart: () => popup(['Byla naplánovnána trasa', `z: ${CS.realMapFields[0]}`, `do: ${CS.realMapFields[1]}`, `o celkové délce ${(S.level.length/1e3).toFixed(1)} km`]),
+			onstart: () => popup([
+				'Byla naplánovnána trasa:',
+				CS.realMapFields[0],
+				`→ ${CS.realMapFields[1]}`,
+				`o celkové délce ${(S.level.length/1e3).toFixed(1)} km`,
+				'Pozn.: kdyby mapa vlevo nahoře nefungovala, často pomůže F5'], false, false, 380),
 			onstall: () => popup('Motor chcípl', true, 900),
 			onend: () => (S.onscreenMessage = {
 				left: 2/3, opacity: 0.5, fillStyle: '#cc4444', fontSize: 40, fontFamily: 'Comic Sans MS',
