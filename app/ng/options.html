@@ -1,16 +1,12 @@
 <h1>Nastavení</h1>
-
-<div class="buttonContainer">
-	<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc">
-	<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
-</div>
+<top-menu></top-menu>
 
 <p ng-if="CS.isLoadedGame">
 	Byla automaticky načtena data z minula.
 	<a class="fakeLink" ng-click="hardReset()">Smazat a obnovit</a>
 </p>
 
-<div class="tabSwitchContainer" style="width: 500px; padding-left: 100px">
+<div class="tabSwitchContainer" style="width: 450px; padding-left: 80px">
 	<tab control="ctrl.optionTab" value="control">Ovládání</tab>
 	<tab control="ctrl.optionTab" value="display">Zobrazení</tab>
 	<tab control="ctrl.optionTab" value="audio">Zvuk</tab>
@@ -25,15 +21,12 @@
 			<input type="button" ng-click="setKey()" onclick="this.blur()" value="Změnit">
 		</p>
 
-		<p tooltip="pomalejší ovládání = hladší řazení a rozjíždění">
+		<p tooltip="pomalejší = hladší řazení a rozjíždění; rychlejší = prostě rychlejší">
 			Rychlost ovládání pedálů pomocí kláves:
 			<select ng-model="CS.pedalSpeed" ng-options="x for (x, y) in optsPedals"></select>
 		</p>
 
 		<p>
-			<input type="checkbox" ng-model="CS.enablePID" id="formPID">
-			<label for="formPID" tooltip="zobrazit ovládání tempomatu"> tempomat</label><br>
-			
 			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat">
 			<label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
 			

@@ -81,14 +81,7 @@
 <!-- MENU -->
 	<div ng-switch-when="menu">
 		<h1>Felda simulátor</h1>
-
-		<div class="buttonContainer">
-			<input type="button" ng-if="S" ng-click="continue()" value="Pokračovat" class="mediumButton">
-			<input type="button" ng-click="initGame()" value="Nová hra" class="mediumButton">
-			<input type="button" ng-click="enterShowroom()" value="Autosalón" class="mediumButton">
-			<input type="button" ng-click="tab('options')" value="Nastavení" class="mediumButton">
-			<input type="button" ng-click="tab('history')" ng-value="'v' + version.join('.')" class="mediumButton">
-		</div>
+		<top-menu></top-menu>
 
 		<p ng-if="S">
 			<b>Běžící hra</b>:
@@ -132,48 +125,49 @@
 <!-- NEW GAME -->
 	<div ng-switch-when="newgame">
 		<h1>Nová hra</h1>
+		<top-menu></top-menu>
+		<p ng-show="S">Pozn. stisknutím Enter zvolíte posledně zvolené možnosti.</p>
 
-		<div class="buttonContainer">
-			<input type="button" class="mediumButton" ng-if="S" ng-click="continue()" value="Pokračovat">
-			<input type="button" ng-click="initGame()" onclick="this.blur();" value="Spustit" class="mediumButton" tooltip="Enter">
-			<input type="button" class="mediumButton" ng-click="tab('menu')" value="Zpět" tooltip="Esc">
+		<span ng-if="CS.levelSelect !== false">Vybraný level: {{levels[CS.levelSelect].name}}</span>
+		<span ng-if="CS.carSelect !== false"><br>Vybraný automobil: {{cars[CS.carSelect].name}}</span>
+		<div ng-show="CS.levelSelect === false">
+			<h2>Vyberte level:</h2>
+			<ul>
+				<li ng-repeat="l in levels track by $index">
+					<a class="fakeLink" ng-click="chooseLevel($index)">{{l.name}}</a>
+					<i ng-if="l.sublevel"> (varianta levelu {{getSublevelParent(l.sublevel)}})</i><br>
+					<span style="padding-left: 30px">{{l.description}}</span><br>
+				</li>
+			</ul>
 		</div>
 
-		<h2>Výběr levelu</h2>
-		<span ng-repeat="l in levels track by $index" ng-class="l.sublevel ? 'sublevel' : ''">
-			<input type="radio" ng-model="CS.levelSelect" ng-value="$index" id="levelSelect{{$index}}">
-			<label for="levelSelect{{$index}}"><span class="fakeLink">{{l.name}}</span></label>
-			<i ng-if="l.sublevel"> (varianta levelu {{getSublevelParent(l.sublevel)}})</i><br>
-			<span style="padding-left: 30px">{{l.description}}</span><br>
-		</span>
+		<div ng-show="CS.levelSelect !== false && CS.carSelect === false">
+			<h2>Vyberte automobil:</h2>
+			<ul>
+				<li ng-repeat="c in cars track by $index">
+					<span ng-if="isCarUnlocked($index)">
+						<a ng-click="chooseCar($index)" class="fakeLink">{{c.name}}</a> {{c.engineName}} ({{c.year}})
+						<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón" style="cursor: help;">popis</a><br>
+					</span>
+					<span ng-if="!isCarUnlocked($index)" class="secretCarSelect">
+						bonusové auto <a class="fakeLink" ng-click="easterEgg()" style="cursor: help;">???</a>
+					</span>
+				</li>
+			</ul>
+		</div>
 
-		<h2>Výběr automobilu</h2>
-		<span ng-repeat="c in cars track by $index">
-			<span ng-if="isCarUnlocked($index)">
-				<input type="radio" ng-model="CS.carSelect" ng-value="$index" id="carSelect{{$index}}">
-				<label for="carSelect{{$index}}">{{c.name}} {{c.engineName}} ({{c.year}})</label>
-				<a class="fakeLink" ng-click="enterShowroom($index)" tooltip="otevřít autosalón">popis</a><br>
-			</span>
-			<span ng-if="!isCarUnlocked($index)" class="secretCarSelect">
-				<input type="radio" disabled> bonusové auto <a class="fakeLink" ng-click="easterEgg()">???</a>
-			</span>
-		</span>
 	</div>
 
 <!-- OPTIONS -->
 	<div ng-switch-when="options">
 		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
-		<div ng-include="'app/ng/options.html?version=3'"></div>
+		<div ng-include="'app/ng/options.html?version=4'"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->
 	<div ng-switch-when="carShowroom">
 		<h1>Autosalón</h1>
-
-		<div class="buttonContainer">
-			<input type="button" class="mediumButton" ng-click="tab('menu')" value="Zpět" tooltip="Esc">
-			<input type="button" class="mediumButton" ng-if="S" ng-click="continue()" value="Pokračovat">
-		</div>
+		<top-menu></top-menu>
 
 		<select ng-model="CS.showroomIndex" id="showroomSelectCar" ng-change="enterShowroom()">
 			<option ng-if="isCarUnlocked(opt.i)" ng-repeat="opt in optsShowroom" ng-value="opt.i">{{opt.txt}}</option>
@@ -216,22 +210,20 @@
 			<div class="ctrlContainer" style="text-align: left; width: 130px;">
 				<input type="button" value="START" class="mediumButton" style="width: 76px" onclick="M.start(); this.blur()">
 
-				<!--only when PID enabled-->
-				<span ng-if="CS.enablePID && S && !S.disable.PID"><br>
+				<!--only when PID feedback loop enabled-->
+				<span ng-if="S && !S.disable.PID"><br>
 					<input type="button" value="tempomat" style="width: 76px; margin-bottom: 5px" tooltip="levý klik zapne, pravý vypne"
 						onclick="M.setPID(); this.blur()" oncontextmenu="M.remPID(); this.blur(); event.preventDefault()"><br>
-
 					<!--when PID currently running-->
 					<span ng-show="S.vTarget">
 						<span tooltip="nastavená hodnota tempomatu">&rarr; {{st.calculateUnit(S.vTarget, CS.unitVel)}}</span><br>
-
 						<!--advanced PID details-->
 						<span ng-show="CS.enableDetails">
 							<span tooltip="plyn (člen proporcionální)">P {{S.PID[0].toPercent()}}</span><br>
 							<span tooltip="plyn (člen integrační)">I {{S.PID[1].toPercent()}}</span><br>
 							<span tooltip="plyn (člen derivační)">D {{S.PID[2].toPercent()}}</span><br>
-							<span tooltip="plyn (výsledný)">&sum; {{S.gas.toPercent()}}</span>
 						</span>
+						<span tooltip="plyn (výsledný)">{{CS.enableDetails ? "&sum; " : "&nbsp;&nbsp;"}}{{S.gas.toPercent()}}</span>
 					</span>
 				</span>
 			</div>
@@ -249,9 +241,7 @@
 <!-- VERSION HISTORY -->
 	<div ng-switch-when="history">
 		<h1>Historie verzí</h1>
-		<div class="buttonContainer">
-			<input type="button" ng-click="tab('menu')" value="Zpět" class="mediumButton" tooltip="Esc"><br>
-		</div>
+		<top-menu></top-menu>
 		<p>
 			Na této stránce jsou shrnuty jen ty nejvýznamnější verze hry.<br>
 			Pokud vás zajímá zdrojový kód aplikace včetně jeho vývoje, navštivte GitHub <a href="https://github.com/Lemonexe/Felda" target="_blank">repozitář</a>

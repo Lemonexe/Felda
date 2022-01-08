@@ -90,8 +90,8 @@ function ControllerState() {return {
 	version: version, //current game version
 	tab: 'menu', //current view
 	showroomIndex: 0,
-	levelSelect: 0, //current selection of level (index)
-	carSelect: 0, //current selection of car (index)
+	levelSelect: false, //current selection of level (index)
+	carSelect: false, //current selection of car (index)
 	isLoadedGame: false, //has a game been loaded from local storage?
 	showIntro: true, //show or hide intro paragraph in menu
 	showMap: false, //draw in-game minimap of terrain
@@ -141,7 +141,6 @@ function ControllerState() {return {
 
 	enableGraphics: true,
 	enableVibration: true,
-	enablePID: false, //show cruise control button
 	enableAutomat: false, //automatic transmission
 	enableGearstick: false, //show gearstick
 	enableDetails: false, //show tables with detailed information
@@ -149,7 +148,7 @@ function ControllerState() {return {
 	//is key currently being binded?
 	keyBinding: false,
 
-	//current keyBinds, some can be changed. ['action', 'keyCode', 'key']
+	//current keyBinds, the first six can be changed. ['action', 'keyCode', 'key']
 	keyBinds: [
 		['brake', 32, ' '],
 		['map', 9, 'Tab'],

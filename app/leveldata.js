@@ -10,6 +10,7 @@ const levels = [
 		name: 'Tutorial',
 		description: 'Zde bude krok po kroku vysvětleno ovládání hry.',
 		listeners: {}, //will be filled later
+		compulsoryCar: 0, //if defined, the car $index will be obligatory
 		generation: {
 			f: 'straight',
 			int: 1e3,
@@ -189,6 +190,7 @@ const levels = [
 	drag.sublevel = 'flat'; drag.id = 'drag'; drag.name = 'Drag';
 	drag.description = 'Klasický závod na čtvrt míle. Vystartujte kdy chcete a začne se počítat čas!';
 	drag.generation.int = drag.generation.length = 402.336;
+	drag.generation.images = [];
 	drag.listeners = {
 		onstart: function() {
 			S.initiated = false; //set to true when first accelerating
@@ -265,11 +267,11 @@ const levels = [
 	fuel.sublevel = 'hills'; fuel.id = 'fuel'; fuel.name = 'Need 4 Natural 95';
 	fuel.description = '20 km je dost velká dálka, když mají všechny benzínky vyprodáno! Vystačí vám troška paliva k další pumpě?';
 	fuel.generation.length = 2e4;
+	fuel.compulsoryCar = 0; //Felicia 4ever!!!
 	fuel.listeners = {
 		onstart: function() {
 			S.disable.nitro = true;
 			S.disable.PID = true;
-			S.car = 0; //Felicia 4ever!!!
 
 			S.fuelTank = 75; //current fuel reserve [g]
 			S.nextPumpAt = 0; //distance of next gas station [m]
@@ -278,8 +280,8 @@ const levels = [
 			popup(['Žlutý ukazatel vlevo dole je vaše nádrž paliva',
 				'Vzdálenost do příští benzínky je napsána vlevo',
 				'U pumpy musíte ZASTAVIT, abyste dostali palivo!',
-				'A trochu sebou hoďte, jinak vám pumpa zavře - po ujetí 100 m se začne odpočítávat čas!',
-				'Jen ti nejzelenější hráči vydrží celých 20 km...'],
+				'Trochu sebou hoďte, jinak vám pumpa zavře - po ujetí prvních 100 m se začne odpočítávat čas!',
+				'A zapracujte na své uhlíkové neutralitě - jen ti nejdekarbonizovanější hráči vydrží celých 20 km...'],
 				false, false, 570);
 		},
 		continuous: function() {
@@ -382,11 +384,11 @@ const levels = [
 	speed.generation.length = 1e4;
 	speed.generation.noises[0] = [2000, 200]; //eliminate extra long slopes
 	speed.generation.baseAlt = 100;
+	speed.compulsoryCar = 0; //Felicia 5ever!!!
 	speed.listeners = {
 		onstart: function() {
 			S.disable.nitro = true;
 			S.disable.PID = true;
-			S.car = 0; //Felicia 4ever!!!
 
 			S.speedLimit = 0; //currently imposed speed limit [m/s]
 			S.integrale = 0; //integrale of speed error * dt, which triggers the explosion [m]
@@ -474,7 +476,6 @@ const levels = [
 	tutorial.listeners.onstart = function() {
 		S.tutorial = true; //has the effect that popups pause the game
 		S.disable.PID = true; //hide PID controls
-		S.car = 0; //Felicia 4ever!!!
 		S.script = 0; //control variable to advance through the story
 		S.stalls = 0; //counter of stalls
 		S.gear = '2';
@@ -511,7 +512,7 @@ const levels = [
 		else if(S.f >= 7500/60 && S.script === 1) {
 			S.script++;
 
-			popup(['Beze změny převodu to nepůjde.',
+			popup(['Beze změny převodu to nepůjde 😐',
 				'Je třeba stisknout spojku a vybrat vyšší převod - k tomu slouží řada čísel nad písmeny nebo numerická klávesnice.',
 				'Středník nebo 0 znamená neutrál.'],
 				false, false, 500);
@@ -525,7 +526,7 @@ const levels = [
 			S.level.map = S.level.mapOLD;
 			S.angle = 0;
 
-			popup(['Výborně!', 'Nyní bude auto zastaveno, zkuste se rozjet na 30 km/h.',
+			popup(['Výborně! 🏆', 'Nyní bude auto zastaveno, zkuste se rozjet na 30 km/h.',
 				'Nejprve je potřeba stisknout spojku a nastartovat pomocí tlačítka START.',
 				'Nejsnažší způsob jak se potom rozjet, je roztočit motor na vysoké otáčky a pak prostě pustit spojku.', '',
 				'Ovšem v realitě to děláme trochu citlivěji... Můžete i zde zkusit koordinovaně pouštět spojku, přidávat plyn a udržet otáčky pod 2000 RPM.',
@@ -540,12 +541,13 @@ const levels = [
 
 			S.disable.brakes = false;
 			S.disable.stats23 = false;
+			S.disable.PID = false;
 
-			popup(['Skvělá práce!', 'Můžete si nyní vyzkoušet brzdu (mezerník).',
-				'Už zbývá jen popsat zbývající údaje: spotřeba paliva, aktuální výkon a točivý moment, ujetá vzdálenost apod.',
-				'Tlačítkem Esc se dostanete do hlavního menu, kde můžete spustit normální hru.',
-				'Nezapomeňte si také prohlédnout Nastavení, kde lze hru přizpůsobit dle chuti či vyzkoušet různé speciální funkce: tempomat, automatické řazení, řazení pomocí myši či detailní údaje.'],
-				false, false, 500);
+			popup(['Skvělá práce! 🥇', 'Nyní je zpřístupněno vše, můžete si vyzkoušet brzdu (mezerník) či tempomat (tlačítko dole, levý klik zapne, pravý klik či brzda vypne).',
+				'A prohlédněte si zbývající údaje: spotřeba paliva, aktuální výkon a točivý moment, ujetá vzdálenost apod.',
+				'Tlačítkem Esc se dostanete do hlavního menu, kde můžete spustit normální hru či některou speciální výzvu.',
+				'Nezapomeňte si také projít Nastavení, kde lze hru přizpůsobit dle chuti či vyzkoušet další funkce: automatické řazení, řazení myší či detailní údaje.'],
+				false, false, 600);
 		}
 	};
 

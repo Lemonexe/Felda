@@ -5,7 +5,7 @@
 
 app.directive('showroom', () => ({
 	restrict: 'E',
-	templateUrl: 'app/ng/showroom.html?version=4',
+	templateUrl: 'app/ng/showroom.html?version=5',
 	controller: ['$scope', function($scope) {
 		//definition of showroom state variables except the one to rule them all - index of car, which is in CS.showroomIndex
 		let showroom = {

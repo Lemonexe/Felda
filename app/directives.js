@@ -96,3 +96,19 @@ app.directive('tab', () => ({
 		scope.$on('updateTabs', setStyle); //to update ALL buttons
 	}
 }));
+
+app.directive('topMenu', () => ({
+	restrict: 'E',
+	template: `
+		<div class="buttonContainer">
+			<input type="button" onclick="this.blur()" ng-show="S" ng-click="continue()" value="Pokračovat">
+			<input type="button" onclick="this.blur()" ng-click="tab('menu')" value="Úvod" ng-style="isTabFocused('menu')">
+			<input type="button" onclick="this.blur()" ng-click="tab('newgame')" value="Nová hra" ng-style="isTabFocused('newgame')"">
+			<input type="button" onclick="this.blur()" ng-click="enterShowroom()" value="Autosalón" ng-style="isTabFocused('carShowroom')"">
+			<input type="button" onclick="this.blur()" ng-click="tab('options')" value="Nastavení" ng-style="isTabFocused('options')"">
+			<input type="button" onclick="this.blur()" ng-click="tab('history')" ng-value="'v' + version.join('.')" ng-style="isTabFocused('history')"">
+		</div>`,
+	controller: function($scope) {
+		$scope.isTabFocused = tab => tab === CS.tab ? {textDecoration: 'underline'} : {textDecoration: 'none'};
+	}
+}));

@@ -1,4 +1,4 @@
-<div class="tabSwitchContainer" style="width: 380px; padding-left: 80px">
+<div class="tabSwitchContainer" style="width: 370px; padding-left: 80px">
 	<tab control="showroom.tab" value="general" ng-click="drawPlot()">Obecné</tab>
 	<tab control="showroom.tab" value="engine" ng-click="drawPlot()">Motor</tab>
 	<tab control="showroom.tab" value="transmission" ng-click="drawPlot()">Převodovka</tab>
@@ -97,7 +97,7 @@
 		</div>
 	</div>
 
-	<div class="showroomRightPanel" ng-show="showroom.tab === 'engine' || showroom.tab === 'transmission'" style="top: -160px">
+	<div class="showroomRightPanel" ng-show="showroom.tab === 'engine' || showroom.tab === 'transmission'" style="top: -90px">
 		<canvas id="plot" width="600" height="600" ng-init="drawPlot()"></canvas>
 	</div>
 </div>

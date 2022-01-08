@@ -1,7 +1,4 @@
 <<<RESOURCES & CONTENT>>>
-dialogue window to start level instead of 'tab'
-	nejdřív choose level, pak až car POKUD level umožňuje!
-
 
 <<<META>>>
 English language - engine already coded in _dev/language_test.html

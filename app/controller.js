@@ -60,6 +60,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.tab = function(tab) {
 		CS.popup = false;
 		CS.keyBinding = false;
+		CS.carSelect = CS.levelSelect = false;
 		CS.tab = tab;
 	};
 
@@ -69,6 +70,19 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		$scope.tab('menu');
 		S && (S.running = false);
 		soundService.stopAll();
+	};
+
+	//progress through new game selection
+	$scope.chooseLevel = function(i) {
+		CS.levelSelect = i;
+		if(levels[i].hasOwnProperty('compulsoryCar')) {
+			CS.carSelect = levels[i].compulsoryCar;
+			$scope.initGame();
+		}
+	}
+	$scope.chooseCar = function(i) {
+		CS.carSelect = i;
+		$scope.initGame();
 	};
 
 	//reset all userdata
@@ -134,8 +148,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		}
 		//escape button anywhere (but not during popup)
 		else if(!down && esc) {$scope.escapeGame();}
-		//enter button during 'newgame' tab
-		else if(!down && enter && CS.tab === 'newgame') {$scope.initGame();}
+		//enter button during 'newgame' tab (go with the choices from the running game)
+		else if(!down && enter && CS.tab === 'newgame' && S) {
+			if(CS.levelSelect === false) {$scope.chooseLevel(S.level.i);}
+			else if(CS.carSelect === false) {$scope.chooseCar(S.car);}
+		}
 		//MOST IMPORTANT - identify keys during gameplay
 		else if(S && S.running && !S.disable.keys) {
 			let i = CS.keyBinds.findIndex(elem => elem[1] === event.keyCode || elem[2] === event.key);
@@ -178,7 +195,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//open the prompt to set a key
 	$scope.setKey = function() {
 		if(!ctrl.key2bind) {
-			popup('Nejprve vyberte činnost k přiřazení klávesy!', false, 1200);
+			popup('Nejprve vyberte vlevo k čemu přirazovat klávesu!', false, 1500);
 			return;
 		}
 		let opt = $scope.optsKeys.find(item => item.action === ctrl.key2bind.action); //get binding option object for current action
@@ -444,11 +461,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.initGame = function() {
 		CS.keyBinding = false; CS.popup = false;
 
-		//at first, just open the newgame form
-		if(CS.tab === 'menu') {$scope.tab('newgame'); return;}
-
 		//ask to init or init right away
-		if(S) {confirm2('Běžící hra bude ztracena, přesto pokračovat?', ok => ok && initGame2());}
+		if(S) {confirm2('Běžící hra bude ztracena, přesto pokračovat?', ok => ok ? initGame2() : (CS.levelSelect = CS.carSelect = false));}
 		else{initGame2();}
 
 		//actually init the game, this time for real
@@ -529,7 +543,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 		versionCompatibility();
 
 		//detect M$ Edge and issue a warning
-		!!window.StyleMedia && popup(['Byl detekován prohlížeč Microsoft Explorer či Edge.', 'Aplikace nemusí správně fungovat, doporučuji použít Google Chrome či Mozilla Firefox.'], false, false, 400);
+		!!window.StyleMedia && popup(['Byl detekován prohlížeč Microsoft Explorer.', 'Aplikace nemusí správně fungovat, doporučuji použít Google Chrome, Mozilla Firefox či Microsoft Edge.'], false, false, 400);
 
 		$scope.resolutionCheck();
 

@@ -9,8 +9,6 @@ Jedná se o čistě frontendovou aplikaci napsanou v HTML/CSS/JS za pomoci frame
 **Děkuji [@zbycz](https://github.com/zbycz) za vytvoření Reálné mapy.**
 Ta využívá [OpenStreetMap](https://www.openstreetmap.org/) a [Leaflet](https://leafletjs.com/).
 
-_Pozn.: v MS Edge hra moc dobře nefunguje, poněvadž tam chybí určitá nativní funkce, kterou chce Angular využívat_
-
 ## Struktura aplikace
 
 Převážná část HTML je v **index.html**, veškeré statické CSS _(které není inline)_, je v **app/style.css** (dynamické je pak nastaveno v příslušných Angular controllerech)
@@ -29,7 +27,8 @@ image & sound preloading a objekt `saveService`, který slouží na ukládání/
 `tooltip` nahrazuje HTML title  
 `minimap` využívá tooltip pro minimapku  
 `gearstick` vykresluje a obsluhuje řadící páku  
-`tab` pro hezká tlačítka na přepínání záložek
+`tab` aby byla tlačítka na přepínání podzáložek hezká, avšak kód je největší příšernost
+`topMenu` hlavní menu opakující se ve všech záložkách
 
 **app/showroom.js** definuje direktivu `showroom`, která je tak velká, že si zaslouží svůj vlastní soubor
 
