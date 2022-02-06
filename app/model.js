@@ -327,7 +327,7 @@ const M = {
 		S.PIDmemory[0] = e;
 		S.PIDmemory[1] = int;
 
-		//PID acts after pedals, so it will only set the final gas value if it's greater than the pedal value
+		//high selector (PID vs pedal) for final gas value
 		(gas > S.gas) && (S.gas = gas);
 	},
 	//set target velocity for cruise control, also PID reset history
@@ -349,18 +349,26 @@ const M = {
 		}
 	},
 
-	//a very simple function to shift gears when RPM exceed bounds (which are a property of car)
-	//no clutch is used, gears are thrown in "dirty"
+	//a simple function to shift gears when RPM exceed bounds, which are moving with gas%
+	//no clutch is used, gears are thrown in quick & dirty
 	automat: function() {
 		if(!CS.enableAutomat || S.tutorial || S.f < 10 || S.clutch < 0.99 || S.gear === 'N') {return;}
-		let trans = cars[S.car].transmission;
-		
-		if     (S.f < trans.automat[0]) {var newGear = String(Number(S.gear) - 1);}
-		else if(S.f > trans.automat[1]) {var newGear = String(Number(S.gear) + 1);}
+		if(!S.lastAutoGear) {S.lastAutoGear = S.t;} //cooldown between automatic shifting
+		if(S.t - S.lastAutoGear < config.autoGearCooldown) {return;}
+
+		const trans = cars[S.car].transmission;
+		const ta = trans.automat;
+		//lower and upper bounds for shifting, linearly calculated by gas%
+		const lower = ta[0] + S.gas*(ta[2] - ta[0]);
+		const upper = ta[1] + S.gas*(ta[3] - ta[1]);
+
+		if     (S.f < lower) {var newGear = String(Number(S.gear) - 1);}
+		else if(S.f > upper) {var newGear = String(Number(S.gear) + 1);}
 		else {return;}
 
 		if(trans.gears.hasOwnProperty(newGear)) {
 			S.gear = newGear;
+			S.lastAutoGear = S.t;
 			flash(newGear);
 			soundService.play((cars[S.car].sound && cars[S.car].sound.shift) || 'shift');
 		}

@@ -55,7 +55,8 @@ const cars = [
 				4: 0.927,
 				5: 0.717
 			},
-			automat: [1500/60, 5000/60] //span of permissible frequency for automatic transmission [Hz]
+			//spans of frequency limits [Hz] for automatic transmission defined at 0%, 100% gas : lower 0%, upper 0%, lower 100%, upper 100%
+			automat: [1000/60, 2000/60, 2600/60, 5100/60]
 		},
 
 		//describes engine power and dissipative forces
@@ -140,7 +141,7 @@ const cars = [
 				3: 1.410,
 				4: 0.960
 			},
-			automat: [1500/60, 4500/60]
+			automat: [1000/60, 2000/60, 2300/60, 5300/60]
 		},
 
 		engine: {
@@ -217,7 +218,7 @@ const cars = [
 				3: 2.133,
 				4: 1.474
 			},
-			automat: [1500/60, 5500/60]
+			automat: [1000/60, 2000/60, 2300/60, 5800/60]
 		},
 		engine: {
 			stroke: 4,
@@ -298,7 +299,7 @@ const cars = [
 				5: 0.970,
 				6: 0.820
 			},
-			automat: [1500/60, 6000/60]
+			automat: [1000/60, 2000/60, 2400/60, 6200/60]
 		},
 
 		engine: {
@@ -381,7 +382,7 @@ const cars = [
 				5: 0.740,
 				6: 0.500
 			},
-			automat: [1500/60, 6000/60]
+			automat: [1000/60, 2000/60, 2800/60, 6200/60]
 		},
 
 		engine: {
@@ -464,7 +465,7 @@ const cars = [
 				5: 1.000,
 				6: 0.843
 			},
-			automat: [2000/60, 8500/60]
+			automat: [1200/60, 2500/60, 3500/60, 8400/60]
 		},
 
 		engine: {
@@ -527,7 +528,7 @@ const cars = [
 			loss: {a: 700, b: 0.47},
 			r: 0.5,
 			gears: {fix: 3.5, 1: 0.863, 2: 1.044, 3: 1.289, 4: 1.693, 5: 2.722, 6: 4.643},
-			automat: [2500/60, 3500/60]
+			automat: [4000/60, 2500/60, 2000/60, 8000/60]
 		},
 
 		engine: {
