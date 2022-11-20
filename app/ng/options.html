@@ -34,7 +34,10 @@
 			<label for="formGearstick" tooltip="jako alternativní způsob řazení vedle kláves, vhodné pro dotykovou obrazovku"> zobrazit řadící páku</label><br>
 
 			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert" ng-change="invertPedals()">
-			<label for="formInvert" tooltip="pedály budou mít opačný význam"> obrátit ovládání pedálů</label>
+			<label for="formInvert" tooltip="pedály budou mít opačný význam"> obrátit ovládání pedálů</label><br>
+
+			<input type="checkbox" ng-model="CS.mapToggle" id="formMapToggle">
+			<label for="formMapToggle" tooltip="normálně se mapa zobrazuje při podržení, toto se však hodí pokud ji chcete zobrazit neustále"> {{viewKey('map')}} přepíná mapu stisknutím</label>
 		</p>
 	</div>
 

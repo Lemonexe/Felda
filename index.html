@@ -113,7 +113,7 @@
 				Avšak lze využít i myš, pokud v nastavení ovládání zapnete možnost <i>zobrazit řadící páku</i><br>
 				Zpátečka zde není, protože je nezajímavá
 			</p>
-			<p><b>{{viewKey('map')}}</b> otevře či zavře minimapku - náhled terénu</p>
+			<p><b>{{viewKey('map')}}</b> při podržení otevře či zavře minimapku - náhled terénu</p>
 			<p><b>{{viewKey('nitro')}}</b> zdvojnásobí výkon motoru vstřikováním N<sub>2</sub>O - jen pro srandu ;-)</p>
 			<p>
 				<b>Pozn. 1:</b> simulátor obsahuje i zvukové efekty. Pokud by během hry zvuk nefungoval, <a class="fakeLink" ng-click="soundTroubleshoot()">viz zde</a><br>
@@ -161,7 +161,7 @@
 <!-- OPTIONS -->
 	<div ng-switch-when="options">
 		<!-- ?version to prevent annoying caching! Always update when html is changed :-( -->
-		<div ng-include="'app/ng/options.html?version=4'"></div>
+		<div ng-include="'app/ng/options.html?version=5'"></div>
 	</div>
 
 <!-- CAR SHOWROOM -->

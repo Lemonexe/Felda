@@ -91,9 +91,11 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	};
 
 	//toggle in-game minimap on or off
-	$scope.toggleMap = function(e) {
-		CS.showMap = e;
-		!e && (CS.tooltip.visible = CS.miniMapCursor.enabled = false);
+	$scope.toggleMap = function(down) {
+		if(CS.mapToggle && down) {return;}
+		const newState = CS.mapToggle ? !CS.showMap : down;
+		CS.showMap = newState;
+		!newState && (CS.tooltip.visible = CS.miniMapCursor.enabled = false);
 	};
 
 	//pass index of car to directive
@@ -159,6 +161,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 			if(i > -1) {
 				keyBindFunctions[CS.keyBinds[i][0]](down);
 				event.preventDefault();
+				event.stopPropagation();
 			}
 		}
 		//keybinding

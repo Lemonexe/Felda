@@ -3,5 +3,4 @@
 <<<META>>>
 English language - engine already coded in _dev/language_test.html
 
-test on Safari
-test on Android (tablet)
+test on iOS/Android tablet

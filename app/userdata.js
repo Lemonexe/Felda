@@ -144,6 +144,7 @@ function ControllerState() {return {
 	enableAutomat: false, //automatic transmission
 	enableGearstick: false, //show gearstick
 	enableDetails: false, //show tables with detailed information
+	mapToggle: false, // Tab toggles map on/off instead (false = show on hold)
 
 	//is key currently being binded?
 	keyBinding: false,
