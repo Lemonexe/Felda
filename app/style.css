@@ -83,6 +83,10 @@ input[type=range]::-moz-range-thumb {
 }
 /*defense against footer intrusion*/
 .footerDefense {height: 20px;}
+#githubLogo {
+	position: fixed; bottom: 0px; right: 0px;
+	margin-right: 4px;
+}
 
 /*CONTROLS*/
 .mediumButton {font-size: 18px;}
