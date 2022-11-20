@@ -31,7 +31,8 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	//hint to enable sounds
 	$scope.soundTroubleshoot = () => popup([
 			'Pokud je zvuk zapnut v operačním systému i na reproduktorech, a přesto je auto tiché jako myš, možná je ve vašem prohlížeči zakázáno automatické spouštění zvuku.',
-			'Najděte na začátku adresního řádku ikonku - po jejím rozklikutí by se měla objevit možnost povolit zvuk.'
+			'Najděte na začátku adresního řádku ikonku – po jejím rozklikutí by se měla objevit možnost povolit zvuk.',
+			'(v případě Safari v horním menu Safari > nastavení stránky > povolit autoplay)'
 		], false, false, 620);
 
 	//hint to unlock easter egg
