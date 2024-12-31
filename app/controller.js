@@ -485,6 +485,7 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 				M.initCalculations();
 				soundService.init();
 				leafletMapInit(true);
+				LVL.imageGeneration();
 			}
 			function reject(err) {
 				$scope.S = S = null;
