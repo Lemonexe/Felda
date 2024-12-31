@@ -129,7 +129,7 @@ function ControllerState() {return {
 	unitVel: units.kmh,  //unit of velocity
 	unitAcc: units.kmhs, //unit of acceleration
 	unitPow: units.kW,   //unit of power
-	pedalSpeed: 0.4, //how long it takes to fully press or release a pedal [s]
+	pedalSpeed: 0.2, //how long it takes to fully press or release a pedal [s]
 	invertedPedals: false, //pedals have inverted meaning in model
 	FPS: 30, //frames per second for drawing [Hz]
 	ppm: 100, //pixels per meter for graphical rendering [1/m]

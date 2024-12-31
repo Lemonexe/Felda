@@ -253,12 +253,6 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	$scope.optsAcc = [units.kmhs, units.g, units.mss];
 	$scope.optsPow = [units.kW, units.hp];
 
-	//pedal operation duration: select text, duration [s]
-	$scope.optsPedals = {
-		'pomalá (0.7s)':  0.7,
-		'střední (0.4s)': 0.4,
-		'rychlá (0.2s)':  0.2
-	};
 	//headline in showroom contains these options
 	$scope.optsShowroom = cars.map((c,i) => ({i: i, txt: `${c.name} ${c.engineName} (${c.year})`}));
 

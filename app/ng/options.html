@@ -21,20 +21,20 @@
 			<input type="button" ng-click="setKey()" onclick="this.blur()" value="Změnit">
 		</p>
 
-		<p tooltip="pomalejší = hladší řazení a rozjíždění; rychlejší = prostě rychlejší">
-			Rychlost ovládání pedálů pomocí kláves:
-			<select ng-model="CS.pedalSpeed" ng-options="x for (x, y) in optsPedals"></select>
+		<p tooltip="kratší = rychlejší ovládání! Delší doba umožní hladší rozjíždění">
+			Zdržení ovládání pedálů klávesami:
+			<input type="range" min="0.05" max="0.5" step="0.05" ng-model="CS.pedalSpeed"> {{(CS.pedalSpeed*1000).toFixed()}} ms
 		</p>
 
 		<p>
 			<input type="checkbox" ng-model="CS.enableAutomat" id="formAutomat">
-			<label for="formAutomat" tooltip="velmi primitivní automatické řazení"> automatická převodovka</label><br>
+			<label for="formAutomat" tooltip="pouze automaticky řadí; neusnadní rozjíždění"> částečně automatická převodovka</label><br>
 			
 			<input type="checkbox" ng-model="CS.enableGearstick" id="formGearstick">
-			<label for="formGearstick" tooltip="jako alternativní způsob řazení vedle kláves, vhodné pro dotykovou obrazovku"> zobrazit řadící páku</label><br>
+			<label for="formGearstick" tooltip="alternativní způsob řazení vedle kláves"> zobrazit řadící páku <i>(pro dotykovou obrazovku)</i></label><br>
 
 			<input type="checkbox" ng-model="CS.invertedPedals" id="formInvert" ng-change="invertPedals()">
-			<label for="formInvert" tooltip="pedály budou mít opačný význam"> obrátit ovládání pedálů</label><br>
+			<label for="formInvert" tooltip="budou mít opačný význam, čili nahoře = stisknuto"> obrátit ovládání pedálů</label><br>
 
 			<input type="checkbox" ng-model="CS.mapToggle" id="formMapToggle">
 			<label for="formMapToggle" tooltip="normálně se mapa zobrazuje při podržení, toto se však hodí pokud ji chcete zobrazit neustále"> {{viewKey('map')}} přepíná mapu stisknutím</label>
@@ -79,7 +79,7 @@
 
 		<p tooltip="čím vyšší, tím hezčí, ale při zasekávání programu raději snižte" ng-show="CS.enableGraphics">
 			FPS (počet snímků za vteřinu):
-			<input type="range" min="10" max="120" step="10" ng-model="CS.FPS"> {{CS.FPS}}
+			<input type="range" min="10" max="150" step="10" ng-model="CS.FPS"> {{CS.FPS}}
 		</p>
 
 		<p>
