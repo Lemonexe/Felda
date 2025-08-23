@@ -522,7 +522,10 @@ app.controller('ctrl', function($scope, $interval, $timeout) {
 	function FPS() {
 		resize();
 		timeouts();
-		(CS.tab === 'game' && S && S.firstTick && CS.enableGraphics) && R.drawCanvas();
+		if(CS.tab === 'game' && S && S.firstTick) {
+			CS.enableGraphics && R.drawCanvas();
+			CS.enableGearstick && R.drawGearstick();
+		}
 		$timeout(FPS, Math.round(1000/CS.FPS));
 	}
 
